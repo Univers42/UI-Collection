@@ -1,0 +1,25 @@
+{
+  "svg": {
+    "arrowLeft": "local:/media/svg/icons/arrow-left.svg",
+    "brandLogo": "local:/media/svg/logos/company-mark.svg",
+    "heroArt": "local:/media/svg/illustrations/hero-scene.svg"
+  },
+  "emojis": {
+    "partyParrot": "picker:asset://emojis/custom/party-parrot",
+    "wave": "local:/media/emojis/unicode/wave.png"
+  },
+  "photos": {
+    "homepageBanner": "unsplash:https://images.unsplash.com/photo-1518770660439-4636190af475",
+    "teamAvatar": "local:/media/photos/optimized/team-avatar-01.webp"
+  },
+  "videos": {
+    "introVideo": "local:/media/videos/optimized/intro-loop.mp4",
+    "introPoster": "local:/media/videos/posters/intro-loop-cover.webp",
+    "demoStream": "api:https://api.example.com/v1/media/demo-video"
+  },
+  "otherMedia": {
+    "notificationSound": "local:/media/other-media/audio/notification-pop.mp3",
+    "loaderAnimation": "local:/media/other-media/lottie/loader-spinner.json",
+    "apiSpec": "url:https://cdn.example.com/docs/api-spec.pdf"
+  }
+}
