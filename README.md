@@ -21,6 +21,25 @@ npm install
 npm run build
 ```
 
+## Releases and Upgrades
+
+This package is set up to be consumed as a normal npm package, so downstream repositories can upgrade with:
+
+```bash
+npm update @univers42/ui-collection
+```
+
+For that to work:
+
+- this repository must publish new semver versions to an npm-compatible registry
+- downstream repositories must depend on a semver range such as `^0.1.0`, not an exact pinned version
+
+The repository now includes:
+
+- `prepack` packaging hooks in [package.json](/home/settes/cursus/trascendence/UI-Collection/package.json)
+- a publish workflow in [.github/workflows/publish-package.yml](/home/settes/cursus/trascendence/UI-Collection/.github/workflows/publish-package.yml)
+- a release guide in [RELEASING.md](/home/settes/cursus/trascendence/UI-Collection/RELEASING.md)
+
 ## Entry Points
 
 The library exposes these entry points:

@@ -115,7 +115,10 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepack": "npm run clean && npm run build",
+    "pack:check": "npm pack --dry-run"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"
@@ -126,9 +129,15 @@
     "typescript": "^5.9.3"
   },
   "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Univers42/UI-Collection.git"
   },
-  "homepage": "https://github.com/Univers42/UI-Collection#readme"
+  "homepage": "https://github.com/Univers42/UI-Collection#readme",
+  "bugs": {
+    "url": "https://github.com/Univers42/UI-Collection/issues"
+  }
 }
