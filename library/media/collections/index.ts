@@ -1,16 +1,16 @@
-import { emojisCollection } from './emojis';
-import { otherMediaCollection } from './other-media';
-import { photosCollection } from './photos';
-import { svgCollection } from './svg';
-import { videosCollection } from './videos';
-import { createMediaRegistry } from '../registry';
+import { emojisCollection } from './emojis.js';
+import { otherMediaCollection } from './other-media.js';
+import { photosCollection } from './photos.js';
+import { svgCollection } from './svg.js';
+import { videosCollection } from './videos.js';
+import { createMediaRegistry } from '../registry.js';
 import type {
   MediaCollection,
   MediaCollectionName,
   MediaItem,
   MediaProvider,
   MediaSearchFilters,
-} from '../types';
+} from '../types.js';
 
 export const mediaCollections: MediaCollection[] = [
   svgCollection,

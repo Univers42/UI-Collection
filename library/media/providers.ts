@@ -2,7 +2,7 @@ import {
   BUILTIN_MEDIA_PROVIDERS,
   type MediaProvider,
   type MediaRef,
-} from './types';
+} from './types.js';
 
 export type MediaUrlResolver = (value: string, provider: MediaProvider) => string;
 export type MediaResolverMap = Record<string, MediaUrlResolver>;

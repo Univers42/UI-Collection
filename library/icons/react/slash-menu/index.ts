@@ -10,5 +10,5 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-export * from './SlashMenuIconsBasic';
-export * from './SlashMenuIconsExtended';
+export * from './SlashMenuIconsBasic.js';
+export * from './SlashMenuIconsExtended.js';

@@ -1,0 +1,155 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   FormulaCharts.tsx                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+import React from 'react';
+import { cn } from '../../../utils/cn';
+
+/** Render a donut chart showing the distribution of formula result types. */
+export function FormulaTypePie({ analytics }: Readonly<{ analytics: Record<string, { resultType: string }> }>) {
+  const counts: Record<string, number> = {};
+  Object.values(analytics).forEach((a) => {
+    counts[a.resultType] = (counts[a.resultType] || 0) + 1;
+  });
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const total = entries.reduce((s, [, c]) => s + c, 0);
+  const typeColors: Record<string, string> = { number: 'var(--color-chart-1)', boolean: 'var(--color-chart-5)', text: 'var(--color-chart-2)', mixed: 'var(--color-slate)' };
+
+  if (total === 0)
+    return <p className={cn("text-sm text-ink-muted text-center py-4")}>No formulas</p>;
+
+  const radius = 44;
+  const circumference = 2 * Math.PI * radius;
+  let cum = 0;
+  const size = 120;
+
+  return (
+    <div className={cn("flex items-center gap-4")}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={cn("shrink-0")}>
+        {entries.map(([type, count]) => {
+          const pct = count / total;
+          const dasharray = `${circumference * pct} ${circumference * (1 - pct)}`;
+          const rotation = cum * 360 - 90;
+          cum += pct;
+          return (
+            <circle
+              key={type}
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke={typeColors[type] || 'var(--color-slate)'}
+              strokeWidth={18}
+              strokeDasharray={dasharray}
+              transform={`rotate(${rotation} ${size / 2} ${size / 2})`}
+            />
+          );
+        })}
+        <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="middle" className={cn("text-lg font-bold fill-fill-primary")}>
+          {total}
+        </text>
+      </svg>
+      <div className={cn("flex flex-col gap-2")}>
+        {entries.map(([type, count]) => (
+          <div key={type} className={cn("flex items-center gap-2 text-xs")}>
+            <div className={cn("w-3 h-3 rounded-full")} style={{ backgroundColor: typeColors[type] || 'var(--color-slate)' }} />
+            <span className={cn("text-ink-body capitalize font-medium")}>{type}</span>
+            <span className={cn("text-ink-muted tabular-nums")}>
+              {count} ({Math.round((count / total) * 100)}%)
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Render stacked success/error bars for each formula column. */
+export function ErrorBarChart({ analytics }: Readonly<{ analytics: Record<string, { propName: string; total: number; errors: number }> }>) {
+  const entries = Object.values(analytics).sort((a, b) => b.errors - a.errors);
+  const _maxTotal = Math.max(...entries.map((e) => e.total), 1);
+
+  return (
+    <div className={cn("flex flex-col gap-2.5 overflow-auto max-h-52")}>
+      {entries.map((a) => {
+        const errorRate = a.total > 0 ? (a.errors / a.total) * 100 : 0;
+        const successRate = 100 - errorRate;
+        return (
+          <div key={a.propName}>
+            <div className={cn("flex justify-between text-xs mb-0.5")}>
+              <span className={cn("text-ink-body font-medium truncate")}>{a.propName}</span>
+              <span className={cn(`tabular-nums ${a.errors > 0 ? 'text-danger-text-soft font-bold' : 'text-ink-muted'}`)}>
+                {a.errors > 0 ? `${a.errors} err (${Math.round(errorRate)}%)` : '0 errors'}
+              </span>
+            </div>
+            <div className={cn("w-full bg-surface-tertiary rounded-full h-2 overflow-hidden flex")}>
+              <div className={cn("h-2 bg-success-vivid")} style={{ width: `${successRate}%` }} />
+              {a.errors > 0 && <div className={cn("h-2 bg-danger-vivid")} style={{ width: `${errorRate}%` }} />}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function getComplexityColor(pct: number): string {
+  if (pct > 70) return 'var(--color-chart-7)';
+  if (pct > 40) return 'var(--color-chart-4)';
+  return 'var(--color-chart-5)';
+}
+
+/** Render a complexity score bar for each formula based on expression length, depth, and call count. */
+export function ComplexityChart({ analytics }: Readonly<{ analytics: Record<string, { propName: string; expression: string }> }>) {
+  // Measure complexity by expression length + number of function calls
+  const entries = Object.values(analytics)
+    .map((a) => {
+      const fnCalls = (a.expression.match(/[a-zA-Z]+\(/g) || []).length;
+      const depth = Math.max(...Array.from(a.expression).reduce(
+        (acc, ch) => {
+          if (ch === '(') acc.push((acc.at(-1) || 0) + 1);
+          else if (ch === ')') acc.push((acc.at(-1) || 1) - 1);
+          return acc;
+        },
+        [0] as number[]
+      ));
+      return { name: a.propName, length: a.expression.length, fnCalls, depth, score: fnCalls * 10 + depth * 5 + a.expression.length };
+    })
+    .sort((a, b) => b.score - a.score);
+  const maxScore = Math.max(...entries.map((e) => e.score), 1);
+
+  return (
+    <div className={cn("flex flex-col gap-2.5 overflow-auto max-h-52")}>
+      {entries.map((e) => {
+        const pct = (e.score / maxScore) * 100;
+        return (
+          <div key={e.name}>
+            <div className={cn("flex justify-between text-xs mb-0.5")}>
+              <span className={cn("text-ink-body font-medium truncate")}>{e.name}</span>
+              <span className={cn("text-ink-muted tabular-nums")}>
+                {e.fnCalls} fn · depth {e.depth}
+              </span>
+            </div>
+            <div className={cn("w-full bg-surface-tertiary rounded-full h-2")}>
+              <div
+                className={cn("h-2 rounded-full transition-all")}
+                style={{
+                  width: `${pct}%`,
+                  backgroundColor: getComplexityColor(pct),
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

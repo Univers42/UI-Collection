@@ -1,1 +1,1 @@
-export * from './slash-menu';
+export * from './slash-menu/index.js';

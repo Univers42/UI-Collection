@@ -1,2 +1,2 @@
-export * from './slashMenuCatalog';
-export * from './types';
+export * from './slashMenuCatalog.js';
+export * from './types.js';

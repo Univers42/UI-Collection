@@ -42,8 +42,8 @@ import {
   IconSpacer,
   IconEmbed,
   IconBreadcrumb,
-} from '../icons/react/slash-menu';
-import type { SlashMenuBlockType, SlashMenuSection } from './types';
+} from '../icons/react/slash-menu/index.js';
+import type { SlashMenuBlockType, SlashMenuSection } from './types.js';
 
 /** Describes a single entry in the slash command menu. */
 export interface SlashMenuItem {

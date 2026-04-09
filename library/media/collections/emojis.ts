@@ -1,5 +1,5 @@
-import { createMediaRef } from '../providers';
-import { defineMediaCollection } from '../utils';
+import { createMediaRef } from '../providers.js';
+import { defineMediaCollection } from '../utils.js';
 
 export const emojisCollection = defineMediaCollection({
   name: 'emojis',
@@ -21,6 +21,30 @@ export const emojisCollection = defineMediaCollection({
       kind: 'emoji',
       ref: createMediaRef('local', '/media/emojis/unicode/wave.png'),
       tags: ['emoji', 'hello', 'hand'],
+    },
+    {
+      id: 'emoji-wave-twemoji',
+      label: 'Wave Twemoji',
+      category: 'unicode',
+      kind: 'emoji',
+      ref: createMediaRef(
+        'url',
+        'https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f44b.png',
+      ),
+      mimeType: 'image/png',
+      tags: ['emoji', 'wave', 'hand', 'twemoji', 'unicode'],
+    },
+    {
+      id: 'emoji-rocket-twemoji',
+      label: 'Rocket Twemoji',
+      category: 'unicode',
+      kind: 'emoji',
+      ref: createMediaRef(
+        'url',
+        'https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f680.png',
+      ),
+      mimeType: 'image/png',
+      tags: ['emoji', 'rocket', 'launch', 'twemoji', 'unicode'],
     },
   ],
 });

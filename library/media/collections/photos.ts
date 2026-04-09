@@ -1,5 +1,5 @@
-import { createMediaRef } from '../providers';
-import { defineMediaCollection } from '../utils';
+import { createMediaRef } from '../providers.js';
+import { defineMediaCollection } from '../utils.js';
 
 export const photosCollection = defineMediaCollection({
   name: 'photos',

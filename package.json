@@ -1,0 +1,102 @@
+{
+  "name": "@univers42/ui-collection",
+  "version": "0.1.0",
+  "description": "Reusable UI asset library for media registries and React slash-menu icons.",
+  "type": "module",
+  "main": "./dist/library/index.js",
+  "types": "./dist/library/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/library/index.d.ts",
+      "import": "./dist/library/index.js"
+    },
+    "./library": {
+      "types": "./dist/library/index.d.ts",
+      "import": "./dist/library/index.js"
+    },
+    "./library/media": {
+      "types": "./dist/library/media/index.d.ts",
+      "import": "./dist/library/media/index.js"
+    },
+    "./library/catalogs": {
+      "types": "./dist/library/catalogs/index.d.ts",
+      "import": "./dist/library/catalogs/index.js"
+    },
+    "./library/icons/react": {
+      "types": "./dist/library/icons/react/index.d.ts",
+      "import": "./dist/library/icons/react/index.js"
+    },
+    "./library/components/react": {
+      "types": "./dist/library/components/react/index.d.ts",
+      "import": "./dist/library/components/react/index.js"
+    },
+    "./library/components/react/color-picker": {
+      "types": "./dist/library/components/react/color-picker/index.d.ts",
+      "import": "./dist/library/components/react/color-picker/index.js"
+    },
+    "./library/components/react/icon-picker": {
+      "types": "./dist/library/components/react/icon-picker/index.d.ts",
+      "import": "./dist/library/components/react/icon-picker/index.js"
+    },
+    "./library/components/react/emoji-picker": {
+      "types": "./dist/library/components/react/emoji-picker/index.d.ts",
+      "import": "./dist/library/components/react/emoji-picker/index.js"
+    },
+    "./library/icons/react/slash-menu": {
+      "types": "./dist/library/icons/react/slash-menu/index.d.ts",
+      "import": "./dist/library/icons/react/slash-menu/index.js"
+    },
+    "./components/blocks/ColorPickerBoard": {
+      "types": "./dist/components/blocks/ColorPickerBoard.d.ts",
+      "import": "./dist/components/blocks/ColorPickerBoard.js"
+    },
+    "./components/blocks/IconPickerBoard": {
+      "types": "./dist/components/blocks/IconPickerBoard.d.ts",
+      "import": "./dist/components/blocks/IconPickerBoard.js"
+    },
+    "./components/blocks/EmojiPickerBoard": {
+      "types": "./dist/components/blocks/EmojiPickerBoard.d.ts",
+      "import": "./dist/components/blocks/EmojiPickerBoard.js"
+    },
+    "./components/blocks/SlashMenuIcons": {
+      "types": "./dist/components/blocks/SlashMenuIcons.d.ts",
+      "import": "./dist/components/blocks/SlashMenuIcons.js"
+    },
+    "./components/blocks/SlashMenuIconsBasic": {
+      "types": "./dist/components/blocks/SlashMenuIconsBasic.d.ts",
+      "import": "./dist/components/blocks/SlashMenuIconsBasic.js"
+    },
+    "./components/blocks/SlashMenuIconsExtended": {
+      "types": "./dist/components/blocks/SlashMenuIconsExtended.d.ts",
+      "import": "./dist/components/blocks/SlashMenuIconsExtended.js"
+    },
+    "./components/blocks/slashMenuCatalog": {
+      "types": "./dist/components/blocks/slashMenuCatalog.d.ts",
+      "import": "./dist/components/blocks/slashMenuCatalog.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "react": "^19.2.0",
+    "typescript": "^5.9.3"
+  },
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Univers42/UI-Collection.git"
+  },
+  "homepage": "https://github.com/Univers42/UI-Collection#readme"
+}

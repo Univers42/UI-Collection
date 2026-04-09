@@ -1,1 +1,1 @@
-export * from '../../library/icons/react/slash-menu/SlashMenuIconsBasic';
+export * from '../../library/icons/react/slash-menu/SlashMenuIconsBasic.js';

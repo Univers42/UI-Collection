@@ -4,8 +4,8 @@ import type {
   MediaItem,
   MediaLibraryIndex,
   MediaSearchFilters,
-} from './types';
-import { parseMediaRef } from './providers';
+} from './types.js';
+import { parseMediaRef } from './providers.js';
 
 function groupMediaItems(
   items: MediaItem[],

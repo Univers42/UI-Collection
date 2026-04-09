@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   types.ts                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rstancu <rstancu@student.42madrid.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/09 11:23:56 by rstancu           #+#    #+#             */
+/*   Updated: 2026/04/09 11:23:57 by rstancu          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 export type ExtensibleCatalogString<T extends string> = T | (string & {});
 
 export type SlashMenuBlockType = ExtensibleCatalogString<

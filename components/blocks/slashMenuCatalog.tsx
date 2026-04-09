@@ -1,1 +1,1 @@
-export * from '../../library/catalogs/slashMenuCatalog';
+export * from '../../library/catalogs/slashMenuCatalog.js';

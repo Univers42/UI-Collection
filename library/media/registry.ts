@@ -1,15 +1,15 @@
 import {
   createMediaResolver,
   type MediaResolverMap,
-} from './providers';
-import { createMediaLibraryIndex, searchMediaItems } from './utils';
+} from './providers.js';
+import { createMediaLibraryIndex, searchMediaItems } from './utils.js';
 import type {
   MediaCollection,
   MediaCollectionName,
   MediaItem,
   MediaProvider,
   MediaSearchFilters,
-} from './types';
+} from './types.js';
 
 export interface MediaRegistryOptions {
   resolvers?: Partial<MediaResolverMap>;
