@@ -40,6 +40,61 @@ The repository now includes:
 - a publish workflow in [.github/workflows/publish-package.yml](/home/settes/cursus/trascendence/UI-Collection/.github/workflows/publish-package.yml)
 - a release guide in [RELEASING.md](/home/settes/cursus/trascendence/UI-Collection/RELEASING.md)
 
+### Using This Package in Another Repository
+
+#### 1. Install it
+
+Use a semver range so the dependency can receive future compatible updates:
+
+```bash
+npm install @univers42/ui-collection@^1.0.0 react
+```
+
+If the current published series is still `0.x`, install the matching range instead:
+
+```bash
+npm install @univers42/ui-collection@^0.1.0 react
+```
+
+#### 2. Check how it is saved in `package.json`
+
+Recommended:
+
+```json
+{
+  "dependencies": {
+    "@univers42/ui-collection": "^1.0.0"
+  }
+}
+```
+
+Avoid exact pinned versions such as `"1.0.0"` if you want `npm update` to move forward automatically within the allowed semver range.
+
+#### 3. Update it later
+
+When a newer compatible version is published, update it with:
+
+```bash
+npm update @univers42/ui-collection
+```
+
+Then review the lockfile diff and run the consumer repository checks as usual.
+
+#### 4. If `npm update` does not upgrade anything
+
+Check these points:
+
+- the new version has actually been published to the registry
+- the consumer repository depends on a range such as `^1.0.0`
+- the new version is still compatible with that range
+- the consumer project is using the same registry where this package is published
+
+Example:
+
+- if the consumer has `^1.0.0`, `npm update` can move to `1.1.0` or `1.2.3`
+- it will not move to `2.0.0`
+- if the consumer has `1.0.0` exactly, it will stay pinned
+
 ## Entry Points
 
 The library exposes these entry points:
