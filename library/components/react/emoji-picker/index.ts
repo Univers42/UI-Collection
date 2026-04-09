@@ -10,4 +10,5 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+export * from './emojiPickerData.js';
 export * from './EmojiPickerBoard.js';

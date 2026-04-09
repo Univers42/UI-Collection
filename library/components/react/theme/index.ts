@@ -5,17 +5,9 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rstancu <rstancu@student.42madrid.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/09 11:33:25 by rstancu           #+#    #+#             */
-/*   Updated: 2026/04/09 11:49:25 by rstancu          ###   ########.fr       */
+/*   Created: 2026/04/09 12:25:10 by rstancu           #+#    #+#             */
+/*   Updated: 2026/04/09 12:25:10 by rstancu          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-export * from './color-picker/index.js';
-export * from './asset-picker/index.js';
-export * from './icon-picker/index.js';
-export * from './emoji-picker/index.js';
-export * from './charts/index.js';
-export * from './analytics/index.js';
-export * from './formula/index.js';
-export * from './primitives/index.js';
-export * from './theme/index.js';
+export * from './ThemeToggle.js';

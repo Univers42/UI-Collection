@@ -30,6 +30,10 @@
       "types": "./dist/library/components/react/index.d.ts",
       "import": "./dist/library/components/react/index.js"
     },
+    "./library/components/react/asset-picker": {
+      "types": "./dist/library/components/react/asset-picker/index.d.ts",
+      "import": "./dist/library/components/react/asset-picker/index.js"
+    },
     "./library/components/react/color-picker": {
       "types": "./dist/library/components/react/color-picker/index.d.ts",
       "import": "./dist/library/components/react/color-picker/index.js"
@@ -41,6 +45,34 @@
     "./library/components/react/emoji-picker": {
       "types": "./dist/library/components/react/emoji-picker/index.d.ts",
       "import": "./dist/library/components/react/emoji-picker/index.js"
+    },
+    "./library/components/react/charts": {
+      "types": "./dist/library/components/react/charts/index.d.ts",
+      "import": "./dist/library/components/react/charts/index.js"
+    },
+    "./library/components/react/analytics": {
+      "types": "./dist/library/components/react/analytics/index.d.ts",
+      "import": "./dist/library/components/react/analytics/index.js"
+    },
+    "./library/components/react/analytics/formula": {
+      "types": "./dist/library/components/react/analytics/formula/index.d.ts",
+      "import": "./dist/library/components/react/analytics/formula/index.js"
+    },
+    "./library/components/react/analytics/relation-rollup": {
+      "types": "./dist/library/components/react/analytics/relation-rollup/index.d.ts",
+      "import": "./dist/library/components/react/analytics/relation-rollup/index.js"
+    },
+    "./library/components/react/formula": {
+      "types": "./dist/library/components/react/formula/index.d.ts",
+      "import": "./dist/library/components/react/formula/index.js"
+    },
+    "./library/components/react/primitives": {
+      "types": "./dist/library/components/react/primitives/index.d.ts",
+      "import": "./dist/library/components/react/primitives/index.js"
+    },
+    "./library/components/react/theme": {
+      "types": "./dist/library/components/react/theme/index.d.ts",
+      "import": "./dist/library/components/react/theme/index.js"
     },
     "./library/icons/react/slash-menu": {
       "types": "./dist/library/icons/react/slash-menu/index.d.ts",

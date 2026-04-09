@@ -10,4 +10,5 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+export * from './iconPickerData.js';
 export * from './IconPickerBoard.js';

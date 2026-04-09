@@ -1,28 +1,29 @@
 # @univers42/ui-collection
 
-Libreria reutilizable de UI para:
+Reusable UI library for:
 
-- registros de media y assets
-- iconos React del slash menu
-- catalogos de bloques
-- tableros picker de color, iconos y emojis
+- media registries and curated assets
+- React slash-menu icons
+- slash-menu block catalogs
+- color picker boards
+- a unified tabbed asset picker for emojis, SVGs, icons, and future asset families
 
-## Instalacion
+## Installation
 
 ```bash
 npm install @univers42/ui-collection react
 ```
 
-## Build local
+## Local Build
 
 ```bash
 npm install
 npm run build
 ```
 
-## Entry points
+## Entry Points
 
-La libreria expone estos entry points:
+The library exposes these entry points:
 
 - `@univers42/ui-collection`
 - `@univers42/ui-collection/library`
@@ -31,11 +32,19 @@ La libreria expone estos entry points:
 - `@univers42/ui-collection/library/icons/react`
 - `@univers42/ui-collection/library/icons/react/slash-menu`
 - `@univers42/ui-collection/library/components/react`
+- `@univers42/ui-collection/library/components/react/asset-picker`
 - `@univers42/ui-collection/library/components/react/color-picker`
 - `@univers42/ui-collection/library/components/react/icon-picker`
 - `@univers42/ui-collection/library/components/react/emoji-picker`
+- `@univers42/ui-collection/library/components/react/charts`
+- `@univers42/ui-collection/library/components/react/analytics`
+- `@univers42/ui-collection/library/components/react/analytics/formula`
+- `@univers42/ui-collection/library/components/react/analytics/relation-rollup`
+- `@univers42/ui-collection/library/components/react/formula`
+- `@univers42/ui-collection/library/components/react/primitives`
+- `@univers42/ui-collection/library/components/react/theme`
 
-Tambien mantiene reexports legacy:
+Legacy re-exports are still available:
 
 - `@univers42/ui-collection/components/blocks/ColorPickerBoard`
 - `@univers42/ui-collection/components/blocks/IconPickerBoard`
@@ -45,12 +54,13 @@ Tambien mantiene reexports legacy:
 - `@univers42/ui-collection/components/blocks/SlashMenuIconsExtended`
 - `@univers42/ui-collection/components/blocks/slashMenuCatalog`
 
-## Como obtener el contenido
+## Import Patterns
 
-### Obtener todo desde la raiz
+### Import from the root
 
 ```tsx
 import {
+  AssetPickerBoard,
   ColorPickerBoard,
   IconPickerBoard,
   EmojiPickerBoard,
@@ -62,24 +72,32 @@ import {
   getMediaByProvider,
   searchMedia,
   resolveMediaUrl,
+  DEFAULT_ASSET_PICKER_TABS,
   DEFAULT_COLOR_PRESETS,
   DEFAULT_ICON_PICKER_ITEMS,
   DEFAULT_EMOJI_PICKER_ITEMS,
 } from '@univers42/ui-collection';
 ```
 
-### Obtener solo un modulo concreto
+### Import a specific module
 
 ```tsx
 import { getMediaItem, searchMedia } from '@univers42/ui-collection/library/media';
 import { SLASH_ITEMS } from '@univers42/ui-collection/library/catalogs';
 import { IconText, IconBoard } from '@univers42/ui-collection/library/icons/react/slash-menu';
+import {
+  AssetPickerBoard,
+  createMediaCollectionPickerTab,
+} from '@univers42/ui-collection/library/components/react/asset-picker';
 import { ColorPickerBoard } from '@univers42/ui-collection/library/components/react/color-picker';
 import { IconPickerBoard } from '@univers42/ui-collection/library/components/react/icon-picker';
 import { EmojiPickerBoard } from '@univers42/ui-collection/library/components/react/emoji-picker';
+import { LineChart } from '@univers42/ui-collection/library/components/react/charts';
+import { FormulaTypePie } from '@univers42/ui-collection/library/components/react/analytics/formula';
+import { ThemeToggle } from '@univers42/ui-collection/library/components/react/theme';
 ```
 
-### Obtener contenido legacy
+### Import legacy paths
 
 ```tsx
 import { ColorPickerBoard } from '@univers42/ui-collection/components/blocks/ColorPickerBoard';
@@ -87,29 +105,32 @@ import { IconText } from '@univers42/ui-collection/components/blocks/SlashMenuIc
 import { SLASH_ITEMS } from '@univers42/ui-collection/components/blocks/slashMenuCatalog';
 ```
 
-## Contenido de la libreria
+## Library Contents
 
-### 1. Componentes React
+### 1. React Components
 
-Disponibles desde:
+Available from:
 
-- `@univers42/ui-collection`
-- `@univers42/ui-collection/library/components/react`
+- `@univers42/ui-collection`: curated root surface
+- `@univers42/ui-collection/library/components/react`: full React component catalog
 
-Componentes incluidos:
+The root API is intentionally small and stable. More specialized modules live under dedicated `library/components/react/*` entry points.
 
+Root exports include:
+
+- `AssetPickerBoard`
 - `ColorPickerBoard`
 - `IconPickerBoard`
 - `EmojiPickerBoard`
-
-Datasets por defecto incluidos:
-
-- `DEFAULT_COLOR_PRESETS`: 8 presets
-- `DEFAULT_ICON_PICKER_ITEMS`: 30 iconos
-- `DEFAULT_EMOJI_PICKER_ITEMS`: 24 emojis
-
-Props exportadas:
-
+- `DEFAULT_ASSET_PICKER_TABS`
+- `DEFAULT_COLOR_PRESETS`
+- `DEFAULT_ICON_PICKER_ITEMS`
+- `DEFAULT_EMOJI_PICKER_ITEMS`
+- `AssetPickerBoardProps`
+- `AssetPickerBoardTab`
+- `AssetPickerBoardItem`
+- `AssetPickerBoardValue`
+- `AssetPickerBoardSelection`
 - `ColorPickerBoardProps`
 - `ColorPickerPreset`
 - `IconPickerBoardProps`
@@ -117,7 +138,114 @@ Props exportadas:
 - `EmojiPickerBoardProps`
 - `EmojiPickerItem`
 
-Ejemplo:
+Full React component exports include:
+
+- `AssetPickerBoard`
+- `ColorPickerBoard`
+- `IconPickerBoard`
+- `EmojiPickerBoard`
+- `VerticalBarChart`
+- `HorizontalBarChart`
+- `LineChart`
+- `DonutPieChart`
+- `MultiLineChart`
+- `DonutChart`
+- `AreaChartSVG`
+- `ProgressRing`
+- `FormulaTypePie`
+- `ErrorBarChart`
+- `ComplexityChart`
+- `TextDistributionCard`
+- `KpiCard`
+- `DisplayBadge`
+- `RollupCellValue`
+- `RelationMapSection`
+- `FunctionDistSection`
+- `DisplayFormatSection`
+- `CompletionRingsSection`
+- `DataFlowSection`
+- `ExampleBlock`
+- `SettingsHeader`
+- `SettingsSectionLabel`
+- `MenuDivider`
+- `ViewTypeCard`
+- `PanelSectionLabel`
+- `ThemeToggle`
+
+Default datasets available from the root:
+
+- `DEFAULT_ASSET_PICKER_TABS`: default tabs for emojis, SVGs, and icons
+- `DEFAULT_COLOR_PRESETS`: 8 presets
+- `DEFAULT_ICON_PICKER_ITEMS`: 30 icons
+- `DEFAULT_EMOJI_PICKER_ITEMS`: 24 emojis
+
+#### Unified Asset Picker
+
+`AssetPickerBoard` is the shared board used for asset selection. The default configuration groups emojis, SVGs, and icons into one tabbed picker, and the `asset-picker` subpath exposes factory helpers so new asset families can be added without duplicating UI.
+
+```tsx
+import {
+  AssetPickerBoard,
+  DEFAULT_ASSET_PICKER_TABS,
+} from '@univers42/ui-collection';
+
+export function Demo() {
+  return (
+    <AssetPickerBoard
+      label="Block asset picker"
+      tabs={DEFAULT_ASSET_PICKER_TABS}
+      onChange={({ tab, item }) => console.log(tab.id, item.value)}
+    />
+  );
+}
+```
+
+#### Which Picker Should You Import?
+
+Use `AssetPickerBoard` when you want the general-purpose board with all default asset families in one place. You do not need to import `IconPickerBoard` or `EmojiPickerBoard` to use the unified board.
+
+```tsx
+import { AssetPickerBoard } from '@univers42/ui-collection';
+
+export function Demo() {
+  return (
+    <AssetPickerBoard
+      label="Block asset picker"
+      onChange={({ tab, item }) => {
+        console.log(tab.id);     // emojis | svg | icons
+        console.log(item.value); // selected value
+      }}
+    />
+  );
+}
+```
+
+Use `IconPickerBoard` or `EmojiPickerBoard` only when you want a single-family picker with the legacy API shape.
+
+Use the `asset-picker` subpath when you want to customize the tabs or add new asset families while keeping the same shared board UI.
+
+```tsx
+import {
+  AssetPickerBoard,
+  createEmojiPickerTab,
+  createIconPickerTab,
+  createMediaCollectionPickerTab,
+} from '@univers42/ui-collection/library/components/react/asset-picker';
+
+const tabs = [
+  createEmojiPickerTab(),
+  createMediaCollectionPickerTab('svg'),
+  createIconPickerTab(),
+];
+
+export function Demo() {
+  return <AssetPickerBoard label="Custom asset picker" tabs={tabs} />;
+}
+```
+
+#### Compatibility Wrappers
+
+`IconPickerBoard` and `EmojiPickerBoard` are still available, but they now wrap the shared unified picker internally. This keeps compatibility while the implementation stays modular and scalable.
 
 ```tsx
 import {
@@ -137,16 +265,16 @@ export function Demo() {
 }
 ```
 
-### 2. Iconos React del slash menu
+### 2. React Slash-Menu Icons
 
-Disponibles desde:
+Available from:
 
 - `@univers42/ui-collection`
 - `@univers42/ui-collection/library/icons/react`
 - `@univers42/ui-collection/library/icons/react/slash-menu`
 - `@univers42/ui-collection/components/blocks/SlashMenuIcons`
 
-Iconos exportados:
+Exported icons:
 
 - `IconText`
 - `IconH1`
@@ -181,8 +309,6 @@ Iconos exportados:
 - `IconEmbed`
 - `IconBreadcrumb`
 
-Ejemplo:
-
 ```tsx
 import { IconText, IconBoard, IconImage } from '@univers42/ui-collection';
 
@@ -197,9 +323,9 @@ export function Toolbar() {
 }
 ```
 
-### 3. Catalogos
+### 3. Catalogs
 
-Disponibles desde:
+Available from:
 
 - `@univers42/ui-collection`
 - `@univers42/ui-collection/library/catalogs`
@@ -213,67 +339,15 @@ Exports:
 - `SlashMenuBlockType`
 - `SlashMenuSection`
 
-`SLASH_ITEMS` contiene 35 entradas:
+`SLASH_ITEMS` currently contains 35 entries.
 
-#### Basic
-
-- `paragraph`: `Text`
-- `heading_1`: `Heading 1`
-- `heading_2`: `Heading 2`
-- `heading_3`: `Heading 3`
-- `heading_4`: `Heading 4`
-- `heading_5`: `Heading 5`
-- `heading_6`: `Heading 6`
-- `bulleted_list`: `Bulleted list`
-- `numbered_list`: `Numbered list`
-- `to_do`: `To-do list`
-- `toggle`: `Toggle list`
-- `page`: `Page`
-- `callout`: `Callout - Tip`
-- `callout`: `Callout - Success`
-- `callout`: `Callout - Error`
-- `callout`: `Callout - Important`
-- `callout`: `Callout - Warning`
-- `quote`: `Quote`
-- `table_block`: `Table`
-- `divider`: `Divider`
-- `link_to_page`: `Link to page`
-
-#### Media
-
-- `image`: `Image`
-- `video`: `Video`
-- `audio`: `Audio`
-- `code`: `Code`
-- `file`: `File`
-- `bookmark`: `Web bookmark`
-- `embed`: `Embed`
-
-#### Layout
-
-- `column`: `Columns`
-- `spacer`: `Spacer`
-
-#### Advanced
-
-- `table_of_contents`: `Table of contents`
-- `equation`: `Equation`
-- `breadcrumb`: `Breadcrumb`
-
-#### Database
-
-- `database_inline`: `Database - Inline`
-- `database_full_page`: `Database - Full page`
-
-Etiquetas de seccion:
+Section labels:
 
 - `basic` -> `Basic blocks`
 - `media` -> `Media`
 - `layout` -> `Layout`
 - `advanced` -> `Advanced`
 - `database` -> `Database`
-
-Ejemplo:
 
 ```tsx
 import { SECTION_LABELS, SLASH_ITEMS } from '@univers42/ui-collection/library/catalogs';
@@ -282,14 +356,14 @@ const mediaItems = SLASH_ITEMS.filter((item) => item.section === 'media');
 const label = SECTION_LABELS.media;
 ```
 
-### 4. Media registry y assets
+### 4. Media Registry and Assets
 
-Disponible desde:
+Available from:
 
 - `@univers42/ui-collection`
 - `@univers42/ui-collection/library/media`
 
-#### Providers builtin
+Built-in providers:
 
 - `local`
 - `url`
@@ -297,7 +371,7 @@ Disponible desde:
 - `unsplash`
 - `picker`
 
-#### Collections builtin
+Built-in collections:
 
 - `svg`
 - `emojis`
@@ -305,7 +379,7 @@ Disponible desde:
 - `videos`
 - `other-media`
 
-#### Kinds builtin
+Built-in kinds:
 
 - `svg`
 - `emoji`
@@ -316,7 +390,7 @@ Disponible desde:
 - `lottie`
 - `model-3d`
 
-#### Tipos y utilidades exportadas
+Exported types and utilities:
 
 - `BUILTIN_MEDIA_PROVIDERS`
 - `BUILTIN_MEDIA_COLLECTIONS`
@@ -354,9 +428,7 @@ Disponible desde:
 - `searchMedia`
 - `extendMediaLibrary`
 
-#### Como obtener assets por codigo
-
-Obtener un asset por id:
+Fetch an asset by id:
 
 ```ts
 import { getMediaItem, resolveMediaUrl } from '@univers42/ui-collection/library/media';
@@ -365,7 +437,7 @@ const item = getMediaItem('video-intro-loop');
 const src = item ? resolveMediaUrl(item.ref) : '';
 ```
 
-Obtener una coleccion completa:
+Fetch a full collection:
 
 ```ts
 import { getMediaCollection } from '@univers42/ui-collection/library/media';
@@ -373,7 +445,7 @@ import { getMediaCollection } from '@univers42/ui-collection/library/media';
 const videos = getMediaCollection('videos');
 ```
 
-Obtener por kind:
+Filter by kind:
 
 ```ts
 import { getMediaByKind } from '@univers42/ui-collection/library/media';
@@ -381,7 +453,7 @@ import { getMediaByKind } from '@univers42/ui-collection/library/media';
 const emojis = getMediaByKind('emoji');
 ```
 
-Obtener por provider:
+Filter by provider:
 
 ```ts
 import { getMediaByProvider } from '@univers42/ui-collection/library/media';
@@ -389,7 +461,7 @@ import { getMediaByProvider } from '@univers42/ui-collection/library/media';
 const externalUrls = getMediaByProvider('url');
 ```
 
-Buscar por texto o tags:
+Search by text or tags:
 
 ```ts
 import { searchMedia } from '@univers42/ui-collection/library/media';
@@ -398,7 +470,7 @@ const results = searchMedia('rocket');
 const onlySvg = searchMedia('hero', { collection: 'svg' });
 ```
 
-Resolver referencias personalizadas:
+Resolve custom references:
 
 ```ts
 import { createMediaResolver } from '@univers42/ui-collection/library/media';
@@ -410,7 +482,7 @@ const resolve = createMediaResolver({
 const src = resolve('cdn:icons/logo.svg');
 ```
 
-Extender la libreria:
+Extend the library:
 
 ```ts
 import {
@@ -436,52 +508,17 @@ const stickers = defineMediaCollection({
 const registry = extendMediaLibrary([stickers]);
 ```
 
-#### Inventario actual de assets
+Current curated asset inventory:
 
-La libreria incluye 20 assets de ejemplo/uso directo.
+- `svg`: 5 items
+- `emojis`: 4 items
+- `photos`: 2 items
+- `videos`: 3 items
+- `other-media`: 6 items
 
-##### svg
+Curated external asset sources are documented in [library/media/SOURCES.md](/home/settes/cursus/trascendence/UI-Collection/library/media/SOURCES.md).
 
-- `svg-arrow-left`: `Arrow Left`
-- `svg-company-mark`: `Company Mark`
-- `svg-hero-scene`: `Hero Scene`
-- `svg-heroicons-arrow-left`: `Heroicons Arrow Left`
-- `svg-heroicons-bolt`: `Heroicons Bolt`
-
-##### emojis
-
-- `emoji-party-parrot`: `Party Parrot`
-- `emoji-wave`: `Wave`
-- `emoji-wave-twemoji`: `Wave Twemoji`
-- `emoji-rocket-twemoji`: `Rocket Twemoji`
-
-##### photos
-
-- `photo-homepage-banner`: `Homepage Banner`
-- `photo-team-avatar-01`: `Team Avatar 01`
-
-##### videos
-
-- `video-intro-loop`: `Intro Loop`
-- `video-api-demo`: `API Demo Clip`
-- `video-mdn-flower`: `MDN Flower`
-
-##### other-media
-
-- `audio-notification-pop`: `Notification Pop`
-- `audio-mdn-trex-roar`: `MDN T-Rex Roar`
-- `lottie-loader-spinner`: `Loader Spinner`
-- `document-api-spec`: `API Spec`
-- `document-w3c-dummy-pdf`: `W3C Dummy PDF`
-- `model-khronos-duck`: `Khronos Duck`
-
-#### Procedencia de assets curados
-
-Los assets externos curados y verificados estan documentados en:
-
-- `./library/media/SOURCES.md`
-
-Fuentes usadas actualmente:
+Current sources:
 
 - Heroicons
 - MDN Shared Assets
@@ -489,21 +526,24 @@ Fuentes usadas actualmente:
 - W3C
 - Khronos glTF Sample Assets
 
-## Resumen de lo que exporta la raiz
+## Root Export Summary
 
-Importar desde `@univers42/ui-collection` te da acceso a:
+Importing from `@univers42/ui-collection` gives you:
 
-- los 3 picker boards
-- los iconos React del slash menu
-- `SLASH_ITEMS` y `SECTION_LABELS`
-- el registry de media y sus helpers
-- los datasets por defecto de color, iconos y emojis
+- the unified `AssetPickerBoard`
+- the color, icon, and emoji picker wrappers
+- the React slash-menu icons
+- `SLASH_ITEMS` and `SECTION_LABELS`
+- the media registry and helpers
+- the default color, icon, emoji, and asset-picker datasets
 
-## Ejemplo completo
+## Full Example
 
 ```tsx
 import {
+  AssetPickerBoard,
   ColorPickerBoard,
+  DEFAULT_ASSET_PICKER_TABS,
   DEFAULT_ICON_PICKER_ITEMS,
   EmojiPickerBoard,
   IconPickerBoard,
@@ -525,6 +565,10 @@ console.log(src);
 export function Demo() {
   return (
     <>
+      <AssetPickerBoard
+        label="Unified asset picker"
+        tabs={DEFAULT_ASSET_PICKER_TABS}
+      />
       <ColorPickerBoard label="Brand palette" />
       <IconPickerBoard label="Slash icon picker" />
       <EmojiPickerBoard label="Emoji picker" />
