@@ -279,7 +279,7 @@ Default datasets available from the root:
 
 - `DEFAULT_ASSET_PICKER_TABS`: default tabs for emojis, SVGs, and icons
 - `DEFAULT_COLOR_PRESETS`: 8 presets
-- `DEFAULT_ICON_PICKER_ITEMS`: 30 icons
+- `DEFAULT_ICON_PICKER_ITEMS`: 46 icons
 - `EMOJI_PICKER_GROUPS`: 9 standard-style emoji categories
 - `DEFAULT_EMOJI_PICKER_ITEMS`: 950+ emojis across smileys, people, animals, food, travel, activities, objects, symbols, and flags
 
@@ -699,7 +699,7 @@ const registry = extendMediaLibrary([stickers]);
 
 Current curated asset inventory:
 
-- `svg`: 32 items
+- `svg`: 69 items
 - `emojis`: 4 items
 - `photos`: 2 items
 - `videos`: 3 items

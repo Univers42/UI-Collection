@@ -27,6 +27,29 @@ Verified during generation on `2026-04-09`.
   - `svg-heroicons-pause`
   - `svg-heroicons-document-text`
   - `svg-heroicons-cloud-arrow-up`
+  - `svg-heroicons-arrow-path`
+  - `svg-heroicons-bars-3`
+  - `svg-heroicons-calendar-days`
+  - `svg-heroicons-chat-bubble-left-right`
+  - `svg-heroicons-check-circle`
+  - `svg-heroicons-chevron-down`
+  - `svg-heroicons-chevron-left`
+  - `svg-heroicons-chevron-right`
+  - `svg-heroicons-chevron-up`
+  - `svg-heroicons-clock`
+  - `svg-heroicons-cloud`
+  - `svg-heroicons-document`
+  - `svg-heroicons-envelope`
+  - `svg-heroicons-folder`
+  - `svg-heroicons-information-circle`
+  - `svg-heroicons-light-bulb`
+  - `svg-heroicons-lock-closed`
+  - `svg-heroicons-musical-note`
+  - `svg-heroicons-paper-airplane`
+  - `svg-heroicons-plus`
+  - `svg-heroicons-sparkles`
+  - `svg-heroicons-trash`
+  - `svg-heroicons-user-group`
 
 ## Simple Icons
 
@@ -42,6 +65,20 @@ Verified during generation on `2026-04-09`.
   - `svg-logo-notion`
   - `svg-logo-openai`
   - `svg-logo-tailwindcss`
+  - `svg-logo-javascript`
+  - `svg-logo-html5`
+  - `svg-logo-css`
+  - `svg-logo-nodejs`
+  - `svg-logo-express`
+  - `svg-logo-postgresql`
+  - `svg-logo-redis`
+  - `svg-logo-graphql`
+  - `svg-logo-vercel`
+  - `svg-logo-nextdotjs`
+  - `svg-logo-gitlab`
+  - `svg-logo-linux`
+  - `svg-logo-ubuntu`
+  - `svg-logo-github-actions`
 
 ## MDN Shared Assets
 
