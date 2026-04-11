@@ -184,31 +184,31 @@ function getLayoutDefaults(layout: AssetPickerLayoutPreset): ResolvedLayout {
       return {
         type: 'emoji',
         columns: 8,
-        previewSize: 24,
-        cellSize: 56,
+        previewSize: 20,
+        cellSize: 44,
         aspectRatio: 1,
         objectFit: 'contain',
-        gap: 8,
+        gap: 6,
       };
     case 'icon':
       return {
         type: 'icon',
         columns: 6,
-        previewSize: 22,
-        cellSize: 64,
+        previewSize: 18,
+        cellSize: 50,
         aspectRatio: 1,
         objectFit: 'contain',
-        gap: 10,
+        gap: 8,
       };
     case 'media':
       return {
         type: 'media',
         columns: 4,
-        previewSize: 60,
-        cellSize: 112,
+        previewSize: 48,
+        cellSize: 92,
         aspectRatio: 4 / 3,
         objectFit: 'contain',
-        gap: 12,
+        gap: 10,
       };
     case 'cover':
       return {
@@ -225,11 +225,11 @@ function getLayoutDefaults(layout: AssetPickerLayoutPreset): ResolvedLayout {
       return {
         type: 'grid',
         columns: 5,
-        previewSize: 24,
-        cellSize: 76,
+        previewSize: 20,
+        cellSize: 62,
         aspectRatio: 1,
         objectFit: 'contain',
-        gap: 10,
+        gap: 8,
       };
   }
 }
@@ -554,23 +554,23 @@ export function AssetPickerBoard({
               style={getSlotStyle(
                 'selectionPreview',
                 {
-                  minWidth: 96,
+                  minWidth: 78,
                   display: 'grid',
                   justifyItems: 'center',
-                  gap: 6,
+                  gap: 4,
                 },
                 {
-                  padding: '10px 12px',
-                  borderRadius: 16,
+                  padding: '8px 10px',
+                  borderRadius: 14,
                   background: 'rgba(255, 255, 255, 0.08)',
                   border: '1px solid rgba(148, 163, 184, 0.18)',
                 },
               )}
             >
-              <span style={{ display: 'grid', placeItems: 'center', minHeight: 30, color: '#F8FAFC' }}>
-                {renderItemPreview(activeItem, 28, resolvedLayout.objectFit)}
+              <span style={{ display: 'grid', placeItems: 'center', minHeight: 24, color: '#F8FAFC' }}>
+                {renderItemPreview(activeItem, 22, resolvedLayout.objectFit)}
               </span>
-              <span style={{ fontSize: 11, color: '#CBD5E1', lineHeight: 1.1, textAlign: 'center' }}>
+              <span style={{ fontSize: 10, color: '#CBD5E1', lineHeight: 1.1, textAlign: 'center' }}>
                 {activeItem.label}
               </span>
             </div>
@@ -792,7 +792,7 @@ export function AssetPickerBoard({
                   item.previewAspectRatio ?? resolvedLayout.aspectRatio;
                 const previewSize = Math.min(
                   resolvedLayout.previewSize,
-                  resolvedLayout.cellSize - 16,
+                  resolvedLayout.cellSize - 10,
                 );
 
                 return (
@@ -808,11 +808,11 @@ export function AssetPickerBoard({
                       'itemButton',
                       {
                         display: 'grid',
-                        gap: resolvedLabelVisibility === 'visible' ? 8 : 0,
+                        gap: resolvedLabelVisibility === 'visible' ? 5 : 0,
                         justifyItems: 'center',
                         alignContent: 'start',
                         minHeight: resolvedLayout.cellSize,
-                        padding: resolvedItemChrome ? '12px 8px' : '4px',
+                        padding: resolvedItemChrome ? '8px 6px' : '2px',
                         position: 'relative',
                       },
                       resolvedItemChrome

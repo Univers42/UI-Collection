@@ -403,6 +403,8 @@ export function Demo() {
 }
 ```
 
+`ColorPickerBoard` now defaults to a circular chromatic wheel built from octagonal swatches. Use `variant="classic"` if you want the legacy square HSV board.
+
 `IconPickerBoard` emits canonical icon values by default, for example `icon:text`. `EmojiPickerBoard` emits the raw emoji glyph, and supports grouped sections plus persistent recents through `recentStorageKey`.
 
 #### Host-Themed Asset Picker

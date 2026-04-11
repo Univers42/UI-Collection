@@ -1,17 +1,6 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ColorPickerBoard.tsx                               :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rstancu <rstancu@student.42madrid.com>     +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/09 11:33:25 by rstancu           #+#    #+#             */
-/*   Updated: 2026/04/09 11:49:25 by rstancu          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ChangeEvent,
@@ -21,11 +10,14 @@ import {
 } from 'react';
 
 const DEFAULT_COLOR = '#4F46E5';
+const OCTAGON_CLIP_PATH = 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)';
 
 export interface ColorPickerPreset {
   label: string;
   value: string;
 }
+
+export type ColorPickerBoardVariant = 'wheel' | 'classic';
 
 export interface ColorPickerBoardProps {
   value?: string;
@@ -37,6 +29,7 @@ export interface ColorPickerBoardProps {
   showInput?: boolean;
   size?: number;
   className?: string;
+  variant?: ColorPickerBoardVariant;
 }
 
 interface HsvaColor {
@@ -44,6 +37,44 @@ interface HsvaColor {
   s: number;
   v: number;
 }
+
+interface ColorWheelCell {
+  id: string;
+  label: string;
+  hex: string;
+  color: HsvaColor;
+  x: number;
+  y: number;
+  size: number;
+}
+
+interface ColorWheelRingDefinition {
+  count: number;
+  saturation: number;
+  value: number;
+  rotationOffset: number;
+}
+
+const COLOR_WHEEL_RINGS: readonly ColorWheelRingDefinition[] = [
+  { count: 8, saturation: 18, value: 100, rotationOffset: -90 },
+  { count: 12, saturation: 34, value: 100, rotationOffset: -75 },
+  { count: 16, saturation: 48, value: 100, rotationOffset: -79 },
+  { count: 20, saturation: 62, value: 97, rotationOffset: -81 },
+  { count: 24, saturation: 76, value: 94, rotationOffset: -83 },
+  { count: 28, saturation: 92, value: 90, rotationOffset: -85 },
+  { count: 32, saturation: 94, value: 74, rotationOffset: -86 },
+  { count: 36, saturation: 92, value: 56, rotationOffset: -87 },
+] as const;
+
+const COLOR_WHEEL_NEUTRALS = [
+  { id: 'neutral-white', label: 'White', value: '#FFFFFF' },
+  { id: 'neutral-cloud', label: 'Cloud', value: '#F8FAFC' },
+  { id: 'neutral-slate-100', label: 'Slate 100', value: '#E2E8F0' },
+  { id: 'neutral-slate-300', label: 'Slate 300', value: '#CBD5E1' },
+  { id: 'neutral-slate-500', label: 'Slate 500', value: '#94A3B8' },
+  { id: 'neutral-slate-700', label: 'Slate 700', value: '#475569' },
+  { id: 'neutral-slate-900', label: 'Slate 900', value: '#0F172A' },
+] as const;
 
 export const DEFAULT_COLOR_PRESETS: ColorPickerPreset[] = [
   { label: 'Indigo', value: '#4F46E5' },
@@ -186,6 +217,127 @@ function getReadableTextColor(hex: string): string {
   return luminance > 0.62 ? '#0F172A' : '#FFFFFF';
 }
 
+function getCircularHueDistance(a: number, b: number): number {
+  const delta = Math.abs(a - b) % 360;
+  return Math.min(delta, 360 - delta);
+}
+
+function createColorWheelCells(size: number): ColorWheelCell[] {
+  const cells: ColorWheelCell[] = [];
+  const center = size / 2;
+  const maxRadius = size / 2 - 18;
+  const ringSpacing = maxRadius / (COLOR_WHEEL_RINGS.length + 1.3);
+  const neutralRadius = ringSpacing * 0.78;
+  const neutralCellSize = clamp(ringSpacing * 0.92, 16, 24);
+
+  COLOR_WHEEL_NEUTRALS.forEach((neutral, index) => {
+    if (index === 0) {
+      cells.push({
+        id: neutral.id,
+        label: neutral.label,
+        hex: neutral.value,
+        color: hexToHsva(neutral.value),
+        x: center - neutralCellSize / 2,
+        y: center - neutralCellSize / 2,
+        size: neutralCellSize,
+      });
+      return;
+    }
+
+    const angle = ((index - 1) / (COLOR_WHEEL_NEUTRALS.length - 1)) * Math.PI * 2 - Math.PI / 2;
+
+    cells.push({
+      id: neutral.id,
+      label: neutral.label,
+      hex: neutral.value,
+      color: hexToHsva(neutral.value),
+      x: center + Math.cos(angle) * neutralRadius - neutralCellSize / 2,
+      y: center + Math.sin(angle) * neutralRadius - neutralCellSize / 2,
+      size: neutralCellSize,
+    });
+  });
+
+  COLOR_WHEEL_RINGS.forEach((ring, ringIndex) => {
+    const radius = ringSpacing * (ringIndex + 1.45);
+    const baseCellSize = ringSpacing * 0.94;
+    const circumferentialCellSize = (2 * Math.PI * radius) / ring.count * 0.86;
+    const cellSize = clamp(Math.min(baseCellSize, circumferentialCellSize), 16, 28);
+
+    for (let slot = 0; slot < ring.count; slot += 1) {
+      const hue = ((slot / ring.count) * 360 + ring.rotationOffset + 360) % 360;
+      const angle = (hue - 90) * (Math.PI / 180);
+      const color: HsvaColor = {
+        h: hue,
+        s: ring.saturation,
+        v: ring.value,
+      };
+      const hex = hsvaToHex(color);
+
+      cells.push({
+        id: `ring-${ringIndex}-${slot}`,
+        label: `Hue ${Math.round(hue)} / ${ring.saturation}% / ${ring.value}%`,
+        hex,
+        color,
+        x: center + Math.cos(angle) * radius - cellSize / 2,
+        y: center + Math.sin(angle) * radius - cellSize / 2,
+        size: cellSize,
+      });
+    }
+  });
+
+  return cells;
+}
+
+function getClosestColorWheelCell(target: HsvaColor, cells: readonly ColorWheelCell[]): ColorWheelCell | null {
+  if (cells.length === 0) {
+    return null;
+  }
+
+  let closest = cells[0];
+  let smallestDistance = Number.POSITIVE_INFINITY;
+
+  for (const cell of cells) {
+    const hueDistance = getCircularHueDistance(target.h, cell.color.h) / 180;
+    const saturationDistance = Math.abs(target.s - cell.color.s) / 100;
+    const valueDistance = Math.abs(target.v - cell.color.v) / 100;
+    const distance = hueDistance * 0.65 + saturationDistance * 0.2 + valueDistance * 0.25;
+
+    if (distance < smallestDistance) {
+      smallestDistance = distance;
+      closest = cell;
+    }
+  }
+
+  return closest;
+}
+
+function getClosestColorWheelCellFromPoint(
+  clientX: number,
+  clientY: number,
+  container: HTMLDivElement,
+  cells: readonly ColorWheelCell[],
+): ColorWheelCell | null {
+  const rect = container.getBoundingClientRect();
+  const localX = clientX - rect.left;
+  const localY = clientY - rect.top;
+
+  let closest: ColorWheelCell | null = null;
+  let smallestDistance = Number.POSITIVE_INFINITY;
+
+  for (const cell of cells) {
+    const centerX = cell.x + cell.size / 2;
+    const centerY = cell.y + cell.size / 2;
+    const distance = Math.hypot(localX - centerX, localY - centerY);
+
+    if (distance < smallestDistance) {
+      smallestDistance = distance;
+      closest = cell;
+    }
+  }
+
+  return closest;
+}
+
 export function ColorPickerBoard({
   value,
   defaultValue = DEFAULT_COLOR,
@@ -194,8 +346,9 @@ export function ColorPickerBoard({
   presets = DEFAULT_COLOR_PRESETS,
   label = 'Color picker',
   showInput = true,
-  size = 240,
+  size = 280,
   className,
+  variant = 'wheel',
 }: ColorPickerBoardProps) {
   const initialHex = normalizeHexColor(value) ?? normalizeHexColor(defaultValue) ?? DEFAULT_COLOR;
   const [internalHex, setInternalHex] = useState(initialHex);
@@ -203,11 +356,18 @@ export function ColorPickerBoard({
   const [inputValue, setInputValue] = useState(initialHex);
   const [isBoardDragging, setIsBoardDragging] = useState(false);
   const [isHueDragging, setIsHueDragging] = useState(false);
+  const [isPaletteDragging, setIsPaletteDragging] = useState(false);
   const boardRef = useRef<HTMLDivElement>(null);
   const hueRef = useRef<HTMLDivElement>(null);
+  const paletteRef = useRef<HTMLDivElement>(null);
 
   const resolvedHex = normalizeHexColor(value) ?? internalHex;
   const activeHex = normalizeHexColor(resolvedHex) ?? DEFAULT_COLOR;
+  const wheelCells = useMemo(() => createColorWheelCells(size), [size]);
+  const activeWheelCell = useMemo(
+    () => getClosestColorWheelCell(currentColor, wheelCells),
+    [currentColor, wheelCells],
+  );
 
   useEffect(() => {
     const normalized = normalizeHexColor(value) ?? normalizeHexColor(defaultValue) ?? DEFAULT_COLOR;
@@ -222,7 +382,7 @@ export function ColorPickerBoard({
 
   function commitColor(nextColor: HsvaColor, notifyComplete = false): void {
     const normalizedColor = {
-      h: clamp(nextColor.h, 0, 360),
+      h: ((nextColor.h % 360) + 360) % 360,
       s: clamp(nextColor.s, 0, 100),
       v: clamp(nextColor.v, 0, 100),
     };
@@ -282,6 +442,22 @@ export function ColorPickerBoard({
     );
   }
 
+  function updateWheelFromPointer(clientX: number, clientY: number, notifyComplete = false): void {
+    const palette = paletteRef.current;
+
+    if (!palette) {
+      return;
+    }
+
+    const nextCell = getClosestColorWheelCellFromPoint(clientX, clientY, palette, wheelCells);
+
+    if (!nextCell) {
+      return;
+    }
+
+    commitColor(nextCell.color, notifyComplete);
+  }
+
   function handleBoardPointerDown(event: PointerEvent<HTMLDivElement>): void {
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -330,6 +506,31 @@ export function ColorPickerBoard({
     event.currentTarget.releasePointerCapture(event.pointerId);
     setIsHueDragging(false);
     updateHueFromPointer(event.clientX, true);
+  }
+
+  function handleWheelPointerDown(event: PointerEvent<HTMLDivElement>): void {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setIsPaletteDragging(true);
+    updateWheelFromPointer(event.clientX, event.clientY);
+  }
+
+  function handleWheelPointerMove(event: PointerEvent<HTMLDivElement>): void {
+    if (!isPaletteDragging) {
+      return;
+    }
+
+    updateWheelFromPointer(event.clientX, event.clientY);
+  }
+
+  function handleWheelPointerUp(event: PointerEvent<HTMLDivElement>): void {
+    if (!isPaletteDragging) {
+      return;
+    }
+
+    event.currentTarget.releasePointerCapture(event.pointerId);
+    setIsPaletteDragging(false);
+    updateWheelFromPointer(event.clientX, event.clientY, true);
   }
 
   function handleInputChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -386,6 +587,20 @@ export function ColorPickerBoard({
     touchAction: 'none',
   };
 
+  const wheelStyle: CSSProperties = {
+    position: 'relative',
+    width: size,
+    height: size,
+    borderRadius: '50%',
+    overflow: 'hidden',
+    cursor: 'crosshair',
+    touchAction: 'none',
+    background:
+      'radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, rgba(148, 163, 184, 0.06) 34%, rgba(15, 23, 42, 0.25) 72%, rgba(15, 23, 42, 0.6) 100%)',
+    boxShadow:
+      'inset 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 12px 36px rgba(255, 255, 255, 0.04)',
+  };
+
   return (
     <section className={className} style={rootStyle} aria-label={label}>
       <div
@@ -399,7 +614,7 @@ export function ColorPickerBoard({
       >
         <div>
           <div style={{ fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.7 }}>
-            Picker Board
+            {variant === 'wheel' ? 'Chromatic Wheel' : 'Picker Board'}
           </div>
           <h3 style={{ margin: '6px 0 0', fontSize: 20, lineHeight: 1.1 }}>{label}</h3>
         </div>
@@ -421,79 +636,126 @@ export function ColorPickerBoard({
         </div>
       </div>
 
-      <div
-        ref={boardRef}
-        role="presentation"
-        style={boardStyle}
-        onPointerDown={handleBoardPointerDown}
-        onPointerMove={handleBoardPointerMove}
-        onPointerUp={handleBoardPointerUp}
-        onPointerCancel={handleBoardPointerUp}
-      >
+      {variant === 'wheel' ? (
         <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(90deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%)',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%)',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            left: boardHandleLeft,
-            top: boardHandleTop,
-            width: 18,
-            height: 18,
-            borderRadius: '50%',
-            border: '2px solid #FFFFFF',
-            boxShadow: '0 0 0 1px rgba(15, 23, 42, 0.35), 0 4px 14px rgba(15, 23, 42, 0.35)',
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-      </div>
+          ref={paletteRef}
+          role="presentation"
+          style={wheelStyle}
+          onPointerDown={handleWheelPointerDown}
+          onPointerMove={handleWheelPointerMove}
+          onPointerUp={handleWheelPointerUp}
+          onPointerCancel={handleWheelPointerUp}
+        >
+          {wheelCells.map((cell) => {
+            const isActive = activeWheelCell?.id === cell.id;
 
-      <div
-        ref={hueRef}
-        role="presentation"
-        style={{
-          position: 'relative',
-          width: size,
-          height: 18,
-          marginTop: 14,
-          borderRadius: 999,
-          background:
-            'linear-gradient(90deg, #FF0000 0%, #FFFF00 16.66%, #00FF00 33.33%, #00FFFF 50%, #0000FF 66.66%, #FF00FF 83.33%, #FF0000 100%)',
-          boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.1)',
-          cursor: 'ew-resize',
-          touchAction: 'none',
-        }}
-        onPointerDown={handleHuePointerDown}
-        onPointerMove={handleHuePointerMove}
-        onPointerUp={handleHuePointerUp}
-        onPointerCancel={handleHuePointerUp}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            left: hueHandleLeft,
-            top: '50%',
-            width: 14,
-            height: 26,
-            borderRadius: 999,
-            background: '#FFFFFF',
-            border: '1px solid rgba(15, 23, 42, 0.18)',
-            boxShadow: '0 6px 18px rgba(15, 23, 42, 0.28)',
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-      </div>
+            return (
+              <button
+                key={cell.id}
+                type="button"
+                onClick={() => {
+                  commitColor(cell.color, true);
+                }}
+                title={`${cell.label}: ${cell.hex}`}
+                aria-label={`${cell.label}: ${cell.hex}`}
+                style={{
+                  position: 'absolute',
+                  left: cell.x,
+                  top: cell.y,
+                  width: cell.size,
+                  height: cell.size,
+                  clipPath: OCTAGON_CLIP_PATH,
+                  border: 'none',
+                  padding: 0,
+                  background: cell.hex,
+                  boxShadow: isActive
+                    ? '0 0 0 2px rgba(248, 250, 252, 0.95), 0 0 0 6px rgba(15, 23, 42, 0.55), 0 10px 22px rgba(15, 23, 42, 0.32)'
+                    : '0 0 0 1px rgba(15, 23, 42, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.16)',
+                  transform: isActive ? 'scale(1.08)' : 'scale(1)',
+                  transition: 'transform 120ms ease, box-shadow 120ms ease',
+                  cursor: 'pointer',
+                }}
+              />
+            );
+          })}
+        </div>
+      ) : (
+        <>
+          <div
+            ref={boardRef}
+            role="presentation"
+            style={boardStyle}
+            onPointerDown={handleBoardPointerDown}
+            onPointerMove={handleBoardPointerMove}
+            onPointerUp={handleBoardPointerUp}
+            onPointerCancel={handleBoardPointerUp}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(90deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                left: boardHandleLeft,
+                top: boardHandleTop,
+                width: 18,
+                height: 18,
+                borderRadius: '50%',
+                border: '2px solid #FFFFFF',
+                boxShadow: '0 0 0 1px rgba(15, 23, 42, 0.35), 0 4px 14px rgba(15, 23, 42, 0.35)',
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
+          </div>
+
+          <div
+            ref={hueRef}
+            role="presentation"
+            style={{
+              position: 'relative',
+              width: size,
+              height: 18,
+              marginTop: 14,
+              borderRadius: 999,
+              background:
+                'linear-gradient(90deg, #FF0000 0%, #FFFF00 16.66%, #00FF00 33.33%, #00FFFF 50%, #0000FF 66.66%, #FF00FF 83.33%, #FF0000 100%)',
+              boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.1)',
+              cursor: 'ew-resize',
+              touchAction: 'none',
+            }}
+            onPointerDown={handleHuePointerDown}
+            onPointerMove={handleHuePointerMove}
+            onPointerUp={handleHuePointerUp}
+            onPointerCancel={handleHuePointerUp}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                left: hueHandleLeft,
+                top: '50%',
+                width: 14,
+                height: 26,
+                borderRadius: 999,
+                background: '#FFFFFF',
+                border: '1px solid rgba(15, 23, 42, 0.18)',
+                boxShadow: '0 6px 18px rgba(15, 23, 42, 0.28)',
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
+          </div>
+        </>
+      )}
 
       {showInput ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, marginTop: 16 }}>
