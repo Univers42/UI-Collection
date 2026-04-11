@@ -53,6 +53,7 @@ export interface AssetPickerBoardProps {
   locale?: string;
   layout?: AssetPickerTabLayout;
   itemLabelVisibility?: AssetPickerItemLabelVisibility;
+  itemChrome?: boolean;
 }
 
 export type { DefaultAssetPickerTabsOptions };
@@ -302,6 +303,7 @@ export function AssetPickerBoard({
   locale,
   layout,
   itemLabelVisibility = 'visible',
+  itemChrome = true,
 }: Readonly<AssetPickerBoardProps>) {
   const availableTabs = tabs.length > 0 ? tabs : DEFAULT_ASSET_PICKER_TABS;
   const normalizedValue = normalizeBoardValueInput(value, availableTabs);
@@ -414,6 +416,8 @@ export function AssetPickerBoard({
     : getLayoutDefaults('grid');
   const resolvedLabelVisibility =
     activeTab?.itemLabelVisibility ?? itemLabelVisibility;
+  const resolvedItemChrome =
+    activeTab?.itemChrome ?? itemChrome;
 
   const groupedItems = useMemo(() => {
     if (!activeTab) {
@@ -808,20 +812,33 @@ export function AssetPickerBoard({
                         justifyItems: 'center',
                         alignContent: 'start',
                         minHeight: resolvedLayout.cellSize,
-                        padding: '12px 8px',
+                        padding: resolvedItemChrome ? '12px 8px' : '4px',
                         position: 'relative',
                       },
-                      {
-                        borderRadius: 16,
-                        border: isActive
-                          ? '1px solid rgba(255, 255, 255, 0.48)'
-                          : '1px solid rgba(148, 163, 184, 0.18)',
-                        background: isActive
-                          ? activeTab.activeBackground ?? 'rgba(255, 255, 255, 0.12)'
-                          : 'rgba(255, 255, 255, 0.04)',
-                        color: '#F8FAFC',
-                        cursor: 'pointer',
-                      },
+                      resolvedItemChrome
+                        ? {
+                            borderRadius: 16,
+                            border: isActive
+                              ? '1px solid rgba(255, 255, 255, 0.48)'
+                              : '1px solid rgba(148, 163, 184, 0.18)',
+                            background: isActive
+                              ? activeTab.activeBackground ?? 'rgba(255, 255, 255, 0.12)'
+                              : 'rgba(255, 255, 255, 0.04)',
+                            color: '#F8FAFC',
+                            cursor: 'pointer',
+                          }
+                        : {
+                            border: 'none',
+                            background: 'transparent',
+                            color: '#F8FAFC',
+                            cursor: 'pointer',
+                            borderRadius: 0,
+                            boxShadow: 'none',
+                            outline: isActive
+                              ? '2px solid rgba(255, 255, 255, 0.4)'
+                              : 'none',
+                            outlineOffset: 2,
+                          },
                     )}
                   >
                     <span

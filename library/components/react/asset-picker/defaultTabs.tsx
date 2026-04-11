@@ -38,6 +38,7 @@ export interface AssetPickerTabOptions {
   activeBackground?: string;
   layout?: AssetPickerTabLayout;
   itemLabelVisibility?: AssetPickerItemLabelVisibility;
+  itemChrome?: boolean;
   showGroups?: boolean;
   groupOrder?: string[];
   groupLabels?: Record<string, string>;
@@ -90,6 +91,7 @@ export function createIconPickerTab(
     activeBackground: options.activeBackground ?? ICON_ACTIVE_BACKGROUND,
     layout: options.layout ?? 'icon',
     itemLabelVisibility: options.itemLabelVisibility,
+    itemChrome: options.itemChrome ?? false,
     showGroups: options.showGroups ?? false,
     groupOrder: options.groupOrder,
     groupLabels: options.groupLabels,
@@ -124,6 +126,7 @@ export function createEmojiPickerTab(
     activeBackground: options.activeBackground ?? EMOJI_ACTIVE_BACKGROUND,
     layout: options.layout ?? 'emoji',
     itemLabelVisibility: options.itemLabelVisibility,
+    itemChrome: options.itemChrome ?? false,
     showGroups: options.showGroups ?? true,
     groupOrder: options.groupOrder ?? [...EMOJI_PICKER_GROUPS],
     groupLabels: options.groupLabels,
@@ -168,6 +171,7 @@ export function createMediaCollectionPickerTab(
     activeBackground: options.activeBackground ?? SVG_ACTIVE_BACKGROUND,
     layout: options.layout ?? (collectionName === 'photos' ? 'cover' : 'media'),
     itemLabelVisibility: options.itemLabelVisibility,
+    itemChrome: options.itemChrome ?? (collectionName === 'svg' ? false : true),
     showGroups: options.showGroups ?? false,
     groupOrder: options.groupOrder,
     groupLabels: options.groupLabels,

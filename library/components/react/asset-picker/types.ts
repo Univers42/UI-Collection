@@ -91,6 +91,7 @@ export interface AssetPickerBoardTab<TData = unknown> {
   activeBackground?: string;
   layout?: AssetPickerTabLayout;
   itemLabelVisibility?: AssetPickerItemLabelVisibility;
+  itemChrome?: boolean;
   showGroups?: boolean;
   groupOrder?: string[];
   groupLabels?: Record<string, string>;
