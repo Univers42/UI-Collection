@@ -812,6 +812,7 @@ export function AssetPickerBoard({
                         justifyItems: 'center',
                         alignContent: 'start',
                         justifySelf: 'center',
+                        margin: '1mm',
                         width: resolvedItemChrome ? '100%' : previewSize + 2,
                         minHeight: resolvedItemChrome ? resolvedLayout.cellSize : previewSize + 2,
                         padding: resolvedItemChrome ? '6px 4px' : '0px',
