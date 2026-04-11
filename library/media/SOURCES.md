@@ -9,7 +9,39 @@ Verified during generation on `2026-04-09`.
 - Source: https://github.com/tailwindlabs/heroicons
 - Entries:
   - `svg-heroicons-arrow-left`
+  - `svg-heroicons-arrow-right`
+  - `svg-heroicons-arrow-up`
+  - `svg-heroicons-arrow-down`
   - `svg-heroicons-bolt`
+  - `svg-heroicons-check`
+  - `svg-heroicons-x-mark`
+  - `svg-heroicons-magnifying-glass`
+  - `svg-heroicons-home`
+  - `svg-heroicons-user`
+  - `svg-heroicons-heart`
+  - `svg-heroicons-star`
+  - `svg-heroicons-bell`
+  - `svg-heroicons-cog-6-tooth`
+  - `svg-heroicons-photo`
+  - `svg-heroicons-play`
+  - `svg-heroicons-pause`
+  - `svg-heroicons-document-text`
+  - `svg-heroicons-cloud-arrow-up`
+
+## Simple Icons
+
+- Source: https://simpleicons.org
+- Entries:
+  - `svg-logo-github`
+  - `svg-logo-react`
+  - `svg-logo-typescript`
+  - `svg-logo-vite`
+  - `svg-logo-npm`
+  - `svg-logo-docker`
+  - `svg-logo-figma`
+  - `svg-logo-notion`
+  - `svg-logo-openai`
+  - `svg-logo-tailwindcss`
 
 ## MDN Shared Assets
 
