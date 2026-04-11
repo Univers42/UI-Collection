@@ -281,7 +281,7 @@ Default datasets available from the root:
 - `DEFAULT_COLOR_PRESETS`: 8 presets
 - `DEFAULT_ICON_PICKER_ITEMS`: 30 icons
 - `EMOJI_PICKER_GROUPS`: 9 standard-style emoji categories
-- `DEFAULT_EMOJI_PICKER_ITEMS`: 180 emojis across smileys, people, animals, food, travel, activities, objects, symbols, and flags
+- `DEFAULT_EMOJI_PICKER_ITEMS`: 950+ emojis across smileys, people, animals, food, travel, activities, objects, symbols, and flags
 
 #### Unified Asset Picker
 
