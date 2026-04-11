@@ -1,6 +1,6 @@
 {
   "name": "@univers42/ui-collection",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "Reusable UI asset library for media registries and React slash-menu icons.",
   "type": "module",
   "main": "./dist/library/index.js",
