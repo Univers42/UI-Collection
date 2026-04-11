@@ -184,31 +184,31 @@ function getLayoutDefaults(layout: AssetPickerLayoutPreset): ResolvedLayout {
       return {
         type: 'emoji',
         columns: 8,
-        previewSize: 20,
-        cellSize: 44,
+        previewSize: 18,
+        cellSize: 34,
         aspectRatio: 1,
         objectFit: 'contain',
-        gap: 6,
+        gap: 4,
       };
     case 'icon':
       return {
         type: 'icon',
         columns: 6,
-        previewSize: 18,
-        cellSize: 50,
+        previewSize: 16,
+        cellSize: 38,
         aspectRatio: 1,
         objectFit: 'contain',
-        gap: 8,
+        gap: 5,
       };
     case 'media':
       return {
         type: 'media',
         columns: 4,
-        previewSize: 48,
-        cellSize: 92,
+        previewSize: 40,
+        cellSize: 76,
         aspectRatio: 4 / 3,
         objectFit: 'contain',
-        gap: 10,
+        gap: 8,
       };
     case 'cover':
       return {
@@ -225,11 +225,11 @@ function getLayoutDefaults(layout: AssetPickerLayoutPreset): ResolvedLayout {
       return {
         type: 'grid',
         columns: 5,
-        previewSize: 20,
-        cellSize: 62,
+        previewSize: 18,
+        cellSize: 48,
         aspectRatio: 1,
         objectFit: 'contain',
-        gap: 8,
+        gap: 6,
       };
   }
 }
@@ -792,7 +792,7 @@ export function AssetPickerBoard({
                   item.previewAspectRatio ?? resolvedLayout.aspectRatio;
                 const previewSize = Math.min(
                   resolvedLayout.previewSize,
-                  resolvedLayout.cellSize - 10,
+                  resolvedLayout.cellSize - 4,
                 );
 
                 return (
@@ -808,11 +808,13 @@ export function AssetPickerBoard({
                       'itemButton',
                       {
                         display: 'grid',
-                        gap: resolvedLabelVisibility === 'visible' ? 5 : 0,
+                        gap: resolvedLabelVisibility === 'visible' ? 4 : 0,
                         justifyItems: 'center',
                         alignContent: 'start',
-                        minHeight: resolvedLayout.cellSize,
-                        padding: resolvedItemChrome ? '8px 6px' : '2px',
+                        justifySelf: 'center',
+                        width: resolvedItemChrome ? '100%' : previewSize + 2,
+                        minHeight: resolvedItemChrome ? resolvedLayout.cellSize : previewSize + 2,
+                        padding: resolvedItemChrome ? '6px 4px' : '0px',
                         position: 'relative',
                       },
                       resolvedItemChrome
@@ -848,7 +850,7 @@ export function AssetPickerBoard({
                         {
                           display: 'grid',
                           placeItems: 'center',
-                          width: '100%',
+                          width: resolvedItemChrome ? '100%' : previewSize,
                           minHeight: previewSize,
                           aspectRatio: `${previewAspectRatio}`,
                         },
