@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PlaygroundPageEditor.tsx                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rstancu <rstancu@student.42madrid.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 01:31:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/11 12:35:55 by rstancu          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
