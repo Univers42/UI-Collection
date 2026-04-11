@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import {
   AssetPickerBoard,
+  type AssetPickerBoardProps,
   createIconPickerTab,
-  type AssetPickerBoardValue,
+  type AssetPickerValueFormat,
 } from '../asset-picker/index.js';
 import {
   DEFAULT_ICON_PICKER_ITEMS,
@@ -19,24 +20,13 @@ export interface IconPickerBoardProps {
   showSearch?: boolean;
   columns?: number;
   className?: string;
-}
-
-function resolveSelectionValue(
-  items: IconPickerItem[],
-  requestedId: string | undefined,
-): AssetPickerBoardValue | undefined {
-  if (items.length === 0) {
-    return undefined;
-  }
-
-  const selectedItem =
-    items.find((item) => item.id === requestedId) ??
-    items[0];
-
-  return {
-    tabId: 'icons',
-    itemId: selectedItem.id,
-  };
+  valueFormat?: AssetPickerValueFormat;
+  boardProps?: Partial<
+    Omit<
+      AssetPickerBoardProps,
+      'tabs' | 'value' | 'defaultValue' | 'onChange' | 'onChangeComplete' | 'label' | 'showTabs' | 'showSearch' | 'className'
+    >
+  >;
 }
 
 export function IconPickerBoard({
@@ -49,29 +39,35 @@ export function IconPickerBoard({
   showSearch = true,
   columns = 5,
   className,
+  valueFormat = 'canonical',
+  boardProps,
 }: Readonly<IconPickerBoardProps>) {
   const tab = useMemo(
-    () => createIconPickerTab(items, { columns }),
-    [columns, items],
+    () =>
+      createIconPickerTab(items, {
+        columns,
+        valueFormat,
+        itemLabelVisibility: boardProps?.itemLabelVisibility,
+        layout: boardProps?.layout,
+      }),
+    [boardProps?.itemLabelVisibility, boardProps?.layout, columns, items, valueFormat],
   );
-  const boardValue = resolveSelectionValue(items, value);
-  const boardDefaultValue = resolveSelectionValue(items, defaultValue);
 
   return (
     <AssetPickerBoard
+      {...boardProps}
       tabs={[tab]}
-      value={boardValue}
-      defaultValue={boardDefaultValue}
+      value={value}
+      defaultValue={defaultValue}
       label={label}
       showSearch={showSearch}
       showTabs={false}
-      columns={columns}
       className={className}
       onChange={(selection) => {
-        onChange?.(selection.item.value);
+        onChange?.(selection.serializedValue);
       }}
       onChangeComplete={(selection) => {
-        onChangeComplete?.(selection.item.value);
+        onChangeComplete?.(selection.serializedValue);
       }}
     />
   );

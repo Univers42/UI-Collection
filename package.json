@@ -118,7 +118,9 @@
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "prepack": "npm run clean && npm run build",
-    "pack:check": "npm pack --dry-run"
+    "pack:check": "npm pack --dry-run",
+    "smoke:package": "node ./scripts/smoke-package.mjs",
+    "release:check": "npm run build && npm run pack:check && npm run smoke:package"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"

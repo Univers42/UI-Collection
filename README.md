@@ -19,6 +19,7 @@ npm install @univers42/ui-collection react
 ```bash
 npm install
 npm run build
+npm run release:check
 ```
 
 ## Releases and Upgrades
@@ -38,6 +39,7 @@ The repository now includes:
 
 - `prepack` packaging hooks in [package.json](/home/settes/cursus/trascendence/UI-Collection/package.json)
 - a publish workflow in [.github/workflows/publish-package.yml](/home/settes/cursus/trascendence/UI-Collection/.github/workflows/publish-package.yml)
+- a tarball smoke test in [scripts/smoke-package.mjs](/home/settes/cursus/trascendence/UI-Collection/scripts/smoke-package.mjs)
 - a release guide in [RELEASING.md](/home/settes/cursus/trascendence/UI-Collection/RELEASING.md)
 
 ### Using This Package in Another Repository
@@ -135,9 +137,18 @@ Legacy re-exports are still available:
 ```tsx
 import {
   AssetPickerBoard,
+  AssetRenderer,
   ColorPickerBoard,
   IconPickerBoard,
   EmojiPickerBoard,
+  assetValueToBoardValue,
+  createDefaultAssetPickerTabs,
+  createEmojiPickerTab,
+  createIconPickerTab,
+  createMediaCollectionPickerTab,
+  parseAssetValue,
+  resolveAssetValue,
+  serializeAssetSelection,
   SLASH_ITEMS,
   SECTION_LABELS,
   getMediaItem,
@@ -149,6 +160,7 @@ import {
   DEFAULT_ASSET_PICKER_TABS,
   DEFAULT_COLOR_PRESETS,
   DEFAULT_ICON_PICKER_ITEMS,
+  EMOJI_PICKER_GROUPS,
   DEFAULT_EMOJI_PICKER_ITEMS,
 } from '@univers42/ui-collection';
 ```
@@ -161,7 +173,12 @@ import { SLASH_ITEMS } from '@univers42/ui-collection/library/catalogs';
 import { IconText, IconBoard } from '@univers42/ui-collection/library/icons/react/slash-menu';
 import {
   AssetPickerBoard,
+  AssetRenderer,
+  assetValueToBoardValue,
   createMediaCollectionPickerTab,
+  parseAssetValue,
+  resolveAssetValue,
+  serializeAssetSelection,
 } from '@univers42/ui-collection/library/components/react/asset-picker';
 import { ColorPickerBoard } from '@univers42/ui-collection/library/components/react/color-picker';
 import { IconPickerBoard } from '@univers42/ui-collection/library/components/react/icon-picker';
@@ -193,14 +210,25 @@ The root API is intentionally small and stable. More specialized modules live un
 Root exports include:
 
 - `AssetPickerBoard`
+- `AssetRenderer`
 - `ColorPickerBoard`
 - `IconPickerBoard`
 - `EmojiPickerBoard`
 - `DEFAULT_ASSET_PICKER_TABS`
+- `createDefaultAssetPickerTabs`
+- `createEmojiPickerTab`
+- `createIconPickerTab`
+- `createMediaCollectionPickerTab`
+- `parseAssetValue`
+- `resolveAssetValue`
+- `assetValueToBoardValue`
+- `serializeAssetSelection`
 - `DEFAULT_COLOR_PRESETS`
 - `DEFAULT_ICON_PICKER_ITEMS`
+- `EMOJI_PICKER_GROUPS`
 - `DEFAULT_EMOJI_PICKER_ITEMS`
 - `AssetPickerBoardProps`
+- `AssetPickerBoardAppearance`
 - `AssetPickerBoardTab`
 - `AssetPickerBoardItem`
 - `AssetPickerBoardValue`
@@ -209,6 +237,7 @@ Root exports include:
 - `ColorPickerPreset`
 - `IconPickerBoardProps`
 - `IconPickerItem`
+- `EmojiPickerGroup`
 - `EmojiPickerBoardProps`
 - `EmojiPickerItem`
 
@@ -251,7 +280,8 @@ Default datasets available from the root:
 - `DEFAULT_ASSET_PICKER_TABS`: default tabs for emojis, SVGs, and icons
 - `DEFAULT_COLOR_PRESETS`: 8 presets
 - `DEFAULT_ICON_PICKER_ITEMS`: 30 icons
-- `DEFAULT_EMOJI_PICKER_ITEMS`: 24 emojis
+- `EMOJI_PICKER_GROUPS`: 9 standard-style emoji categories
+- `DEFAULT_EMOJI_PICKER_ITEMS`: 90 emojis across smileys, people, animals, food, travel, activities, objects, symbols, and flags
 
 #### Unified Asset Picker
 
@@ -260,18 +290,48 @@ Default datasets available from the root:
 ```tsx
 import {
   AssetPickerBoard,
-  DEFAULT_ASSET_PICKER_TABS,
+  assetValueToBoardValue,
+  createDefaultAssetPickerTabs,
+  serializeAssetSelection,
 } from '@univers42/ui-collection';
 
 export function Demo() {
+  const tabs = createDefaultAssetPickerTabs();
+
   return (
     <AssetPickerBoard
       label="Block asset picker"
-      tabs={DEFAULT_ASSET_PICKER_TABS}
-      onChange={({ tab, item }) => console.log(tab.id, item.value)}
+      tabs={tabs}
+      value={assetValueToBoardValue('icon:text', tabs)}
+      onChange={(selection) => {
+        console.log(selection.tab.id);
+        console.log(selection.item.value);
+        console.log(serializeAssetSelection(selection));
+      }}
     />
   );
 }
+```
+
+#### Canonical Asset Values
+
+The package now emits stable values directly from the library so the consumer does not need local prefixes or wrappers:
+
+- icons serialize as `icon:<id>`, for example `icon:text`
+- emojis serialize as the raw glyph, for example `😀`
+- media keeps the existing media ref contract, for example `local:/media/svg/icons/arrow-left.svg`
+
+```tsx
+import {
+  parseAssetValue,
+  resolveAssetValue,
+} from '@univers42/ui-collection';
+
+const parsed = parseAssetValue('icon:text');
+const resolved = resolveAssetValue('icon:text');
+
+console.log(parsed.kind);      // icon
+console.log(resolved?.label);  // Text
 ```
 
 #### Which Picker Should You Import?
@@ -285,6 +345,10 @@ export function Demo() {
   return (
     <AssetPickerBoard
       label="Block asset picker"
+      showSelectionPreview={false}
+      showStatusBar={false}
+      itemLabelVisibility="hidden"
+      appearance="unstyled"
       onChange={({ tab, item }) => {
         console.log(tab.id);     // emojis | svg | icons
         console.log(item.value); // selected value
@@ -332,10 +396,59 @@ export function Demo() {
   return (
     <>
       <ColorPickerBoard label="Brand palette" onChange={(hex) => console.log(hex)} />
-      <IconPickerBoard label="Slash icons" onChange={(iconId) => console.log(iconId)} />
+      <IconPickerBoard label="Slash icons" onChange={(iconValue) => console.log(iconValue)} />
       <EmojiPickerBoard label="Reaction picker" onChange={(emoji) => console.log(emoji)} />
     </>
   );
+}
+```
+
+`IconPickerBoard` emits canonical icon values by default, for example `icon:text`. `EmojiPickerBoard` emits the raw emoji glyph, and supports grouped sections plus persistent recents through `recentStorageKey`.
+
+#### Host-Themed Asset Picker
+
+This is the recommended integration when the host application owns the visual theme and wants emoji, icon and cover-heavy tabs without visible labels.
+
+```tsx
+import {
+  AssetPickerBoard,
+  AssetRenderer,
+  createDefaultAssetPickerTabs,
+} from '@univers42/ui-collection';
+
+const tabs = createDefaultAssetPickerTabs({
+  emojiTabOptions: {
+    itemLabelVisibility: 'hidden',
+    layout: 'emoji',
+  },
+  iconTabOptions: {
+    itemLabelVisibility: 'hidden',
+    layout: 'icon',
+  },
+  svgTabOptions: {
+    itemLabelVisibility: 'hidden',
+    layout: 'cover',
+  },
+});
+
+export function Demo() {
+  return (
+    <AssetPickerBoard
+      tabs={tabs}
+      appearance="unstyled"
+      showSelectionPreview={false}
+      showStatusBar={false}
+      classNames={{
+        root: 'asset-picker-root',
+        tabButton: 'asset-picker-tab',
+        itemButton: 'asset-picker-cell',
+      }}
+    />
+  );
+}
+
+export function StoredAssetPreview({ value }: { value: string }) {
+  return <AssetRenderer value={value} size={28} />;
 }
 ```
 
@@ -605,47 +718,56 @@ Current sources:
 Importing from `@univers42/ui-collection` gives you:
 
 - the unified `AssetPickerBoard`
+- the official `AssetRenderer`
 - the color, icon, and emoji picker wrappers
 - the React slash-menu icons
 - `SLASH_ITEMS` and `SECTION_LABELS`
 - the media registry and helpers
 - the default color, icon, emoji, and asset-picker datasets
+- the canonical asset value helpers for parse, resolve and serialize
 
 ## Full Example
 
 ```tsx
 import {
   AssetPickerBoard,
+  AssetRenderer,
   ColorPickerBoard,
-  DEFAULT_ASSET_PICKER_TABS,
   DEFAULT_ICON_PICKER_ITEMS,
   EmojiPickerBoard,
   IconPickerBoard,
   SLASH_ITEMS,
+  createDefaultAssetPickerTabs,
   getMediaCollection,
   getMediaItem,
+  parseAssetValue,
   resolveMediaUrl,
 } from '@univers42/ui-collection';
 
 const heroVideo = getMediaItem('video-mdn-flower');
 const emojiAssets = getMediaCollection('emojis');
 const src = heroVideo ? resolveMediaUrl(heroVideo.ref) : '';
+const tabs = createDefaultAssetPickerTabs();
+const parsed = parseAssetValue('icon:text');
 
 console.log(DEFAULT_ICON_PICKER_ITEMS.length);
 console.log(SLASH_ITEMS.length);
 console.log(emojiAssets.length);
 console.log(src);
+console.log(parsed.kind);
 
 export function Demo() {
   return (
     <>
       <AssetPickerBoard
         label="Unified asset picker"
-        tabs={DEFAULT_ASSET_PICKER_TABS}
+        tabs={tabs}
+        showSelectionPreview={false}
       />
       <ColorPickerBoard label="Brand palette" />
       <IconPickerBoard label="Slash icon picker" />
-      <EmojiPickerBoard label="Emoji picker" />
+      <EmojiPickerBoard label="Emoji picker" recentStorageKey="demo:emoji-recents" />
+      <AssetRenderer value="icon:text" size={24} />
     </>
   );
 }

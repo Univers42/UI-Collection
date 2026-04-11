@@ -33,6 +33,9 @@ jobs:
       - name: Verify package contents
         run: npm run pack:check
 
+      - name: Smoke test published package shape
+        run: npm run smoke:package
+
       - name: Publish package
         run: npm publish --access public
         env:
