@@ -9,6 +9,19 @@ function unsplashPhotoRef(photoId: string): MediaRef {
   );
 }
 
+function loremFlickrPhotoRef(tags: readonly string[], lock: number): MediaRef {
+  const tagPath = tags.map((tag) => encodeURIComponent(tag)).join(',');
+  return createMediaRef('url', `https://loremflickr.com/1600/1067/${tagPath}?lock=${lock}`);
+}
+
+function wikimediaPhotoRef(filename: string): MediaRef {
+  return createMediaRef('url', `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(filename)}`);
+}
+
+function remotePhotoRef(url: string): MediaRef {
+  return createMediaRef('url', url);
+}
+
 type PhotoSeed = readonly [
   id: string,
   label: string,
@@ -73,15 +86,231 @@ const EXTRA_PHOTO_ITEMS = ([
   ['photo-wellness-tea-ritual', 'Tea Ritual', 'wellness', 'wellness-tea-ritual.webp', 'Tea ritual close-up', ['photo', 'wellness', 'tea', 'calm']],
   ['photo-wellness-journal', 'Journal and Candle', 'wellness', 'wellness-journal.webp', 'Journal with candle and blanket', ['photo', 'wellness', 'journal', 'cozy']],
   ['photo-wellness-breathwork', 'Breathwork Session', 'wellness', 'wellness-breathwork.webp', 'Relaxing breathwork session', ['photo', 'wellness', 'mindfulness', 'breathwork']],
-] as const satisfies readonly PhotoSeed[]).map(([id, label, category, filename, alt, tags]) => ({
+] as const satisfies readonly PhotoSeed[]).map(([id, label, category, filename, alt, tags], index) => ({
   id,
   label,
   category,
   kind: 'photo' as const,
-  ref: createMediaRef('local', `/media/photos/optimized/${filename}`),
+  ref: loremFlickrPhotoRef(
+    [category, ...tags.filter((tag) => tag !== 'photo').slice(0, 2), filename.replace(/\.webp$/u, '').replace(/-/gu, ' ')],
+    100 + index,
+  ),
   alt,
-  tags,
+  tags: [...tags],
 }));
+
+type WikimediaPhotoSeed = readonly [
+  id: string,
+  label: string,
+  category: string,
+  filename: string,
+  alt: string,
+  tags: string[],
+];
+
+const JAMES_WEBB_PHOTO_ITEMS = [
+  {
+    id: 'photo-james-webb-front-view',
+    label: 'James Webb Front View',
+    category: 'james-webb',
+    kind: 'photo' as const,
+    ref: remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MP9X8G2ERPRXXK5325JSSZ.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880'),
+    alt: 'Front-facing illustration of the James Webb Space Telescope.',
+    tags: ['photo', 'james webb', 'jwst', 'telescope', 'space', 'nasa'],
+  },
+  {
+    id: 'photo-james-webb-side-view',
+    label: 'James Webb Side View',
+    category: 'james-webb',
+    kind: 'photo' as const,
+    ref: remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MN15AJW44J0SVJTBNAXBBR.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880'),
+    alt: 'Side view illustration of the James Webb Space Telescope.',
+    tags: ['photo', 'james webb', 'jwst', 'telescope', 'side view', 'nasa'],
+  },
+  {
+    id: 'photo-james-webb-concept-art',
+    label: 'James Webb Concept Art',
+    category: 'james-webb',
+    kind: 'photo' as const,
+    ref: remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2017/06/STScI-01EVVB9GCHKXGV2QJQZNKN10TP.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880'),
+    alt: 'Concept illustration of the James Webb Space Telescope in space.',
+    tags: ['photo', 'james webb', 'jwst', 'concept', 'space', 'nasa'],
+  },
+  {
+    id: 'photo-james-webb-blueprint',
+    label: 'James Webb Blueprint',
+    category: 'james-webb',
+    kind: 'photo' as const,
+    ref: remotePhotoRef('https://www.nasa.gov/wp-content/uploads/2023/03/47690335362_a9b23dc6c8_o.jpeg?w=1041'),
+    alt: 'Blueprint-style technical poster of the James Webb Space Telescope.',
+    tags: ['photo', 'james webb', 'jwst', 'blueprint', 'engineering', 'nasa'],
+  },
+  {
+    id: 'photo-james-webb-identifier',
+    label: 'James Webb Identifier',
+    category: 'james-webb',
+    kind: 'photo' as const,
+    ref: remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2021/STScI-01FDW8B9DQCV7G9AHFFB5Q5PEW.png?crop=faces%2Cfocalpoint&fit=clip&h=677&w=677'),
+    alt: 'Official Webb identifier graphic with telescope mirror and sunshield.',
+    tags: ['photo', 'james webb', 'jwst', 'identifier', 'branding', 'nasa'],
+  },
+  {
+    id: 'photo-james-webb-blue-illustration',
+    label: 'James Webb Blue Illustration',
+    category: 'james-webb',
+    kind: 'photo' as const,
+    ref: remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/astro/universe/2023/09/Webb-1.png?crop=faces%2Cfocalpoint&fit=clip&h=2858&w=3763'),
+    alt: 'Blue illustration of the James Webb Space Telescope.',
+    tags: ['photo', 'james webb', 'jwst', 'illustration', 'blue', 'nasa'],
+  },
+  ...([
+    ['photo-james-webb-observatory-01', 'Webb Observatory 01', 'james-webb', ['james webb telescope', 'space observatory', 'infrared'], 'Thematic James Webb observatory image.', ['photo', 'james webb', 'jwst', 'observatory', 'space']],
+    ['photo-james-webb-observatory-02', 'Webb Observatory 02', 'james-webb', ['james webb telescope', 'spacecraft', 'mirror'], 'Thematic James Webb telescope mirror image.', ['photo', 'james webb', 'jwst', 'mirror', 'space']],
+    ['photo-james-webb-observatory-03', 'Webb Observatory 03', 'james-webb', ['james webb telescope', 'nasa', 'space'], 'Thematic James Webb telescope in space.', ['photo', 'james webb', 'jwst', 'nasa', 'space']],
+    ['photo-james-webb-observatory-04', 'Webb Observatory 04', 'james-webb', ['james webb', 'telescope', 'gold mirror'], 'Thematic James Webb gold mirror image.', ['photo', 'james webb', 'jwst', 'gold mirror', 'space']],
+    ['photo-james-webb-observatory-05', 'Webb Observatory 05', 'james-webb', ['space telescope', 'observatory', 'nasa'], 'Thematic space observatory image inspired by Webb.', ['photo', 'james webb', 'space telescope', 'observatory', 'nasa']],
+    ['photo-james-webb-observatory-06', 'Webb Observatory 06', 'james-webb', ['deep space telescope', 'nasa', 'observatory'], 'Thematic deep space observatory image.', ['photo', 'james webb', 'deep space', 'observatory', 'nasa']],
+  ] as const).map(([id, label, category, tagsForUrl, alt, tags], index) => ({
+    id,
+    label,
+    category,
+    kind: 'photo' as const,
+    ref: loremFlickrPhotoRef(tagsForUrl, 200 + index),
+    alt,
+    tags: [...tags],
+  })),
+];
+
+const JAPANESE_PRINT_PHOTO_ITEMS = ([
+  ['photo-japanese-print-okiku', 'Hokusai Okiku', 'japanese-print', 'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 6.jpg', 'Traditional ukiyo-e print attributed to Hokusai featuring Okiku.', ['photo', 'japanese print', 'ukiyo-e', 'hokusai', 'art']],
+  ['photo-japanese-print-koheiji', 'Hokusai Koheiji', 'japanese-print', 'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 5.jpg', 'Traditional ukiyo-e print attributed to Hokusai featuring Koheiji.', ['photo', 'japanese print', 'ukiyo-e', 'hokusai', 'ghost']],
+  ['photo-japanese-print-river-fuji', 'Boat and Fuji', 'japanese-print', 'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 9.jpg', 'Boat on a river with Mount Fuji in the background.', ['photo', 'japanese print', 'ukiyo-e', 'mount fuji', 'river']],
+  ['photo-japanese-print-mishima-pass', 'Mishima Pass', 'japanese-print', 'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 18.jpg', 'Landscape print of Mishima Pass in Kai Province.', ['photo', 'japanese print', 'ukiyo-e', 'landscape', 'fuji']],
+  ['photo-japanese-print-great-wave', 'Great Wave Variant', 'japanese-print', 'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 7.jpg', 'Traditional wave scene in ukiyo-e style.', ['photo', 'japanese print', 'ukiyo-e', 'wave', 'hokusai']],
+  ['photo-japanese-print-shower-below-summit', 'Shower Below a Summit', 'japanese-print', 'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 19.jpg', 'Mount Fuji depicted in ukiyo-e style beneath rain clouds.', ['photo', 'japanese print', 'ukiyo-e', 'mount fuji', 'rain']],
+  ['photo-japanese-print-imagawa', 'Imagawa Yoshimoto', 'japanese-print', 'Imagawa-Yoshimoto-Ukiyo-e.jpg', 'Historical ukiyo-e portrait of Imagawa Yoshimoto.', ['photo', 'japanese print', 'ukiyo-e', 'portrait', 'history']],
+  ['photo-japanese-print-tokyo-subway', 'Tokyo Subway Poster', 'japanese-print', 'Sugiura_Hisui_Tokyo_Subway_1927_poster.jpg', 'Japanese poster for the Tokyo subway opening.', ['photo', 'japanese print', 'poster', 'tokyo', 'vintage']],
+  ['photo-japanese-print-isetan-opening', 'Isetan Opening Poster', 'japanese-print', 'Isetan Shinjuku Opening Poster (1933).jpg', 'Artistic poster for the Isetan Shinjuku opening in 1933.', ['photo', 'japanese print', 'poster', 'department store', 'vintage']],
+  ['photo-japanese-print-takashimaya', 'Takashimaya Poster', 'japanese-print', 'Takashimaya Osaka Opening Poster (1930).jpg', 'Japanese commercial poster for Takashimaya Osaka.', ['photo', 'japanese print', 'poster', 'osaka', 'vintage']],
+  ['photo-japanese-print-mitsukoshi', 'Mitsukoshi Poster', 'japanese-print', 'Mitsukoshi Department Store Ginza Branch Opens in 1930.jpg', 'Japanese department store poster from 1930.', ['photo', 'japanese print', 'poster', 'ginza', 'vintage']],
+  ['photo-japanese-print-tokyo-underground', 'Tokyo Underground Poster', 'japanese-print', 'Tokyo Underground Railway Poster.png', 'Poster for the Tokyo Underground Railway.', ['photo', 'japanese print', 'poster', 'railway', 'tokyo']],
+] as const satisfies readonly WikimediaPhotoSeed[]).map(([id, label, category, filename, alt, tags]) => ({
+  id,
+  label,
+  category,
+  kind: 'photo' as const,
+  ref: wikimediaPhotoRef(filename),
+  alt,
+  tags: [...tags],
+}));
+
+const ART_DECO_PHOTO_ITEMS = ([
+  ['photo-art-deco-club-chair', 'Art Deco Club Chair', 'art-deco', 'ART DECO.jpg', 'Classic Art Deco club chair photograph.', ['photo', 'art deco', 'chair', 'design', 'furniture']],
+  ['photo-art-deco-poster-japan-01', 'Japan Travel Poster 01', 'art-deco', '1930s Japan Travel Poster - 01.jpg', 'Art Deco style Japanese travel poster from the 1930s.', ['photo', 'art deco', 'poster', 'japan', 'travel']],
+  ['photo-art-deco-poster-japan-02', 'Japan Travel Poster 02', 'art-deco', '1930s Japan Travel Poster - 02.jpg', 'Art Deco style Japanese travel poster.', ['photo', 'art deco', 'poster', 'japan', 'travel']],
+  ['photo-art-deco-poster-japan-03', 'Japan Travel Poster 03', 'art-deco', '1930s Japan Travel Poster - 03.jpg', 'Vintage travel poster rendered in Art Deco style.', ['photo', 'art deco', 'poster', 'travel', 'vintage']],
+  ['photo-art-deco-poster-japan-05', 'Japan Travel Poster 05', 'art-deco', '1930s Japan Travel Poster - 05.jpg', 'Art Deco Japanese poster with travel motif.', ['photo', 'art deco', 'poster', 'japan', 'vintage']],
+  ['photo-art-deco-poster-japan-08', 'Japan Travel Poster 08', 'art-deco', '1930s Japan Travel Poster - 08.jpg', 'Art Deco Japanese poster with bold composition.', ['photo', 'art deco', 'poster', 'japan', 'composition']],
+  ['photo-art-deco-ontake', 'Ontake Valley Poster', 'art-deco', '1930s Japan Travel Poster - Ontake Shosenkyo Valley.jpg', 'Vintage poster of Ontake Shosenkyo Valley.', ['photo', 'art deco', 'poster', 'landscape', 'travel']],
+  ['photo-art-deco-subway', 'Tokyo Subway Deco Poster', 'art-deco', 'Sugiura_Hisui_Tokyo_Subway_1927_poster.jpg', 'Art Deco transportation poster for Tokyo subway.', ['photo', 'art deco', 'subway', 'poster', 'tokyo']],
+  ['photo-art-deco-isetan', 'Isetan Deco Poster', 'art-deco', 'Isetan Shinjuku Opening Poster (1933).jpg', 'Department store poster with Art Deco composition.', ['photo', 'art deco', 'poster', 'retail', 'japan']],
+  ['photo-art-deco-takashimaya', 'Takashimaya Deco Poster', 'art-deco', 'Takashimaya Osaka Opening Poster (1930).jpg', 'Commercial poster in Japanese Art Deco style.', ['photo', 'art deco', 'poster', 'retail', 'osaka']],
+  ['photo-art-deco-mitsukoshi', 'Mitsukoshi Deco Poster', 'art-deco', 'Mitsukoshi Department Store Ginza Branch Opens in 1930.jpg', 'Ginza poster using Art Deco design language.', ['photo', 'art deco', 'poster', 'ginza', 'vintage']],
+  ['photo-art-deco-underground', 'Underground Railway Poster', 'art-deco', 'Tokyo Underground Railway Poster.png', 'Art Deco inspired underground railway poster.', ['photo', 'art deco', 'poster', 'railway', 'graphic design']],
+] as const satisfies readonly WikimediaPhotoSeed[]).map(([id, label, category, filename, alt, tags]) => ({
+  id,
+  label,
+  category,
+  kind: 'photo' as const,
+  ref: wikimediaPhotoRef(filename),
+  alt,
+  tags: [...tags],
+}));
+
+type LoremPhotoSeed = readonly [
+  id: string,
+  label: string,
+  category: string,
+  queryTags: string[],
+  alt: string,
+  tags: string[],
+];
+
+function createLoremPhotoItems(seeds: readonly LoremPhotoSeed[], lockStart: number) {
+  return seeds.map(([id, label, category, queryTags, alt, tags], index) => ({
+    id,
+    label,
+    category,
+    kind: 'photo' as const,
+    ref: loremFlickrPhotoRef(queryTags, lockStart + index),
+    alt,
+    tags: [...tags],
+  }));
+}
+
+const NASA_PHOTO_ITEMS = createLoremPhotoItems([
+  ['photo-nasa-launch-pad', 'NASA Launch Pad', 'nasa', ['nasa', 'rocket', 'launch'], 'Launch complex associated with NASA missions.', ['photo', 'nasa', 'rocket', 'launch', 'space']],
+  ['photo-nasa-mission-control', 'NASA Mission Control', 'nasa', ['nasa', 'mission control', 'space'], 'Mission control room for a space program.', ['photo', 'nasa', 'mission control', 'space', 'operations']],
+  ['photo-nasa-astronaut', 'NASA Astronaut', 'nasa', ['nasa', 'astronaut', 'spacesuit'], 'Astronaut-themed NASA image.', ['photo', 'nasa', 'astronaut', 'spacesuit', 'space']],
+  ['photo-nasa-earth-orbit', 'NASA Earth Orbit', 'nasa', ['nasa', 'earth', 'orbit'], 'Earth from orbit associated with NASA exploration.', ['photo', 'nasa', 'earth', 'orbit', 'planet']],
+  ['photo-nasa-mars-mission', 'NASA Mars Mission', 'nasa', ['nasa', 'mars', 'space'], 'Mars exploration image themed around NASA.', ['photo', 'nasa', 'mars', 'space', 'exploration']],
+  ['photo-nasa-moon-surface', 'NASA Moon Surface', 'nasa', ['nasa', 'moon', 'lunar'], 'Lunar image themed around NASA missions.', ['photo', 'nasa', 'moon', 'lunar', 'space']],
+  ['photo-nasa-deep-space', 'NASA Deep Space', 'nasa', ['nasa', 'galaxy', 'space'], 'Deep-space themed NASA image.', ['photo', 'nasa', 'galaxy', 'space', 'universe']],
+  ['photo-nasa-space-station', 'NASA Station View', 'nasa', ['nasa', 'space station', 'orbit'], 'Space-station themed NASA image.', ['photo', 'nasa', 'station', 'orbit', 'space']],
+  ['photo-nasa-planetary-mission', 'NASA Planetary Mission', 'nasa', ['nasa', 'planet', 'exploration'], 'Planetary exploration image themed around NASA.', ['photo', 'nasa', 'planet', 'exploration', 'space']],
+  ['photo-nasa-observatory', 'NASA Observatory', 'nasa', ['nasa', 'observatory', 'space'], 'Observatory themed image associated with NASA.', ['photo', 'nasa', 'observatory', 'space', 'science']],
+  ['photo-nasa-solar-system', 'NASA Solar System', 'nasa', ['nasa', 'solar system', 'planets'], 'Solar system themed NASA image.', ['photo', 'nasa', 'solar system', 'planets', 'space']],
+  ['photo-nasa-cosmic-map', 'NASA Cosmic Map', 'nasa', ['nasa', 'stars', 'cosmos'], 'Cosmic map themed image associated with NASA.', ['photo', 'nasa', 'stars', 'cosmos', 'space']],
+], 300);
+
+const NATURE_EXPANSION_PHOTO_ITEMS = createLoremPhotoItems([
+  ['photo-nature-waterfall-mist', 'Waterfall Mist', 'nature', ['nature', 'waterfall', 'mist'], 'Waterfall scene with drifting mist.', ['photo', 'nature', 'waterfall', 'mist', 'landscape']],
+  ['photo-nature-redwood-trail', 'Redwood Trail', 'nature', ['nature', 'redwood', 'forest'], 'Trail through towering redwood forest.', ['photo', 'nature', 'forest', 'redwood', 'trail']],
+  ['photo-nature-alpine-meadow', 'Alpine Meadow', 'nature', ['nature', 'alpine meadow', 'mountains'], 'Alpine meadow beneath mountain peaks.', ['photo', 'nature', 'alpine', 'meadow', 'mountains']],
+  ['photo-nature-glacier-lake', 'Glacier Lake', 'nature', ['nature', 'glacier lake', 'mountains'], 'Blue glacier lake in a mountain valley.', ['photo', 'nature', 'glacier', 'lake', 'landscape']],
+  ['photo-nature-volcanic-coast', 'Volcanic Coast', 'nature', ['nature', 'volcanic coast', 'ocean'], 'Volcanic coastline meeting the ocean.', ['photo', 'nature', 'coast', 'ocean', 'volcanic']],
+  ['photo-nature-desert-dunes', 'Desert Dunes', 'nature', ['nature', 'desert dunes', 'sand'], 'Sweeping sand dunes in warm light.', ['photo', 'nature', 'desert', 'dunes', 'sand']],
+  ['photo-nature-monsoon-rain', 'Monsoon Rain', 'nature', ['nature', 'rainstorm', 'forest'], 'Rainstorm over lush natural scenery.', ['photo', 'nature', 'rain', 'forest', 'storm']],
+  ['photo-nature-arctic-ice', 'Arctic Ice', 'nature', ['nature', 'arctic ice', 'snow'], 'Arctic ice landscape with cold tones.', ['photo', 'nature', 'arctic', 'ice', 'snow']],
+  ['photo-nature-canyon-river', 'Canyon River', 'nature', ['nature', 'canyon river', 'rocks'], 'River cutting through a rocky canyon.', ['photo', 'nature', 'canyon', 'river', 'rocks']],
+  ['photo-nature-lavender-field', 'Lavender Field', 'nature', ['nature', 'lavender field', 'flowers'], 'Lavender field in bloom.', ['photo', 'nature', 'flowers', 'lavender', 'field']],
+  ['photo-nature-rainforest-canopy', 'Rainforest Canopy', 'nature', ['nature', 'rainforest canopy', 'jungle'], 'Dense rainforest canopy from above.', ['photo', 'nature', 'rainforest', 'jungle', 'green']],
+  ['photo-nature-cliff-sea', 'Sea Cliffs', 'nature', ['nature', 'sea cliffs', 'ocean'], 'Dramatic sea cliffs over the ocean.', ['photo', 'nature', 'cliffs', 'ocean', 'coast']],
+  ['photo-nature-moss-rocks', 'Mossy Rocks', 'nature', ['nature', 'moss rocks', 'forest'], 'Forest floor with moss-covered rocks.', ['photo', 'nature', 'moss', 'rocks', 'forest']],
+  ['photo-nature-savannah-sunset', 'Savannah Sunset', 'nature', ['nature', 'savannah sunset', 'wildlife'], 'Savannah landscape at sunset.', ['photo', 'nature', 'savannah', 'sunset', 'wildlife']],
+  ['photo-nature-lotus-pond', 'Lotus Pond', 'nature', ['nature', 'lotus pond', 'water'], 'Still pond covered with lotus flowers.', ['photo', 'nature', 'lotus', 'pond', 'water']],
+  ['photo-nature-bamboo-grove', 'Bamboo Grove', 'nature', ['nature', 'bamboo grove', 'forest'], 'Tall bamboo grove in filtered light.', ['photo', 'nature', 'bamboo', 'grove', 'forest']],
+], 400);
+
+const ARCHITECTURE_EXPANSION_PHOTO_ITEMS = createLoremPhotoItems([
+  ['photo-architecture-brutalist-tower', 'Brutalist Tower', 'architecture', ['architecture', 'brutalist tower', 'concrete'], 'Concrete brutalist tower in strong light.', ['photo', 'architecture', 'brutalist', 'tower', 'concrete']],
+  ['photo-architecture-art-museum', 'Art Museum', 'architecture', ['architecture', 'art museum', 'modern'], 'Contemporary art museum exterior.', ['photo', 'architecture', 'museum', 'modern', 'culture']],
+  ['photo-architecture-glass-atrium', 'Glass Atrium', 'architecture', ['architecture', 'glass atrium', 'modern'], 'Glass atrium with geometric framing.', ['photo', 'architecture', 'atrium', 'glass', 'geometry']],
+  ['photo-architecture-arched-corridor', 'Arched Corridor', 'architecture', ['architecture', 'arched corridor', 'historic'], 'Arched corridor with repeating structure.', ['photo', 'architecture', 'arches', 'corridor', 'historic']],
+  ['photo-architecture-city-plaza', 'City Plaza', 'architecture', ['architecture', 'city plaza', 'urban'], 'Public plaza framed by large buildings.', ['photo', 'architecture', 'plaza', 'urban', 'city']],
+  ['photo-architecture-rooftop-lines', 'Rooftop Lines', 'architecture', ['architecture', 'rooftop lines', 'minimal'], 'Minimal rooftop with strong linear composition.', ['photo', 'architecture', 'rooftop', 'minimal', 'lines']],
+  ['photo-architecture-suspension-bridge', 'Suspension Bridge', 'architecture', ['architecture', 'suspension bridge', 'engineering'], 'Bridge structure with repeating cables.', ['photo', 'architecture', 'bridge', 'engineering', 'infrastructure']],
+  ['photo-architecture-desert-modernism', 'Desert Modernism', 'architecture', ['architecture', 'desert modernism', 'house'], 'Desert modernist building in warm light.', ['photo', 'architecture', 'modernism', 'desert', 'building']],
+  ['photo-architecture-library-hall', 'Library Hall', 'architecture', ['architecture', 'library hall', 'interior'], 'Large architectural library hall.', ['photo', 'architecture', 'library', 'hall', 'interior']],
+  ['photo-architecture-spiritual-space', 'Spiritual Space', 'architecture', ['architecture', 'temple interior', 'light'], 'Calm interior with spiritual architecture.', ['photo', 'architecture', 'temple', 'light', 'interior']],
+  ['photo-architecture-monumental-stairs', 'Monumental Stairs', 'architecture', ['architecture', 'monumental stairs', 'stone'], 'Monumental staircase in stone.', ['photo', 'architecture', 'stairs', 'stone', 'monumental']],
+  ['photo-architecture-seaside-pavilion', 'Seaside Pavilion', 'architecture', ['architecture', 'seaside pavilion', 'coast'], 'Architectural pavilion by the sea.', ['photo', 'architecture', 'pavilion', 'coast', 'design']],
+], 500);
+
+const INTERIORS_EXPANSION_PHOTO_ITEMS = createLoremPhotoItems([
+  ['photo-interior-reading-nook', 'Reading Nook', 'interiors', ['interior', 'reading nook', 'home'], 'Comfortable reading nook with warm light.', ['photo', 'interior', 'reading', 'home', 'cozy']],
+  ['photo-interior-creative-studio', 'Creative Studio', 'interiors', ['interior', 'creative studio', 'workspace'], 'Creative studio interior with materials and tools.', ['photo', 'interior', 'studio', 'creative', 'workspace']],
+  ['photo-interior-wood-kitchen', 'Wood Kitchen', 'interiors', ['interior', 'wood kitchen', 'home'], 'Kitchen interior with warm wood finishes.', ['photo', 'interior', 'kitchen', 'wood', 'home']],
+  ['photo-interior-boutique-lounge', 'Boutique Lounge', 'interiors', ['interior', 'boutique lounge', 'design'], 'Boutique hotel lounge with layered textures.', ['photo', 'interior', 'lounge', 'design', 'hospitality']],
+  ['photo-interior-home-office', 'Home Office', 'interiors', ['interior', 'home office', 'desk'], 'Home office interior with calm palette.', ['photo', 'interior', 'office', 'desk', 'workspace']],
+  ['photo-interior-dining-room', 'Dining Room', 'interiors', ['interior', 'dining room', 'home'], 'Dining room interior prepared for guests.', ['photo', 'interior', 'dining', 'home', 'hospitality']],
+  ['photo-interior-gallery-wall', 'Gallery Wall', 'interiors', ['interior', 'gallery wall', 'art'], 'Interior wall styled with framed artwork.', ['photo', 'interior', 'gallery', 'art', 'decor']],
+  ['photo-interior-sunroom', 'Sunroom', 'interiors', ['interior', 'sunroom', 'plants'], 'Bright interior sunroom filled with plants.', ['photo', 'interior', 'sunroom', 'plants', 'light']],
+  ['photo-interior-spa-room', 'Spa Room', 'interiors', ['interior', 'spa room', 'wellness'], 'Minimal spa room with warm materials.', ['photo', 'interior', 'spa', 'wellness', 'minimal']],
+  ['photo-interior-industrial-loft', 'Industrial Loft', 'interiors', ['interior', 'industrial loft', 'design'], 'Industrial loft interior with high ceilings.', ['photo', 'interior', 'loft', 'industrial', 'design']],
+  ['photo-interior-cafe-window', 'Cafe Window', 'interiors', ['interior', 'cafe window', 'coffee'], 'Cafe interior framed by large window light.', ['photo', 'interior', 'cafe', 'coffee', 'hospitality']],
+  ['photo-interior-night-bar', 'Night Bar', 'interiors', ['interior', 'night bar', 'mood'], 'Bar interior with moody lighting.', ['photo', 'interior', 'bar', 'night', 'mood']],
+], 600);
 
 export const photosCollection = defineMediaCollection({
   name: 'photos',
@@ -103,7 +332,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Team Avatar 01',
       category: 'portraits',
       kind: 'photo',
-      ref: createMediaRef('local', '/media/photos/optimized/team-avatar-01.webp'),
+      ref: loremFlickrPhotoRef(['portrait', 'team avatar', 'person'], 1),
       alt: 'Portrait avatar placeholder',
       tags: ['photo', 'avatar', 'team', 'portrait'],
     },
@@ -372,5 +601,12 @@ export const photosCollection = defineMediaCollection({
       tags: ['photo', 'pets', 'cat', 'animal', 'cozy'],
     },
     ...EXTRA_PHOTO_ITEMS,
+    ...JAMES_WEBB_PHOTO_ITEMS,
+    ...JAPANESE_PRINT_PHOTO_ITEMS,
+    ...ART_DECO_PHOTO_ITEMS,
+    ...NASA_PHOTO_ITEMS,
+    ...NATURE_EXPANSION_PHOTO_ITEMS,
+    ...ARCHITECTURE_EXPANSION_PHOTO_ITEMS,
+    ...INTERIORS_EXPANSION_PHOTO_ITEMS,
   ],
 });

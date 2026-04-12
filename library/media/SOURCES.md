@@ -34,6 +34,37 @@ Verified during generation on `2026-04-12`.
   - `photo-pets-dog-portrait`
   - `photo-pets-cat-window`
 
+## LoremFlickr
+
+- Source: https://loremflickr.com
+- Entries:
+  - thematic remote photo entries used to replace local-only photo assets
+  - categories include `fashion`, `gaming`, `fitness`, `interiors`, `food`, `travel`, `abstract`, `business`, `education`, `music`, `animals`, `technology`, `social`, `wellness`, `nature`, `architecture`, `nasa`, and additional `james-webb` thematic entries
+
+## Wikimedia Commons
+
+- Source: https://commons.wikimedia.org
+- Entries:
+  - `photo-japanese-print-*`
+  - `photo-art-deco-*`
+  - Japanese poster and ukiyo-e themed entries backed by `Special:FilePath` URLs
+
+## NASA Science
+
+- Source: https://science.nasa.gov
+- Entries:
+  - `photo-james-webb-front-view`
+  - `photo-james-webb-side-view`
+  - `photo-james-webb-concept-art`
+  - `photo-james-webb-identifier`
+  - `photo-james-webb-blue-illustration`
+
+## NASA
+
+- Source: https://www.nasa.gov
+- Entries:
+  - `photo-james-webb-blueprint`
+
 ## Heroicons
 
 - Source: https://github.com/tailwindlabs/heroicons

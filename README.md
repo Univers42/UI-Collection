@@ -701,9 +701,11 @@ Current curated asset inventory:
 
 - `svg`: 154 items
 - `emojis`: 4 items
-- `photos`: 80 items
+- `photos`: 168 items
 - `videos`: 59 items
 - `other-media`: 69 items
+
+The `photos` collection is now fully remote and categorized by theme, including `portraits`, `workspace`, `travel`, `architecture`, `nature`, `fashion`, `gaming`, `interiors`, `wellness`, `james-webb`, `japanese-print`, `art-deco` and `nasa`.
 
 Curated external asset sources are documented in [library/media/SOURCES.md](/home/settes/cursus/trascendence/UI-Collection/library/media/SOURCES.md).
 
@@ -711,6 +713,9 @@ Current sources:
 
 - Heroicons
 - Unsplash
+- LoremFlickr
+- Wikimedia Commons
+- NASA Science
 - Google Sample Videos
 - Samplelib
 - SoundHelix
