@@ -6,6 +6,10 @@ import { getMediaCollection, resolveMediaUrl } from '../dist/library/media/index
 const rootDir = process.cwd();
 const outputDir = resolve(rootDir, 'media/photos/optimized');
 const manifestPath = resolve(rootDir, 'library/media/generated/photoAssetManifest.ts');
+const packagedMediaUrlsPath = resolve(
+  rootDir,
+  'library/media/generated/packagedMediaUrls.ts',
+);
 const WIKIMEDIA_DELAY_MS = 1500;
 
 const MIME_TYPE_EXTENSIONS = {
@@ -42,6 +46,22 @@ function serializeManifest(entries) {
     ...Object.entries(entries)
       .sort(([left], [right]) => left.localeCompare(right))
       .map(([id, fileName]) => `  ${JSON.stringify(id)}: ${JSON.stringify(fileName)},`),
+    '};',
+    '',
+  ];
+
+  return lines.join('\n');
+}
+
+function serializePackagedMediaUrls(entries) {
+  const lines = [
+    'export const PACKAGED_MEDIA_URLS: Record<string, string> = {',
+    ...Object.values(entries)
+      .sort((left, right) => left.localeCompare(right))
+      .map((fileName) => {
+        const packagedPath = `media/photos/optimized/${fileName}`;
+        return `  ${JSON.stringify(packagedPath)}: new URL(${JSON.stringify(`../../../../${packagedPath}`)}, import.meta.url).toString(),`;
+      }),
     '};',
     '',
   ];
@@ -125,6 +145,7 @@ async function main() {
   }
 
   writeFileSync(manifestPath, serializeManifest(manifest), 'utf8');
+  writeFileSync(packagedMediaUrlsPath, serializePackagedMediaUrls(manifest), 'utf8');
 
   console.log(
     JSON.stringify(

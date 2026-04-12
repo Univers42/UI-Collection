@@ -3,6 +3,7 @@ import {
   type MediaProvider,
   type MediaRef,
 } from './types.js';
+import { PACKAGED_MEDIA_URLS } from './generated/packagedMediaUrls.js';
 
 export type MediaUrlResolver = (value: string, provider: MediaProvider) => string;
 export type MediaResolverMap = Record<string, MediaUrlResolver>;
@@ -74,6 +75,11 @@ export function resolvePackagedMediaUrl(
 ): string {
   const normalizedBaseUrl = typeof baseUrl === 'string' ? baseUrl : baseUrl.toString();
   const normalizedValue = normalizePackagedMediaPath(value);
+  const packagedUrl = PACKAGED_MEDIA_URLS[normalizedValue];
+
+  if (packagedUrl) {
+    return packagedUrl;
+  }
 
   return new URL(
     `${PACKAGE_MEDIA_ROOT_RELATIVE_PATH}${normalizedValue}`,

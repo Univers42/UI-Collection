@@ -320,6 +320,7 @@ The package now emits stable values directly from the library so the consumer do
 - icons serialize as `icon:<id>`, for example `icon:text`
 - emojis serialize as the raw glyph, for example `😀`
 - media keeps the existing media ref contract, for example `package:media/svg/icons/arrow-left.svg`
+  Resolve media refs with `resolveMediaUrl()` or `AssetRenderer`; `package:` refs are intentionally opaque identifiers, not direct browser URLs.
 
 ```tsx
 import {
@@ -708,7 +709,7 @@ Current curated asset inventory:
 
 The `photos` collection is curated around stable, reusable themes such as `portraits`, `workspace`, `travel`, `architecture`, `nature`, `food`, `products`, `abstract`, `lifestyle`, `pets`, `james-webb`, `japanese-print`, and `art-deco`. It supports a hybrid model: downloaded packaged assets resolve through `package:media/photos/optimized/*`, while the remaining entries continue to fall back to stable remote sources from Wikimedia Commons and NASA.
 
-To turn the photo catalog into packaged local assets, run `npm run sync:photo-assets`. The generated manifest lets the same collection switch from remote source URLs to packaged `package:media/photos/optimized/*` refs without changing the public API.
+To turn the photo catalog into packaged local assets, run `npm run sync:photo-assets`. The generated manifests let the same collection switch from remote source URLs to packaged `package:media/photos/optimized/*` refs without changing the public API, while still resolving to bundler-safe asset URLs in consumer apps.
 
 Curated external asset sources are documented in [library/media/SOURCES.md](/home/settes/cursus/trascendence/UI-Collection/library/media/SOURCES.md).
 

@@ -55,6 +55,9 @@ const boardValue = assetValueToBoardValue('icon:text', tabs);
 const resolved = resolveAssetValue('icon:text', tabs);
 const media = getMediaCollection('svg');
 const packagedReadmeUrl = resolveMediaUrl(createPackageMediaRef('media/README.md'));
+const packagedPhotoUrl = resolveMediaUrl(
+  createPackageMediaRef('media/photos/optimized/photo-homepage-banner.jpg'),
+);
 
 if (typeof AssetPickerBoard !== 'function') {
   throw new Error('Root export AssetPickerBoard is missing.');
@@ -86,6 +89,10 @@ if (!Array.isArray(media) || media.length === 0) {
 
 if (!packagedReadmeUrl.includes('/media/README.md')) {
   throw new Error('Package media resolver did not resolve packaged asset URLs.');
+}
+
+if (!packagedPhotoUrl.includes('photo-homepage-banner')) {
+  throw new Error('Package media resolver did not resolve packaged photo asset URLs.');
 }
 
 const emojiTab = createEmojiPickerTab();
