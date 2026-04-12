@@ -28,6 +28,7 @@ React SVG icon components belong in `/library/icons/react`.
 ## Provider Reference Examples
 
 - `local:/media/svg/icons/arrow-left.svg`
+- `package:media/svg/icons/arrow-left.svg`
 - `url:https://cdn.example.com/docs/api-spec.pdf`
 - `api:https://api.example.com/v1/media/demo-video`
 - `unsplash:https://images.unsplash.com/photo-1518770660439-4636190af475`

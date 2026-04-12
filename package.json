@@ -110,6 +110,7 @@
   },
   "files": [
     "dist",
+    "media",
     "README.md"
   ],
   "sideEffects": false,
@@ -119,6 +120,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "prepack": "npm run clean && npm run build",
     "pack:check": "npm pack --dry-run",
+    "sync:photo-assets": "node ./scripts/sync-photo-assets.mjs",
     "smoke:package": "node ./scripts/smoke-package.mjs",
     "release:check": "npm run build && npm run pack:check && npm run smoke:package"
   },

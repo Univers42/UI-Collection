@@ -1,4 +1,5 @@
-import { createMediaRef } from '../providers.js';
+import { createMediaRef, createPackageMediaRef } from '../providers.js';
+import { PHOTO_ASSET_FILE_NAMES } from '../generated/photoAssetManifest.js';
 import type { MediaRef } from '../types.js';
 import { defineMediaCollection } from '../utils.js';
 
@@ -9,95 +10,30 @@ function unsplashPhotoRef(photoId: string): MediaRef {
   );
 }
 
-function loremFlickrPhotoRef(tags: readonly string[], lock: number): MediaRef {
-  const tagPath = tags.map((tag) => encodeURIComponent(tag)).join(',');
-  return createMediaRef('url', `https://loremflickr.com/1600/1067/${tagPath}?lock=${lock}`);
-}
-
 function wikimediaPhotoRef(filename: string): MediaRef {
-  return createMediaRef('url', `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(filename)}`);
+  return createMediaRef(
+    'url',
+    `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(filename)}?width=1400`,
+  );
 }
 
 function remotePhotoRef(url: string): MediaRef {
   return createMediaRef('url', url);
 }
 
-type PhotoSeed = readonly [
-  id: string,
-  label: string,
-  category: string,
-  filename: string,
-  alt: string,
-  tags: string[],
-];
+function getPackagedPhotoRef(id: string): MediaRef | undefined {
+  const fileName = PHOTO_ASSET_FILE_NAMES[id];
 
-const EXTRA_PHOTO_ITEMS = ([
-  ['photo-fashion-editorial-01', 'Fashion Editorial 01', 'fashion', 'fashion-editorial-01.webp', 'Fashion editorial portrait in soft light', ['photo', 'fashion', 'editorial', 'style']],
-  ['photo-fashion-editorial-02', 'Fashion Editorial 02', 'fashion', 'fashion-editorial-02.webp', 'Street fashion portrait with bold colors', ['photo', 'fashion', 'streetwear', 'style']],
-  ['photo-fashion-accessories', 'Fashion Accessories', 'fashion', 'fashion-accessories.webp', 'Accessories arranged on a tabletop', ['photo', 'fashion', 'accessories', 'product']],
-  ['photo-gaming-setup-neon', 'Gaming Setup Neon', 'gaming', 'gaming-setup-neon.webp', 'RGB gaming desk setup', ['photo', 'gaming', 'setup', 'rgb']],
-  ['photo-gaming-controller', 'Gaming Controller', 'gaming', 'gaming-controller.webp', 'Game controller close-up', ['photo', 'gaming', 'controller', 'product']],
-  ['photo-gaming-stream-room', 'Streaming Room', 'gaming', 'gaming-stream-room.webp', 'Streaming room with colored lights', ['photo', 'gaming', 'streaming', 'room']],
-  ['photo-fitness-gym-floor', 'Gym Floor', 'fitness', 'fitness-gym-floor.webp', 'Fitness gym interior with equipment', ['photo', 'fitness', 'gym', 'sport']],
-  ['photo-fitness-runner', 'Runner Portrait', 'fitness', 'fitness-runner.webp', 'Runner tying shoes outdoors', ['photo', 'fitness', 'running', 'lifestyle']],
-  ['photo-fitness-yoga-studio', 'Yoga Studio', 'fitness', 'fitness-yoga-studio.webp', 'Minimal yoga studio interior', ['photo', 'fitness', 'yoga', 'wellness']],
-  ['photo-interior-living-room', 'Living Room Interior', 'interiors', 'interior-living-room.webp', 'Warm modern living room interior', ['photo', 'interior', 'living room', 'home']],
-  ['photo-interior-bedroom', 'Bedroom Interior', 'interiors', 'interior-bedroom.webp', 'Minimal bedroom with natural light', ['photo', 'interior', 'bedroom', 'home']],
-  ['photo-interior-kitchen', 'Kitchen Interior', 'interiors', 'interior-kitchen.webp', 'Modern kitchen design', ['photo', 'interior', 'kitchen', 'home']],
-  ['photo-interior-bathroom', 'Bathroom Interior', 'interiors', 'interior-bathroom.webp', 'Elegant bathroom interior', ['photo', 'interior', 'bathroom', 'home']],
-  ['photo-food-dessert-plating', 'Dessert Plating', 'food', 'food-dessert-plating.webp', 'Fine dining dessert plating', ['photo', 'food', 'dessert', 'restaurant']],
-  ['photo-food-healthy-bowl', 'Healthy Bowl', 'food', 'food-healthy-bowl.webp', 'Healthy bowl with vegetables and grains', ['photo', 'food', 'healthy', 'bowl']],
-  ['photo-food-cocktail-bar', 'Cocktail Bar', 'food', 'food-cocktail-bar.webp', 'Craft cocktails on a bar counter', ['photo', 'food', 'cocktail', 'bar']],
-  ['photo-food-bakery-window', 'Bakery Window', 'food', 'food-bakery-window.webp', 'Bakery display with breads and pastries', ['photo', 'food', 'bakery', 'pastry']],
-  ['photo-travel-mediterranean-town', 'Mediterranean Town', 'travel', 'travel-mediterranean-town.webp', 'Mediterranean town street scene', ['photo', 'travel', 'town', 'summer']],
-  ['photo-travel-japanese-alley', 'Japanese Alley', 'travel', 'travel-japanese-alley.webp', 'Japanese alley with lanterns', ['photo', 'travel', 'japan', 'night']],
-  ['photo-travel-tropical-resort', 'Tropical Resort', 'travel', 'travel-tropical-resort.webp', 'Tropical resort by the water', ['photo', 'travel', 'resort', 'vacation']],
-  ['photo-travel-snow-cabin', 'Snow Cabin', 'travel', 'travel-snow-cabin.webp', 'Cabin in a snowy landscape', ['photo', 'travel', 'winter', 'cabin']],
-  ['photo-travel-market', 'Local Market', 'travel', 'travel-market.webp', 'Busy local market scene', ['photo', 'travel', 'market', 'culture']],
-  ['photo-abstract-liquid-gradient', 'Liquid Gradient', 'abstract', 'abstract-liquid-gradient.webp', 'Abstract liquid gradient background', ['photo', 'abstract', 'gradient', 'color']],
-  ['photo-abstract-iridescent', 'Iridescent Surface', 'abstract', 'abstract-iridescent.webp', 'Iridescent abstract texture', ['photo', 'abstract', 'iridescent', 'texture']],
-  ['photo-abstract-paper-cut', 'Paper Cut Layers', 'abstract', 'abstract-paper-cut.webp', 'Layered paper cut abstract composition', ['photo', 'abstract', 'paper', 'composition']],
-  ['photo-abstract-metal-wave', 'Metal Wave', 'abstract', 'abstract-metal-wave.webp', 'Metallic wave abstract detail', ['photo', 'abstract', 'metal', 'wave']],
-  ['photo-business-conference', 'Business Conference', 'business', 'business-conference.webp', 'Audience at a business conference', ['photo', 'business', 'conference', 'event']],
-  ['photo-business-presentation', 'Presentation Stage', 'business', 'business-presentation.webp', 'Speaker presenting on stage', ['photo', 'business', 'presentation', 'event']],
-  ['photo-business-remote-call', 'Remote Call', 'business', 'business-remote-call.webp', 'Video call meeting setup', ['photo', 'business', 'remote', 'meeting']],
-  ['photo-business-handshake', 'Handshake Moment', 'business', 'business-handshake.webp', 'Two people shaking hands', ['photo', 'business', 'handshake', 'deal']],
-  ['photo-education-classroom', 'Classroom', 'education', 'education-classroom.webp', 'Classroom with students and notebooks', ['photo', 'education', 'classroom', 'study']],
-  ['photo-education-library', 'Library Study', 'education', 'education-library.webp', 'Person studying in a library', ['photo', 'education', 'library', 'study']],
-  ['photo-education-science-lab', 'Science Lab', 'education', 'education-science-lab.webp', 'Science lab workspace', ['photo', 'education', 'science', 'lab']],
-  ['photo-education-graduation', 'Graduation Moment', 'education', 'education-graduation.webp', 'Graduation celebration image', ['photo', 'education', 'graduation', 'celebration']],
-  ['photo-music-vinyl', 'Vinyl Collection', 'music', 'music-vinyl.webp', 'Vinyl records and turntable', ['photo', 'music', 'vinyl', 'analog']],
-  ['photo-music-concert-crowd', 'Concert Crowd', 'music', 'music-concert-crowd.webp', 'Crowd at a concert', ['photo', 'music', 'concert', 'live']],
-  ['photo-music-synth-studio', 'Synth Studio', 'music', 'music-synth-studio.webp', 'Synthesizer studio desk', ['photo', 'music', 'studio', 'synth']],
-  ['photo-music-headphones-desk', 'Headphones Desk', 'music', 'music-headphones-desk.webp', 'Headphones on studio desk', ['photo', 'music', 'headphones', 'audio']],
-  ['photo-animals-horse-field', 'Horse in Field', 'animals', 'animals-horse-field.webp', 'Horse standing in an open field', ['photo', 'animals', 'horse', 'nature']],
-  ['photo-animals-bird-flight', 'Bird in Flight', 'animals', 'animals-bird-flight.webp', 'Bird flying across open sky', ['photo', 'animals', 'bird', 'wildlife']],
-  ['photo-animals-fox-forest', 'Fox in Forest', 'animals', 'animals-fox-forest.webp', 'Fox in a forest environment', ['photo', 'animals', 'fox', 'wildlife']],
-  ['photo-animals-fish-aquarium', 'Aquarium Fish', 'animals', 'animals-fish-aquarium.webp', 'Colorful fish in aquarium setting', ['photo', 'animals', 'fish', 'water']],
-  ['photo-technology-server-room', 'Server Room', 'technology', 'technology-server-room.webp', 'Rows of servers in a data room', ['photo', 'technology', 'servers', 'infrastructure']],
-  ['photo-technology-phone-flatlay', 'Phone Flatlay', 'technology', 'technology-phone-flatlay.webp', 'Smartphone flatlay composition', ['photo', 'technology', 'phone', 'product']],
-  ['photo-technology-smartwatch', 'Smartwatch Shot', 'technology', 'technology-smartwatch.webp', 'Smartwatch product shot', ['photo', 'technology', 'wearable', 'product']],
-  ['photo-technology-vr-headset', 'VR Headset', 'technology', 'technology-vr-headset.webp', 'Virtual reality headset on table', ['photo', 'technology', 'vr', 'gaming']],
-  ['photo-social-friends-laughing', 'Friends Laughing', 'social', 'social-friends-laughing.webp', 'Group of friends laughing together', ['photo', 'social', 'friends', 'people']],
-  ['photo-social-dinner-party', 'Dinner Party', 'social', 'social-dinner-party.webp', 'Friends at dinner table', ['photo', 'social', 'dinner', 'lifestyle']],
-  ['photo-social-festival', 'Festival Crowd', 'social', 'social-festival.webp', 'People at a festival during sunset', ['photo', 'social', 'festival', 'crowd']],
-  ['photo-social-wedding-table', 'Wedding Table', 'social', 'social-wedding-table.webp', 'Wedding reception table setup', ['photo', 'social', 'wedding', 'celebration']],
-  ['photo-wellness-spa-stones', 'Spa Stones', 'wellness', 'wellness-spa-stones.webp', 'Spa stones and candles', ['photo', 'wellness', 'spa', 'relax']],
-  ['photo-wellness-tea-ritual', 'Tea Ritual', 'wellness', 'wellness-tea-ritual.webp', 'Tea ritual close-up', ['photo', 'wellness', 'tea', 'calm']],
-  ['photo-wellness-journal', 'Journal and Candle', 'wellness', 'wellness-journal.webp', 'Journal with candle and blanket', ['photo', 'wellness', 'journal', 'cozy']],
-  ['photo-wellness-breathwork', 'Breathwork Session', 'wellness', 'wellness-breathwork.webp', 'Relaxing breathwork session', ['photo', 'wellness', 'mindfulness', 'breathwork']],
-] as const satisfies readonly PhotoSeed[]).map(([id, label, category, filename, alt, tags], index) => ({
-  id,
-  label,
-  category,
-  kind: 'photo' as const,
-  ref: loremFlickrPhotoRef(
-    [category, ...tags.filter((tag) => tag !== 'photo').slice(0, 2), filename.replace(/\.webp$/u, '').replace(/-/gu, ' ')],
-    100 + index,
-  ),
-  alt,
-  tags: [...tags],
-}));
+  if (!fileName) {
+    return undefined;
+  }
+
+  return createPackageMediaRef(`media/photos/optimized/${fileName}`);
+}
+
+function getPhotoRef(id: string, fallback: MediaRef): MediaRef {
+  return getPackagedPhotoRef(id) ?? fallback;
+}
 
 type WikimediaPhotoSeed = readonly [
   id: string,
@@ -114,7 +50,12 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     label: 'James Webb Front View',
     category: 'james-webb',
     kind: 'photo' as const,
-    ref: remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MP9X8G2ERPRXXK5325JSSZ.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880'),
+    ref: getPhotoRef(
+      'photo-james-webb-front-view',
+      remotePhotoRef(
+        'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MP9X8G2ERPRXXK5325JSSZ.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880',
+      ),
+    ),
     alt: 'Front-facing illustration of the James Webb Space Telescope.',
     tags: ['photo', 'james webb', 'jwst', 'telescope', 'space', 'nasa'],
   },
@@ -123,7 +64,12 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     label: 'James Webb Side View',
     category: 'james-webb',
     kind: 'photo' as const,
-    ref: remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MN15AJW44J0SVJTBNAXBBR.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880'),
+    ref: getPhotoRef(
+      'photo-james-webb-side-view',
+      remotePhotoRef(
+        'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MN15AJW44J0SVJTBNAXBBR.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880',
+      ),
+    ),
     alt: 'Side view illustration of the James Webb Space Telescope.',
     tags: ['photo', 'james webb', 'jwst', 'telescope', 'side view', 'nasa'],
   },
@@ -132,7 +78,12 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     label: 'James Webb Concept Art',
     category: 'james-webb',
     kind: 'photo' as const,
-    ref: remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2017/06/STScI-01EVVB9GCHKXGV2QJQZNKN10TP.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880'),
+    ref: getPhotoRef(
+      'photo-james-webb-concept-art',
+      remotePhotoRef(
+        'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2017/06/STScI-01EVVB9GCHKXGV2QJQZNKN10TP.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880',
+      ),
+    ),
     alt: 'Concept illustration of the James Webb Space Telescope in space.',
     tags: ['photo', 'james webb', 'jwst', 'concept', 'space', 'nasa'],
   },
@@ -141,7 +92,10 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     label: 'James Webb Blueprint',
     category: 'james-webb',
     kind: 'photo' as const,
-    ref: remotePhotoRef('https://www.nasa.gov/wp-content/uploads/2023/03/47690335362_a9b23dc6c8_o.jpeg?w=1041'),
+    ref: getPhotoRef(
+      'photo-james-webb-blueprint',
+      remotePhotoRef('https://www.nasa.gov/wp-content/uploads/2023/03/47690335362_a9b23dc6c8_o.jpeg?w=1041'),
+    ),
     alt: 'Blueprint-style technical poster of the James Webb Space Telescope.',
     tags: ['photo', 'james webb', 'jwst', 'blueprint', 'engineering', 'nasa'],
   },
@@ -150,7 +104,12 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     label: 'James Webb Identifier',
     category: 'james-webb',
     kind: 'photo' as const,
-    ref: remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2021/STScI-01FDW8B9DQCV7G9AHFFB5Q5PEW.png?crop=faces%2Cfocalpoint&fit=clip&h=677&w=677'),
+    ref: getPhotoRef(
+      'photo-james-webb-identifier',
+      remotePhotoRef(
+        'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2021/STScI-01FDW8B9DQCV7G9AHFFB5Q5PEW.png?crop=faces%2Cfocalpoint&fit=clip&h=677&w=677',
+      ),
+    ),
     alt: 'Official Webb identifier graphic with telescope mirror and sunshield.',
     tags: ['photo', 'james webb', 'jwst', 'identifier', 'branding', 'nasa'],
   },
@@ -159,158 +118,234 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     label: 'James Webb Blue Illustration',
     category: 'james-webb',
     kind: 'photo' as const,
-    ref: remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/astro/universe/2023/09/Webb-1.png?crop=faces%2Cfocalpoint&fit=clip&h=2858&w=3763'),
+    ref: getPhotoRef(
+      'photo-james-webb-blue-illustration',
+      remotePhotoRef(
+        'https://assets.science.nasa.gov/dynamicimage/assets/science/astro/universe/2023/09/Webb-1.png?crop=faces%2Cfocalpoint&fit=clip&h=2858&w=3763',
+      ),
+    ),
     alt: 'Blue illustration of the James Webb Space Telescope.',
     tags: ['photo', 'james webb', 'jwst', 'illustration', 'blue', 'nasa'],
   },
-  ...([
-    ['photo-james-webb-observatory-01', 'Webb Observatory 01', 'james-webb', ['james webb telescope', 'space observatory', 'infrared'], 'Thematic James Webb observatory image.', ['photo', 'james webb', 'jwst', 'observatory', 'space']],
-    ['photo-james-webb-observatory-02', 'Webb Observatory 02', 'james-webb', ['james webb telescope', 'spacecraft', 'mirror'], 'Thematic James Webb telescope mirror image.', ['photo', 'james webb', 'jwst', 'mirror', 'space']],
-    ['photo-james-webb-observatory-03', 'Webb Observatory 03', 'james-webb', ['james webb telescope', 'nasa', 'space'], 'Thematic James Webb telescope in space.', ['photo', 'james webb', 'jwst', 'nasa', 'space']],
-    ['photo-james-webb-observatory-04', 'Webb Observatory 04', 'james-webb', ['james webb', 'telescope', 'gold mirror'], 'Thematic James Webb gold mirror image.', ['photo', 'james webb', 'jwst', 'gold mirror', 'space']],
-    ['photo-james-webb-observatory-05', 'Webb Observatory 05', 'james-webb', ['space telescope', 'observatory', 'nasa'], 'Thematic space observatory image inspired by Webb.', ['photo', 'james webb', 'space telescope', 'observatory', 'nasa']],
-    ['photo-james-webb-observatory-06', 'Webb Observatory 06', 'james-webb', ['deep space telescope', 'nasa', 'observatory'], 'Thematic deep space observatory image.', ['photo', 'james webb', 'deep space', 'observatory', 'nasa']],
-  ] as const).map(([id, label, category, tagsForUrl, alt, tags], index) => ({
-    id,
-    label,
-    category,
-    kind: 'photo' as const,
-    ref: loremFlickrPhotoRef(tagsForUrl, 200 + index),
-    alt,
-    tags: [...tags],
-  })),
 ];
 
 const JAPANESE_PRINT_PHOTO_ITEMS = ([
-  ['photo-japanese-print-okiku', 'Hokusai Okiku', 'japanese-print', 'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 6.jpg', 'Traditional ukiyo-e print attributed to Hokusai featuring Okiku.', ['photo', 'japanese print', 'ukiyo-e', 'hokusai', 'art']],
-  ['photo-japanese-print-koheiji', 'Hokusai Koheiji', 'japanese-print', 'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 5.jpg', 'Traditional ukiyo-e print attributed to Hokusai featuring Koheiji.', ['photo', 'japanese print', 'ukiyo-e', 'hokusai', 'ghost']],
-  ['photo-japanese-print-river-fuji', 'Boat and Fuji', 'japanese-print', 'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 9.jpg', 'Boat on a river with Mount Fuji in the background.', ['photo', 'japanese print', 'ukiyo-e', 'mount fuji', 'river']],
-  ['photo-japanese-print-mishima-pass', 'Mishima Pass', 'japanese-print', 'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 18.jpg', 'Landscape print of Mishima Pass in Kai Province.', ['photo', 'japanese print', 'ukiyo-e', 'landscape', 'fuji']],
-  ['photo-japanese-print-great-wave', 'Great Wave Variant', 'japanese-print', 'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 7.jpg', 'Traditional wave scene in ukiyo-e style.', ['photo', 'japanese print', 'ukiyo-e', 'wave', 'hokusai']],
-  ['photo-japanese-print-shower-below-summit', 'Shower Below a Summit', 'japanese-print', 'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 19.jpg', 'Mount Fuji depicted in ukiyo-e style beneath rain clouds.', ['photo', 'japanese print', 'ukiyo-e', 'mount fuji', 'rain']],
-  ['photo-japanese-print-imagawa', 'Imagawa Yoshimoto', 'japanese-print', 'Imagawa-Yoshimoto-Ukiyo-e.jpg', 'Historical ukiyo-e portrait of Imagawa Yoshimoto.', ['photo', 'japanese print', 'ukiyo-e', 'portrait', 'history']],
-  ['photo-japanese-print-tokyo-subway', 'Tokyo Subway Poster', 'japanese-print', 'Sugiura_Hisui_Tokyo_Subway_1927_poster.jpg', 'Japanese poster for the Tokyo subway opening.', ['photo', 'japanese print', 'poster', 'tokyo', 'vintage']],
-  ['photo-japanese-print-isetan-opening', 'Isetan Opening Poster', 'japanese-print', 'Isetan Shinjuku Opening Poster (1933).jpg', 'Artistic poster for the Isetan Shinjuku opening in 1933.', ['photo', 'japanese print', 'poster', 'department store', 'vintage']],
-  ['photo-japanese-print-takashimaya', 'Takashimaya Poster', 'japanese-print', 'Takashimaya Osaka Opening Poster (1930).jpg', 'Japanese commercial poster for Takashimaya Osaka.', ['photo', 'japanese print', 'poster', 'osaka', 'vintage']],
-  ['photo-japanese-print-mitsukoshi', 'Mitsukoshi Poster', 'japanese-print', 'Mitsukoshi Department Store Ginza Branch Opens in 1930.jpg', 'Japanese department store poster from 1930.', ['photo', 'japanese print', 'poster', 'ginza', 'vintage']],
-  ['photo-japanese-print-tokyo-underground', 'Tokyo Underground Poster', 'japanese-print', 'Tokyo Underground Railway Poster.png', 'Poster for the Tokyo Underground Railway.', ['photo', 'japanese print', 'poster', 'railway', 'tokyo']],
-] as const satisfies readonly WikimediaPhotoSeed[]).map(([id, label, category, filename, alt, tags]) => ({
-  id,
-  label,
-  category,
-  kind: 'photo' as const,
-  ref: wikimediaPhotoRef(filename),
-  alt,
-  tags: [...tags],
-}));
-
-const ART_DECO_PHOTO_ITEMS = ([
-  ['photo-art-deco-club-chair', 'Art Deco Club Chair', 'art-deco', 'ART DECO.jpg', 'Classic Art Deco club chair photograph.', ['photo', 'art deco', 'chair', 'design', 'furniture']],
-  ['photo-art-deco-poster-japan-01', 'Japan Travel Poster 01', 'art-deco', '1930s Japan Travel Poster - 01.jpg', 'Art Deco style Japanese travel poster from the 1930s.', ['photo', 'art deco', 'poster', 'japan', 'travel']],
-  ['photo-art-deco-poster-japan-02', 'Japan Travel Poster 02', 'art-deco', '1930s Japan Travel Poster - 02.jpg', 'Art Deco style Japanese travel poster.', ['photo', 'art deco', 'poster', 'japan', 'travel']],
-  ['photo-art-deco-poster-japan-03', 'Japan Travel Poster 03', 'art-deco', '1930s Japan Travel Poster - 03.jpg', 'Vintage travel poster rendered in Art Deco style.', ['photo', 'art deco', 'poster', 'travel', 'vintage']],
-  ['photo-art-deco-poster-japan-05', 'Japan Travel Poster 05', 'art-deco', '1930s Japan Travel Poster - 05.jpg', 'Art Deco Japanese poster with travel motif.', ['photo', 'art deco', 'poster', 'japan', 'vintage']],
-  ['photo-art-deco-poster-japan-08', 'Japan Travel Poster 08', 'art-deco', '1930s Japan Travel Poster - 08.jpg', 'Art Deco Japanese poster with bold composition.', ['photo', 'art deco', 'poster', 'japan', 'composition']],
-  ['photo-art-deco-ontake', 'Ontake Valley Poster', 'art-deco', '1930s Japan Travel Poster - Ontake Shosenkyo Valley.jpg', 'Vintage poster of Ontake Shosenkyo Valley.', ['photo', 'art deco', 'poster', 'landscape', 'travel']],
-  ['photo-art-deco-subway', 'Tokyo Subway Deco Poster', 'art-deco', 'Sugiura_Hisui_Tokyo_Subway_1927_poster.jpg', 'Art Deco transportation poster for Tokyo subway.', ['photo', 'art deco', 'subway', 'poster', 'tokyo']],
-  ['photo-art-deco-isetan', 'Isetan Deco Poster', 'art-deco', 'Isetan Shinjuku Opening Poster (1933).jpg', 'Department store poster with Art Deco composition.', ['photo', 'art deco', 'poster', 'retail', 'japan']],
-  ['photo-art-deco-takashimaya', 'Takashimaya Deco Poster', 'art-deco', 'Takashimaya Osaka Opening Poster (1930).jpg', 'Commercial poster in Japanese Art Deco style.', ['photo', 'art deco', 'poster', 'retail', 'osaka']],
-  ['photo-art-deco-mitsukoshi', 'Mitsukoshi Deco Poster', 'art-deco', 'Mitsukoshi Department Store Ginza Branch Opens in 1930.jpg', 'Ginza poster using Art Deco design language.', ['photo', 'art deco', 'poster', 'ginza', 'vintage']],
-  ['photo-art-deco-underground', 'Underground Railway Poster', 'art-deco', 'Tokyo Underground Railway Poster.png', 'Art Deco inspired underground railway poster.', ['photo', 'art deco', 'poster', 'railway', 'graphic design']],
-] as const satisfies readonly WikimediaPhotoSeed[]).map(([id, label, category, filename, alt, tags]) => ({
-  id,
-  label,
-  category,
-  kind: 'photo' as const,
-  ref: wikimediaPhotoRef(filename),
-  alt,
-  tags: [...tags],
-}));
-
-type LoremPhotoSeed = readonly [
-  id: string,
-  label: string,
-  category: string,
-  queryTags: string[],
-  alt: string,
-  tags: string[],
-];
-
-function createLoremPhotoItems(seeds: readonly LoremPhotoSeed[], lockStart: number) {
-  return seeds.map(([id, label, category, queryTags, alt, tags], index) => ({
+  [
+    'photo-japanese-print-okiku',
+    'Hokusai Okiku',
+    'japanese-print',
+    'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 6.jpg',
+    'Traditional ukiyo-e print attributed to Hokusai featuring Okiku.',
+    ['photo', 'japanese print', 'ukiyo-e', 'hokusai', 'art'],
+  ],
+  [
+    'photo-japanese-print-koheiji',
+    'Hokusai Koheiji',
+    'japanese-print',
+    'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 5.jpg',
+    'Traditional ukiyo-e print attributed to Hokusai featuring Koheiji.',
+    ['photo', 'japanese print', 'ukiyo-e', 'hokusai', 'ghost'],
+  ],
+  [
+    'photo-japanese-print-river-fuji',
+    'Boat and Fuji',
+    'japanese-print',
+    'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 9.jpg',
+    'Boat on a river with Mount Fuji in the background.',
+    ['photo', 'japanese print', 'ukiyo-e', 'mount fuji', 'river'],
+  ],
+  [
+    'photo-japanese-print-mishima-pass',
+    'Mishima Pass',
+    'japanese-print',
+    'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 18.jpg',
+    'Landscape print of Mishima Pass in Kai Province.',
+    ['photo', 'japanese print', 'ukiyo-e', 'landscape', 'fuji'],
+  ],
+  [
+    'photo-japanese-print-great-wave',
+    'Great Wave Variant',
+    'japanese-print',
+    'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 7.jpg',
+    'Traditional wave scene in ukiyo-e style.',
+    ['photo', 'japanese print', 'ukiyo-e', 'wave', 'hokusai'],
+  ],
+  [
+    'photo-japanese-print-shower-below-summit',
+    'Shower Below a Summit',
+    'japanese-print',
+    'Ukiyo-e woodblock print by Katsushika Hokusai, digitally enhanced by rawpixel-com 19.jpg',
+    'Mount Fuji depicted in ukiyo-e style beneath rain clouds.',
+    ['photo', 'japanese print', 'ukiyo-e', 'mount fuji', 'rain'],
+  ],
+  [
+    'photo-japanese-print-imagawa',
+    'Imagawa Yoshimoto',
+    'japanese-print',
+    'Imagawa-Yoshimoto-Ukiyo-e.jpg',
+    'Historical ukiyo-e portrait of Imagawa Yoshimoto.',
+    ['photo', 'japanese print', 'ukiyo-e', 'portrait', 'history'],
+  ],
+  [
+    'photo-japanese-print-tokyo-subway',
+    'Tokyo Subway Poster',
+    'japanese-print',
+    'Sugiura_Hisui_Tokyo_Subway_1927_poster.jpg',
+    'Japanese poster for the Tokyo subway opening.',
+    ['photo', 'japanese print', 'poster', 'tokyo', 'vintage'],
+  ],
+  [
+    'photo-japanese-print-isetan-opening',
+    'Isetan Opening Poster',
+    'japanese-print',
+    'Isetan Shinjuku Opening Poster (1933).jpg',
+    'Artistic poster for the Isetan Shinjuku opening in 1933.',
+    ['photo', 'japanese print', 'poster', 'department store', 'vintage'],
+  ],
+  [
+    'photo-japanese-print-takashimaya',
+    'Takashimaya Poster',
+    'japanese-print',
+    'Takashimaya Osaka Opening Poster (1930).jpg',
+    'Japanese commercial poster for Takashimaya Osaka.',
+    ['photo', 'japanese print', 'poster', 'osaka', 'vintage'],
+  ],
+  [
+    'photo-japanese-print-mitsukoshi',
+    'Mitsukoshi Poster',
+    'japanese-print',
+    'Mitsukoshi Department Store Ginza Branch Opens in 1930.jpg',
+    'Japanese department store poster from 1930.',
+    ['photo', 'japanese print', 'poster', 'ginza', 'vintage'],
+  ],
+  [
+    'photo-japanese-print-tokyo-underground',
+    'Tokyo Underground Poster',
+    'japanese-print',
+    'Tokyo Underground Railway Poster.png',
+    'Poster for the Tokyo Underground Railway.',
+    ['photo', 'japanese print', 'poster', 'railway', 'tokyo'],
+  ],
+] as const satisfies readonly WikimediaPhotoSeed[]).map(
+  ([id, label, category, filename, alt, tags]) => ({
     id,
     label,
     category,
     kind: 'photo' as const,
-    ref: loremFlickrPhotoRef(queryTags, lockStart + index),
+    ref: getPhotoRef(id, wikimediaPhotoRef(filename)),
     alt,
     tags: [...tags],
-  }));
-}
+  }),
+);
 
-const NASA_PHOTO_ITEMS = createLoremPhotoItems([
-  ['photo-nasa-launch-pad', 'NASA Launch Pad', 'nasa', ['nasa', 'rocket', 'launch'], 'Launch complex associated with NASA missions.', ['photo', 'nasa', 'rocket', 'launch', 'space']],
-  ['photo-nasa-mission-control', 'NASA Mission Control', 'nasa', ['nasa', 'mission control', 'space'], 'Mission control room for a space program.', ['photo', 'nasa', 'mission control', 'space', 'operations']],
-  ['photo-nasa-astronaut', 'NASA Astronaut', 'nasa', ['nasa', 'astronaut', 'spacesuit'], 'Astronaut-themed NASA image.', ['photo', 'nasa', 'astronaut', 'spacesuit', 'space']],
-  ['photo-nasa-earth-orbit', 'NASA Earth Orbit', 'nasa', ['nasa', 'earth', 'orbit'], 'Earth from orbit associated with NASA exploration.', ['photo', 'nasa', 'earth', 'orbit', 'planet']],
-  ['photo-nasa-mars-mission', 'NASA Mars Mission', 'nasa', ['nasa', 'mars', 'space'], 'Mars exploration image themed around NASA.', ['photo', 'nasa', 'mars', 'space', 'exploration']],
-  ['photo-nasa-moon-surface', 'NASA Moon Surface', 'nasa', ['nasa', 'moon', 'lunar'], 'Lunar image themed around NASA missions.', ['photo', 'nasa', 'moon', 'lunar', 'space']],
-  ['photo-nasa-deep-space', 'NASA Deep Space', 'nasa', ['nasa', 'galaxy', 'space'], 'Deep-space themed NASA image.', ['photo', 'nasa', 'galaxy', 'space', 'universe']],
-  ['photo-nasa-space-station', 'NASA Station View', 'nasa', ['nasa', 'space station', 'orbit'], 'Space-station themed NASA image.', ['photo', 'nasa', 'station', 'orbit', 'space']],
-  ['photo-nasa-planetary-mission', 'NASA Planetary Mission', 'nasa', ['nasa', 'planet', 'exploration'], 'Planetary exploration image themed around NASA.', ['photo', 'nasa', 'planet', 'exploration', 'space']],
-  ['photo-nasa-observatory', 'NASA Observatory', 'nasa', ['nasa', 'observatory', 'space'], 'Observatory themed image associated with NASA.', ['photo', 'nasa', 'observatory', 'space', 'science']],
-  ['photo-nasa-solar-system', 'NASA Solar System', 'nasa', ['nasa', 'solar system', 'planets'], 'Solar system themed NASA image.', ['photo', 'nasa', 'solar system', 'planets', 'space']],
-  ['photo-nasa-cosmic-map', 'NASA Cosmic Map', 'nasa', ['nasa', 'stars', 'cosmos'], 'Cosmic map themed image associated with NASA.', ['photo', 'nasa', 'stars', 'cosmos', 'space']],
-], 300);
-
-const NATURE_EXPANSION_PHOTO_ITEMS = createLoremPhotoItems([
-  ['photo-nature-waterfall-mist', 'Waterfall Mist', 'nature', ['nature', 'waterfall', 'mist'], 'Waterfall scene with drifting mist.', ['photo', 'nature', 'waterfall', 'mist', 'landscape']],
-  ['photo-nature-redwood-trail', 'Redwood Trail', 'nature', ['nature', 'redwood', 'forest'], 'Trail through towering redwood forest.', ['photo', 'nature', 'forest', 'redwood', 'trail']],
-  ['photo-nature-alpine-meadow', 'Alpine Meadow', 'nature', ['nature', 'alpine meadow', 'mountains'], 'Alpine meadow beneath mountain peaks.', ['photo', 'nature', 'alpine', 'meadow', 'mountains']],
-  ['photo-nature-glacier-lake', 'Glacier Lake', 'nature', ['nature', 'glacier lake', 'mountains'], 'Blue glacier lake in a mountain valley.', ['photo', 'nature', 'glacier', 'lake', 'landscape']],
-  ['photo-nature-volcanic-coast', 'Volcanic Coast', 'nature', ['nature', 'volcanic coast', 'ocean'], 'Volcanic coastline meeting the ocean.', ['photo', 'nature', 'coast', 'ocean', 'volcanic']],
-  ['photo-nature-desert-dunes', 'Desert Dunes', 'nature', ['nature', 'desert dunes', 'sand'], 'Sweeping sand dunes in warm light.', ['photo', 'nature', 'desert', 'dunes', 'sand']],
-  ['photo-nature-monsoon-rain', 'Monsoon Rain', 'nature', ['nature', 'rainstorm', 'forest'], 'Rainstorm over lush natural scenery.', ['photo', 'nature', 'rain', 'forest', 'storm']],
-  ['photo-nature-arctic-ice', 'Arctic Ice', 'nature', ['nature', 'arctic ice', 'snow'], 'Arctic ice landscape with cold tones.', ['photo', 'nature', 'arctic', 'ice', 'snow']],
-  ['photo-nature-canyon-river', 'Canyon River', 'nature', ['nature', 'canyon river', 'rocks'], 'River cutting through a rocky canyon.', ['photo', 'nature', 'canyon', 'river', 'rocks']],
-  ['photo-nature-lavender-field', 'Lavender Field', 'nature', ['nature', 'lavender field', 'flowers'], 'Lavender field in bloom.', ['photo', 'nature', 'flowers', 'lavender', 'field']],
-  ['photo-nature-rainforest-canopy', 'Rainforest Canopy', 'nature', ['nature', 'rainforest canopy', 'jungle'], 'Dense rainforest canopy from above.', ['photo', 'nature', 'rainforest', 'jungle', 'green']],
-  ['photo-nature-cliff-sea', 'Sea Cliffs', 'nature', ['nature', 'sea cliffs', 'ocean'], 'Dramatic sea cliffs over the ocean.', ['photo', 'nature', 'cliffs', 'ocean', 'coast']],
-  ['photo-nature-moss-rocks', 'Mossy Rocks', 'nature', ['nature', 'moss rocks', 'forest'], 'Forest floor with moss-covered rocks.', ['photo', 'nature', 'moss', 'rocks', 'forest']],
-  ['photo-nature-savannah-sunset', 'Savannah Sunset', 'nature', ['nature', 'savannah sunset', 'wildlife'], 'Savannah landscape at sunset.', ['photo', 'nature', 'savannah', 'sunset', 'wildlife']],
-  ['photo-nature-lotus-pond', 'Lotus Pond', 'nature', ['nature', 'lotus pond', 'water'], 'Still pond covered with lotus flowers.', ['photo', 'nature', 'lotus', 'pond', 'water']],
-  ['photo-nature-bamboo-grove', 'Bamboo Grove', 'nature', ['nature', 'bamboo grove', 'forest'], 'Tall bamboo grove in filtered light.', ['photo', 'nature', 'bamboo', 'grove', 'forest']],
-], 400);
-
-const ARCHITECTURE_EXPANSION_PHOTO_ITEMS = createLoremPhotoItems([
-  ['photo-architecture-brutalist-tower', 'Brutalist Tower', 'architecture', ['architecture', 'brutalist tower', 'concrete'], 'Concrete brutalist tower in strong light.', ['photo', 'architecture', 'brutalist', 'tower', 'concrete']],
-  ['photo-architecture-art-museum', 'Art Museum', 'architecture', ['architecture', 'art museum', 'modern'], 'Contemporary art museum exterior.', ['photo', 'architecture', 'museum', 'modern', 'culture']],
-  ['photo-architecture-glass-atrium', 'Glass Atrium', 'architecture', ['architecture', 'glass atrium', 'modern'], 'Glass atrium with geometric framing.', ['photo', 'architecture', 'atrium', 'glass', 'geometry']],
-  ['photo-architecture-arched-corridor', 'Arched Corridor', 'architecture', ['architecture', 'arched corridor', 'historic'], 'Arched corridor with repeating structure.', ['photo', 'architecture', 'arches', 'corridor', 'historic']],
-  ['photo-architecture-city-plaza', 'City Plaza', 'architecture', ['architecture', 'city plaza', 'urban'], 'Public plaza framed by large buildings.', ['photo', 'architecture', 'plaza', 'urban', 'city']],
-  ['photo-architecture-rooftop-lines', 'Rooftop Lines', 'architecture', ['architecture', 'rooftop lines', 'minimal'], 'Minimal rooftop with strong linear composition.', ['photo', 'architecture', 'rooftop', 'minimal', 'lines']],
-  ['photo-architecture-suspension-bridge', 'Suspension Bridge', 'architecture', ['architecture', 'suspension bridge', 'engineering'], 'Bridge structure with repeating cables.', ['photo', 'architecture', 'bridge', 'engineering', 'infrastructure']],
-  ['photo-architecture-desert-modernism', 'Desert Modernism', 'architecture', ['architecture', 'desert modernism', 'house'], 'Desert modernist building in warm light.', ['photo', 'architecture', 'modernism', 'desert', 'building']],
-  ['photo-architecture-library-hall', 'Library Hall', 'architecture', ['architecture', 'library hall', 'interior'], 'Large architectural library hall.', ['photo', 'architecture', 'library', 'hall', 'interior']],
-  ['photo-architecture-spiritual-space', 'Spiritual Space', 'architecture', ['architecture', 'temple interior', 'light'], 'Calm interior with spiritual architecture.', ['photo', 'architecture', 'temple', 'light', 'interior']],
-  ['photo-architecture-monumental-stairs', 'Monumental Stairs', 'architecture', ['architecture', 'monumental stairs', 'stone'], 'Monumental staircase in stone.', ['photo', 'architecture', 'stairs', 'stone', 'monumental']],
-  ['photo-architecture-seaside-pavilion', 'Seaside Pavilion', 'architecture', ['architecture', 'seaside pavilion', 'coast'], 'Architectural pavilion by the sea.', ['photo', 'architecture', 'pavilion', 'coast', 'design']],
-], 500);
-
-const INTERIORS_EXPANSION_PHOTO_ITEMS = createLoremPhotoItems([
-  ['photo-interior-reading-nook', 'Reading Nook', 'interiors', ['interior', 'reading nook', 'home'], 'Comfortable reading nook with warm light.', ['photo', 'interior', 'reading', 'home', 'cozy']],
-  ['photo-interior-creative-studio', 'Creative Studio', 'interiors', ['interior', 'creative studio', 'workspace'], 'Creative studio interior with materials and tools.', ['photo', 'interior', 'studio', 'creative', 'workspace']],
-  ['photo-interior-wood-kitchen', 'Wood Kitchen', 'interiors', ['interior', 'wood kitchen', 'home'], 'Kitchen interior with warm wood finishes.', ['photo', 'interior', 'kitchen', 'wood', 'home']],
-  ['photo-interior-boutique-lounge', 'Boutique Lounge', 'interiors', ['interior', 'boutique lounge', 'design'], 'Boutique hotel lounge with layered textures.', ['photo', 'interior', 'lounge', 'design', 'hospitality']],
-  ['photo-interior-home-office', 'Home Office', 'interiors', ['interior', 'home office', 'desk'], 'Home office interior with calm palette.', ['photo', 'interior', 'office', 'desk', 'workspace']],
-  ['photo-interior-dining-room', 'Dining Room', 'interiors', ['interior', 'dining room', 'home'], 'Dining room interior prepared for guests.', ['photo', 'interior', 'dining', 'home', 'hospitality']],
-  ['photo-interior-gallery-wall', 'Gallery Wall', 'interiors', ['interior', 'gallery wall', 'art'], 'Interior wall styled with framed artwork.', ['photo', 'interior', 'gallery', 'art', 'decor']],
-  ['photo-interior-sunroom', 'Sunroom', 'interiors', ['interior', 'sunroom', 'plants'], 'Bright interior sunroom filled with plants.', ['photo', 'interior', 'sunroom', 'plants', 'light']],
-  ['photo-interior-spa-room', 'Spa Room', 'interiors', ['interior', 'spa room', 'wellness'], 'Minimal spa room with warm materials.', ['photo', 'interior', 'spa', 'wellness', 'minimal']],
-  ['photo-interior-industrial-loft', 'Industrial Loft', 'interiors', ['interior', 'industrial loft', 'design'], 'Industrial loft interior with high ceilings.', ['photo', 'interior', 'loft', 'industrial', 'design']],
-  ['photo-interior-cafe-window', 'Cafe Window', 'interiors', ['interior', 'cafe window', 'coffee'], 'Cafe interior framed by large window light.', ['photo', 'interior', 'cafe', 'coffee', 'hospitality']],
-  ['photo-interior-night-bar', 'Night Bar', 'interiors', ['interior', 'night bar', 'mood'], 'Bar interior with moody lighting.', ['photo', 'interior', 'bar', 'night', 'mood']],
-], 600);
+const ART_DECO_PHOTO_ITEMS = ([
+  [
+    'photo-art-deco-club-chair',
+    'Art Deco Club Chair',
+    'art-deco',
+    'ART DECO.jpg',
+    'Classic Art Deco club chair photograph.',
+    ['photo', 'art deco', 'chair', 'design', 'furniture'],
+  ],
+  [
+    'photo-art-deco-poster-japan-01',
+    'Japan Travel Poster 01',
+    'art-deco',
+    '1930s Japan Travel Poster - 01.jpg',
+    'Art Deco style Japanese travel poster from the 1930s.',
+    ['photo', 'art deco', 'poster', 'japan', 'travel'],
+  ],
+  [
+    'photo-art-deco-poster-japan-02',
+    'Japan Travel Poster 02',
+    'art-deco',
+    '1930s Japan Travel Poster - 02.jpg',
+    'Art Deco style Japanese travel poster.',
+    ['photo', 'art deco', 'poster', 'japan', 'travel'],
+  ],
+  [
+    'photo-art-deco-poster-japan-03',
+    'Japan Travel Poster 03',
+    'art-deco',
+    '1930s Japan Travel Poster - 03.jpg',
+    'Vintage travel poster rendered in Art Deco style.',
+    ['photo', 'art deco', 'poster', 'travel', 'vintage'],
+  ],
+  [
+    'photo-art-deco-poster-japan-05',
+    'Japan Travel Poster 05',
+    'art-deco',
+    '1930s Japan Travel Poster - 05.jpg',
+    'Art Deco Japanese poster with travel motif.',
+    ['photo', 'art deco', 'poster', 'japan', 'vintage'],
+  ],
+  [
+    'photo-art-deco-poster-japan-08',
+    'Japan Travel Poster 08',
+    'art-deco',
+    '1930s Japan Travel Poster - 08.jpg',
+    'Art Deco Japanese poster with bold composition.',
+    ['photo', 'art deco', 'poster', 'japan', 'composition'],
+  ],
+  [
+    'photo-art-deco-ontake',
+    'Ontake Valley Poster',
+    'art-deco',
+    '1930s Japan Travel Poster - Ontake Shosenkyo Valley.jpg',
+    'Vintage poster of Ontake Shosenkyo Valley.',
+    ['photo', 'art deco', 'poster', 'landscape', 'travel'],
+  ],
+  [
+    'photo-art-deco-subway',
+    'Tokyo Subway Deco Poster',
+    'art-deco',
+    'Sugiura_Hisui_Tokyo_Subway_1927_poster.jpg',
+    'Art Deco transportation poster for Tokyo subway.',
+    ['photo', 'art deco', 'subway', 'poster', 'tokyo'],
+  ],
+  [
+    'photo-art-deco-isetan',
+    'Isetan Deco Poster',
+    'art-deco',
+    'Isetan Shinjuku Opening Poster (1933).jpg',
+    'Department store poster with Art Deco composition.',
+    ['photo', 'art deco', 'poster', 'retail', 'japan'],
+  ],
+  [
+    'photo-art-deco-takashimaya',
+    'Takashimaya Deco Poster',
+    'art-deco',
+    'Takashimaya Osaka Opening Poster (1930).jpg',
+    'Commercial poster in Japanese Art Deco style.',
+    ['photo', 'art deco', 'poster', 'retail', 'osaka'],
+  ],
+  [
+    'photo-art-deco-mitsukoshi',
+    'Mitsukoshi Deco Poster',
+    'art-deco',
+    'Mitsukoshi Department Store Ginza Branch Opens in 1930.jpg',
+    'Ginza poster using Art Deco design language.',
+    ['photo', 'art deco', 'poster', 'ginza', 'vintage'],
+  ],
+  [
+    'photo-art-deco-underground',
+    'Underground Railway Poster',
+    'art-deco',
+    'Tokyo Underground Railway Poster.png',
+    'Art Deco inspired underground railway poster.',
+    ['photo', 'art deco', 'poster', 'railway', 'graphic design'],
+  ],
+] as const satisfies readonly WikimediaPhotoSeed[]).map(
+  ([id, label, category, filename, alt, tags]) => ({
+    id,
+    label,
+    category,
+    kind: 'photo' as const,
+    ref: getPhotoRef(id, wikimediaPhotoRef(filename)),
+    alt,
+    tags: [...tags],
+  }),
+);
 
 export const photosCollection = defineMediaCollection({
   name: 'photos',
@@ -321,27 +356,24 @@ export const photosCollection = defineMediaCollection({
       label: 'Homepage Banner',
       category: 'banners',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1518770660439-4636190af475'),
+      ref: getPhotoRef(
+        'photo-homepage-banner',
+        unsplashPhotoRef('photo-1518770660439-4636190af475'),
+      ),
       alt: 'Futuristic close-up of electronics in blue light',
       width: 1600,
       height: 1067,
       tags: ['photo', 'banner', 'hero', 'technology', 'blue', 'unsplash'],
     },
     {
-      id: 'photo-team-avatar-01',
-      label: 'Team Avatar 01',
-      category: 'portraits',
-      kind: 'photo',
-      ref: loremFlickrPhotoRef(['portrait', 'team avatar', 'person'], 1),
-      alt: 'Portrait avatar placeholder',
-      tags: ['photo', 'avatar', 'team', 'portrait'],
-    },
-    {
       id: 'photo-portrait-creative-founder',
       label: 'Creative Founder Portrait',
       category: 'portraits',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1494790108377-be9c29b29330'),
+      ref: getPhotoRef(
+        'photo-portrait-creative-founder',
+        unsplashPhotoRef('photo-1494790108377-be9c29b29330'),
+      ),
       alt: 'Portrait of a smiling woman outdoors',
       width: 1600,
       height: 1067,
@@ -352,7 +384,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Studio Portrait',
       category: 'portraits',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1500648767791-00dcc994a43e'),
+      ref: getPhotoRef(
+        'photo-portrait-studio-light',
+        unsplashPhotoRef('photo-1500648767791-00dcc994a43e'),
+      ),
       alt: 'Portrait of a man in studio light',
       width: 1600,
       height: 1067,
@@ -363,7 +398,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Street Lifestyle Portrait',
       category: 'portraits',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1517841905240-472988babdf9'),
+      ref: getPhotoRef(
+        'photo-portrait-lifestyle-street',
+        unsplashPhotoRef('photo-1517841905240-472988babdf9'),
+      ),
       alt: 'Portrait of a woman in an urban street setting',
       width: 1600,
       height: 1067,
@@ -374,7 +412,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Laptop Workspace',
       category: 'workspace',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1498050108023-c5249f4df085'),
+      ref: getPhotoRef(
+        'photo-workspace-laptop-desk',
+        unsplashPhotoRef('photo-1498050108023-c5249f4df085'),
+      ),
       alt: 'Laptop and notebook on a desk',
       width: 1600,
       height: 1067,
@@ -385,7 +426,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Team Meeting Table',
       category: 'workspace',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1522202176988-66273c2fd55f'),
+      ref: getPhotoRef(
+        'photo-workspace-team-meeting',
+        unsplashPhotoRef('photo-1522202176988-66273c2fd55f'),
+      ),
       alt: 'People collaborating around a table',
       width: 1600,
       height: 1067,
@@ -396,7 +440,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Minimal Desk Setup',
       category: 'workspace',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1516321318423-f06f85e504b3'),
+      ref: getPhotoRef(
+        'photo-workspace-minimal-desk',
+        unsplashPhotoRef('photo-1516321318423-f06f85e504b3'),
+      ),
       alt: 'Minimal workspace with keyboard and notebook',
       width: 1600,
       height: 1067,
@@ -407,7 +454,10 @@ export const photosCollection = defineMediaCollection({
       label: 'City Skyline at Night',
       category: 'travel',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1477959858617-67f85cf4f1df'),
+      ref: getPhotoRef(
+        'photo-city-skyline-night',
+        unsplashPhotoRef('photo-1477959858617-67f85cf4f1df'),
+      ),
       alt: 'Night city skyline with lights',
       width: 1600,
       height: 1067,
@@ -418,7 +468,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Neon Street',
       category: 'travel',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1520034475321-cbe63696469a'),
+      ref: getPhotoRef(
+        'photo-city-street-neon',
+        unsplashPhotoRef('photo-1520034475321-cbe63696469a'),
+      ),
       alt: 'Street lit with neon lights at night',
       width: 1600,
       height: 1067,
@@ -429,7 +482,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Modern Facade',
       category: 'architecture',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1511818966892-d7d671e672a2'),
+      ref: getPhotoRef(
+        'photo-architecture-modern-facade',
+        unsplashPhotoRef('photo-1511818966892-d7d671e672a2'),
+      ),
       alt: 'Modern building facade with geometric lines',
       width: 1600,
       height: 1067,
@@ -440,7 +496,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Sculptural Staircase',
       category: 'architecture',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1518005020951-eccb494ad742'),
+      ref: getPhotoRef(
+        'photo-architecture-staircase',
+        unsplashPhotoRef('photo-1518005020951-eccb494ad742'),
+      ),
       alt: 'Minimal architectural staircase in soft light',
       width: 1600,
       height: 1067,
@@ -451,7 +510,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Forest Path',
       category: 'nature',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1441974231531-c6227db76b6e'),
+      ref: getPhotoRef(
+        'photo-nature-forest-path',
+        unsplashPhotoRef('photo-1441974231531-c6227db76b6e'),
+      ),
       alt: 'Sunlit path through a forest',
       width: 1600,
       height: 1067,
@@ -462,7 +524,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Mountain Lake',
       category: 'nature',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1500530855697-b586d89ba3ee'),
+      ref: getPhotoRef(
+        'photo-nature-mountain-lake',
+        unsplashPhotoRef('photo-1500530855697-b586d89ba3ee'),
+      ),
       alt: 'Mountain lake landscape',
       width: 1600,
       height: 1067,
@@ -473,7 +538,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Desert Road',
       category: 'nature',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1500534314209-a25ddb2bd429'),
+      ref: getPhotoRef(
+        'photo-nature-desert-road',
+        unsplashPhotoRef('photo-1500534314209-a25ddb2bd429'),
+      ),
       alt: 'Road crossing a dry desert landscape',
       width: 1600,
       height: 1067,
@@ -484,7 +552,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Ocean Coastline',
       category: 'nature',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1507525428034-b723cf961d3e'),
+      ref: getPhotoRef(
+        'photo-ocean-coastline',
+        unsplashPhotoRef('photo-1507525428034-b723cf961d3e'),
+      ),
       alt: 'Ocean waves on a bright coastline',
       width: 1600,
       height: 1067,
@@ -495,7 +566,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Brunch Table',
       category: 'food',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1504674900247-0877df9cc836'),
+      ref: getPhotoRef(
+        'photo-food-brunch-table',
+        unsplashPhotoRef('photo-1504674900247-0877df9cc836'),
+      ),
       alt: 'Brunch table with multiple dishes',
       width: 1600,
       height: 1067,
@@ -506,7 +580,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Coffee and Pastry',
       category: 'food',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1495474472287-4d71bcdd2085'),
+      ref: getPhotoRef(
+        'photo-food-coffee-pastry',
+        unsplashPhotoRef('photo-1495474472287-4d71bcdd2085'),
+      ),
       alt: 'Coffee cup beside a pastry',
       width: 1600,
       height: 1067,
@@ -517,7 +594,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Headphones Product Shot',
       category: 'products',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1505740420928-5e560c06d30e'),
+      ref: getPhotoRef(
+        'photo-product-headphones',
+        unsplashPhotoRef('photo-1505740420928-5e560c06d30e'),
+      ),
       alt: 'Headphones on a clean background',
       width: 1600,
       height: 1067,
@@ -528,7 +608,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Camera Product Shot',
       category: 'products',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1516035069371-29a1b244cc32'),
+      ref: getPhotoRef(
+        'photo-product-camera',
+        unsplashPhotoRef('photo-1516035069371-29a1b244cc32'),
+      ),
       alt: 'Camera resting on a wooden surface',
       width: 1600,
       height: 1067,
@@ -539,7 +622,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Color Smoke',
       category: 'abstract',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1470071459604-3b5ec3a7fe05'),
+      ref: getPhotoRef(
+        'photo-abstract-color-smoke',
+        unsplashPhotoRef('photo-1470071459604-3b5ec3a7fe05'),
+      ),
       alt: 'Abstract colorful smoke and gradients',
       width: 1600,
       height: 1067,
@@ -550,7 +636,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Shadow Composition',
       category: 'abstract',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1493246507139-91e8fad9978e'),
+      ref: getPhotoRef(
+        'photo-abstract-shadow-composition',
+        unsplashPhotoRef('photo-1493246507139-91e8fad9978e'),
+      ),
       alt: 'Abstract shapes and shadows on a surface',
       width: 1600,
       height: 1067,
@@ -561,7 +650,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Fashion Walk',
       category: 'lifestyle',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1483985988355-763728e1935b'),
+      ref: getPhotoRef(
+        'photo-lifestyle-fashion-walk',
+        unsplashPhotoRef('photo-1483985988355-763728e1935b'),
+      ),
       alt: 'Person walking with shopping bags',
       width: 1600,
       height: 1067,
@@ -572,7 +664,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Wellness Yoga',
       category: 'lifestyle',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1506126613408-eca07ce68773'),
+      ref: getPhotoRef(
+        'photo-lifestyle-wellness-yoga',
+        unsplashPhotoRef('photo-1506126613408-eca07ce68773'),
+      ),
       alt: 'Person practicing yoga outdoors',
       width: 1600,
       height: 1067,
@@ -583,7 +678,10 @@ export const photosCollection = defineMediaCollection({
       label: 'Dog Portrait',
       category: 'pets',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1517849845537-4d257902454a'),
+      ref: getPhotoRef(
+        'photo-pets-dog-portrait',
+        unsplashPhotoRef('photo-1517849845537-4d257902454a'),
+      ),
       alt: 'Portrait of a dog looking at camera',
       width: 1600,
       height: 1067,
@@ -594,19 +692,17 @@ export const photosCollection = defineMediaCollection({
       label: 'Cat by Window',
       category: 'pets',
       kind: 'photo',
-      ref: unsplashPhotoRef('photo-1511044568932-338cba0ad803'),
+      ref: getPhotoRef(
+        'photo-pets-cat-window',
+        unsplashPhotoRef('photo-1511044568932-338cba0ad803'),
+      ),
       alt: 'Cat sitting by a window',
       width: 1600,
       height: 1067,
       tags: ['photo', 'pets', 'cat', 'animal', 'cozy'],
     },
-    ...EXTRA_PHOTO_ITEMS,
     ...JAMES_WEBB_PHOTO_ITEMS,
     ...JAPANESE_PRINT_PHOTO_ITEMS,
     ...ART_DECO_PHOTO_ITEMS,
-    ...NASA_PHOTO_ITEMS,
-    ...NATURE_EXPANSION_PHOTO_ITEMS,
-    ...ARCHITECTURE_EXPANSION_PHOTO_ITEMS,
-    ...INTERIORS_EXPANSION_PHOTO_ITEMS,
   ],
 });

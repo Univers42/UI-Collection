@@ -34,13 +34,6 @@ Verified during generation on `2026-04-12`.
   - `photo-pets-dog-portrait`
   - `photo-pets-cat-window`
 
-## LoremFlickr
-
-- Source: https://loremflickr.com
-- Entries:
-  - thematic remote photo entries used to replace local-only photo assets
-  - categories include `fashion`, `gaming`, `fitness`, `interiors`, `food`, `travel`, `abstract`, `business`, `education`, `music`, `animals`, `technology`, `social`, `wellness`, `nature`, `architecture`, `nasa`, and additional `james-webb` thematic entries
-
 ## Wikimedia Commons
 
 - Source: https://commons.wikimedia.org

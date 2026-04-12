@@ -319,7 +319,7 @@ The package now emits stable values directly from the library so the consumer do
 
 - icons serialize as `icon:<id>`, for example `icon:text`
 - emojis serialize as the raw glyph, for example `😀`
-- media keeps the existing media ref contract, for example `local:/media/svg/icons/arrow-left.svg`
+- media keeps the existing media ref contract, for example `package:media/svg/icons/arrow-left.svg`
 
 ```tsx
 import {
@@ -555,6 +555,7 @@ Available from:
 Built-in providers:
 
 - `local`
+- `package`
 - `url`
 - `api`
 - `unsplash`
@@ -701,11 +702,13 @@ Current curated asset inventory:
 
 - `svg`: 154 items
 - `emojis`: 4 items
-- `photos`: 168 items
+- `photos`: 55 items
 - `videos`: 59 items
 - `other-media`: 69 items
 
-The `photos` collection is now fully remote and categorized by theme, including `portraits`, `workspace`, `travel`, `architecture`, `nature`, `fashion`, `gaming`, `interiors`, `wellness`, `james-webb`, `japanese-print`, `art-deco` and `nasa`.
+The `photos` collection is curated around stable, reusable themes such as `portraits`, `workspace`, `travel`, `architecture`, `nature`, `food`, `products`, `abstract`, `lifestyle`, `pets`, `james-webb`, `japanese-print`, and `art-deco`. It supports a hybrid model: downloaded packaged assets resolve through `package:media/photos/optimized/*`, while the remaining entries continue to fall back to stable remote sources from Wikimedia Commons and NASA.
+
+To turn the photo catalog into packaged local assets, run `npm run sync:photo-assets`. The generated manifest lets the same collection switch from remote source URLs to packaged `package:media/photos/optimized/*` refs without changing the public API.
 
 Curated external asset sources are documented in [library/media/SOURCES.md](/home/settes/cursus/trascendence/UI-Collection/library/media/SOURCES.md).
 
@@ -713,9 +716,9 @@ Current sources:
 
 - Heroicons
 - Unsplash
-- LoremFlickr
 - Wikimedia Commons
 - NASA Science
+- NASA
 - Google Sample Videos
 - Samplelib
 - SoundHelix

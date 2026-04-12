@@ -1,5 +1,6 @@
 export const BUILTIN_MEDIA_PROVIDERS = [
   'local',
+  'package',
   'url',
   'api',
   'unsplash',
