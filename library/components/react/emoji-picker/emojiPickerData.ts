@@ -1041,6 +1041,429 @@ const FLAGS_ITEMS = createEmojiPickerItems('Flags', [
   ['flag-tunisia', 'Flag: Tunisia', '🇹🇳', ['tunisia', 'country', 'flag']],
 ]);
 
+type EmojiToneSeed = readonly [
+  id: string,
+  label: string,
+  value: string,
+  group: EmojiPickerGroup,
+  keywords?: string[],
+  aliases?: string[],
+];
+
+type EmojiToneModifier = readonly [
+  idSuffix: string,
+  labelSuffix: string,
+  modifier: string,
+  keywords: string[],
+];
+
+type EmojiRoleSeed = readonly [
+  idSuffix: string,
+  labelSuffix: string,
+  suffixGlyph: string,
+  keywords?: string[],
+];
+
+type EmojiFlagSeed = readonly [
+  idSuffix: string,
+  label: string,
+  code: string,
+  keywords?: string[],
+];
+
+const EMOJI_SKIN_TONE_MODIFIERS: readonly EmojiToneModifier[] = [
+  ['light-skin-tone', 'Light Skin Tone', '🏻', ['skin tone', 'light']],
+  ['medium-light-skin-tone', 'Medium-Light Skin Tone', '🏼', ['skin tone', 'medium light']],
+  ['medium-skin-tone', 'Medium Skin Tone', '🏽', ['skin tone', 'medium']],
+  ['medium-dark-skin-tone', 'Medium-Dark Skin Tone', '🏾', ['skin tone', 'medium dark']],
+  ['dark-skin-tone', 'Dark Skin Tone', '🏿', ['skin tone', 'dark']],
+];
+
+const PERSON_ROLE_BASES = [
+  ['person', 'Person', '🧑'],
+  ['woman', 'Woman', '👩'],
+  ['man', 'Man', '👨'],
+] as const;
+
+function applySkinToneVariant(value: string, modifier: string): string {
+  const glyphs = Array.from(value);
+
+  if (glyphs.length === 0) {
+    return value;
+  }
+
+  return `${glyphs[0]}${modifier}${glyphs.slice(1).join('')}`;
+}
+
+function countryCodeToFlag(code: string): string {
+  return code
+    .toUpperCase()
+    .split('')
+    .map((character) => String.fromCodePoint(127397 + character.charCodeAt(0)))
+    .join('');
+}
+
+function createEmojiSkinToneVariants(
+  seeds: readonly EmojiToneSeed[],
+): EmojiPickerItem[] {
+  return seeds.flatMap(([id, label, value, group, keywords = [], aliases = []]) =>
+    EMOJI_SKIN_TONE_MODIFIERS.map(([toneIdSuffix, toneLabelSuffix, modifier, toneKeywords]) => ({
+      id: `${id}-${toneIdSuffix}`,
+      label: `${label}: ${toneLabelSuffix}`,
+      value: applySkinToneVariant(value, modifier),
+      group,
+      aliases: [...aliases, `${label.toLowerCase()} ${toneLabelSuffix.toLowerCase()}`],
+      keywords: [...keywords, ...toneKeywords],
+      localizedLabels: {
+        es: `${titleToSpanishLabel(label)}: ${toneLabelSuffix.toLowerCase()}`,
+      },
+    })),
+  );
+}
+
+function createPersonRoleToneSeeds(
+  roleSeeds: readonly EmojiRoleSeed[],
+): EmojiToneSeed[] {
+  return PERSON_ROLE_BASES.flatMap(([idPrefix, labelPrefix, glyph]) =>
+    roleSeeds.map(([idSuffix, labelSuffix, suffixGlyph, keywords = []]) => [
+      `${idPrefix}-${idSuffix}`,
+      `${labelPrefix} ${labelSuffix}`,
+      `${glyph}\u200D${suffixGlyph}`,
+      'People & Body',
+      keywords,
+      [`${idPrefix} ${idSuffix}`],
+    ] as const),
+  );
+}
+
+function createFlagItems(
+  seeds: readonly EmojiFlagSeed[],
+): EmojiPickerItem[] {
+  return createEmojiPickerItems(
+    'Flags',
+    seeds.map(([idSuffix, label, code, keywords = []]) => [
+      `flag-${idSuffix}`,
+      `Flag: ${label}`,
+      countryCodeToFlag(code),
+      keywords,
+    ] as const),
+  );
+}
+
+const GESTURE_SKIN_TONE_SEEDS: readonly EmojiToneSeed[] = [
+  ['waving-hand-tone', 'Waving Hand', '👋', 'People & Body', ['hello', 'greeting', 'hand']],
+  ['raised-back-of-hand-tone', 'Raised Back of Hand', '🤚', 'People & Body', ['stop', 'gesture', 'hand']],
+  ['hand-with-fingers-splayed-tone', 'Hand with Fingers Splayed', '🖐️', 'People & Body', ['gesture', 'hand', 'open']],
+  ['raised-hand-tone', 'Raised Hand', '✋', 'People & Body', ['stop', 'gesture', 'hand']],
+  ['vulcan-salute-tone', 'Vulcan Salute', '🖖', 'People & Body', ['salute', 'gesture', 'hand']],
+  ['ok-hand-tone', 'OK Hand', '👌', 'People & Body', ['ok', 'perfect', 'hand']],
+  ['pinched-fingers-tone', 'Pinched Fingers', '🤌', 'People & Body', ['gesture', 'hand', 'pinched']],
+  ['pinching-hand-tone', 'Pinching Hand', '🤏', 'People & Body', ['small', 'tiny', 'hand']],
+  ['victory-hand-tone', 'Victory Hand', '✌️', 'People & Body', ['peace', 'victory', 'hand']],
+  ['crossed-fingers-tone', 'Crossed Fingers', '🤞', 'People & Body', ['luck', 'hope', 'hand']],
+  ['love-you-gesture-tone', 'Love-You Gesture', '🤟', 'People & Body', ['love', 'hand', 'gesture']],
+  ['sign-of-the-horns-tone', 'Sign of the Horns', '🤘', 'People & Body', ['rock', 'music', 'hand']],
+  ['call-me-hand-tone', 'Call Me Hand', '🤙', 'People & Body', ['call', 'phone', 'hand']],
+  ['index-pointing-left-tone', 'Index Pointing Left', '👈', 'People & Body', ['left', 'point', 'hand']],
+  ['index-pointing-right-tone', 'Index Pointing Right', '👉', 'People & Body', ['right', 'point', 'hand']],
+  ['index-pointing-up-tone', 'Index Pointing Up', '☝️', 'People & Body', ['up', 'point', 'hand']],
+  ['index-pointing-down-tone', 'Index Pointing Down', '👇', 'People & Body', ['down', 'point', 'hand']],
+  ['thumbs-up-tone', 'Thumbs Up', '👍', 'People & Body', ['approve', 'like', 'hand']],
+  ['thumbs-down-tone', 'Thumbs Down', '👎', 'People & Body', ['dislike', 'reject', 'hand']],
+  ['raised-fist-tone', 'Raised Fist', '✊', 'People & Body', ['fist', 'power', 'hand']],
+  ['oncoming-fist-tone', 'Oncoming Fist', '👊', 'People & Body', ['fist', 'punch', 'hand']],
+  ['left-facing-fist-tone', 'Left-Facing Fist', '🤛', 'People & Body', ['fist', 'left', 'hand']],
+  ['right-facing-fist-tone', 'Right-Facing Fist', '🤜', 'People & Body', ['fist', 'right', 'hand']],
+  ['clapping-hands-tone', 'Clapping Hands', '👏', 'People & Body', ['applause', 'celebrate', 'hand']],
+  ['raising-hands-tone', 'Raising Hands', '🙌', 'People & Body', ['celebrate', 'hands', 'gesture']],
+  ['open-hands-tone', 'Open Hands', '👐', 'People & Body', ['open', 'hands', 'gesture']],
+  ['palms-up-together-tone', 'Palms Up Together', '🤲', 'People & Body', ['offer', 'hands', 'gesture']],
+  ['folded-hands-tone', 'Folded Hands', '🙏', 'People & Body', ['pray', 'thanks', 'hands']],
+  ['writing-hand-tone', 'Writing Hand', '✍️', 'People & Body', ['write', 'note', 'hand']],
+  ['nail-polish-tone', 'Nail Polish', '💅', 'People & Body', ['beauty', 'style', 'hand']],
+  ['flexed-biceps-tone', 'Flexed Biceps', '💪', 'People & Body', ['strong', 'arm', 'gym']],
+  ['ear-tone', 'Ear', '👂', 'People & Body', ['body', 'hearing', 'ear']],
+  ['ear-with-hearing-aid-tone', 'Ear with Hearing Aid', '🦻', 'People & Body', ['body', 'hearing', 'accessibility']],
+  ['nose-tone', 'Nose', '👃', 'People & Body', ['body', 'nose', 'face']],
+];
+
+const PERSON_ACTION_SKIN_TONE_SEEDS: readonly EmojiToneSeed[] = [
+  ['baby-tone', 'Baby', '👶', 'People & Body', ['child', 'baby', 'person']],
+  ['person-tone', 'Person', '🧑', 'People & Body', ['adult', 'person', 'people']],
+  ['person-blond-hair-tone', 'Person Blond Hair', '👱', 'People & Body', ['hair', 'person', 'blond']],
+  ['older-person-tone', 'Older Person', '🧓', 'People & Body', ['older', 'person', 'senior']],
+  ['bearded-person-tone', 'Bearded Person', '🧔', 'People & Body', ['beard', 'person', 'face']],
+  ['person-shrugging-tone', 'Person Shrugging', '🤷', 'People & Body', ['shrug', 'gesture', 'person']],
+  ['person-facepalming-tone', 'Person Facepalming', '🤦', 'People & Body', ['facepalm', 'frustration', 'person']],
+  ['person-raising-hand-tone', 'Person Raising Hand', '🙋', 'People & Body', ['question', 'volunteer', 'person']],
+  ['person-tipping-hand-tone', 'Person Tipping Hand', '💁', 'People & Body', ['help', 'info', 'person']],
+  ['person-bowing-tone', 'Person Bowing', '🙇', 'People & Body', ['bow', 'respect', 'person']],
+  ['person-gesturing-ok-tone', 'Person Gesturing OK', '🙆', 'People & Body', ['ok', 'gesture', 'person']],
+  ['person-gesturing-no-tone', 'Person Gesturing NO', '🙅', 'People & Body', ['no', 'gesture', 'person']],
+  ['person-pouting-tone', 'Person Pouting', '🙎', 'People & Body', ['pouting', 'sad', 'person']],
+  ['person-frowning-tone', 'Person Frowning', '🙍', 'People & Body', ['frowning', 'sad', 'person']],
+  ['person-getting-massage-tone', 'Person Getting Massage', '💆', 'People & Body', ['massage', 'spa', 'person']],
+  ['person-getting-haircut-tone', 'Person Getting Haircut', '💇', 'People & Body', ['haircut', 'salon', 'person']],
+  ['person-walking-tone', 'Person Walking', '🚶', 'People & Body', ['walking', 'person', 'movement']],
+  ['person-standing-tone', 'Person Standing', '🧍', 'People & Body', ['standing', 'person', 'pose']],
+  ['person-kneeling-tone', 'Person Kneeling', '🧎', 'People & Body', ['kneeling', 'person', 'pose']],
+  ['person-running-tone', 'Person Running', '🏃', 'People & Body', ['running', 'person', 'sport']],
+  ['person-in-lotus-position-tone', 'Person in Lotus Position', '🧘', 'People & Body', ['meditation', 'yoga', 'person']],
+  ['person-taking-bath-tone', 'Person Taking Bath', '🛀', 'People & Body', ['bath', 'relax', 'person']],
+  ['woman-dancing-tone', 'Woman Dancing', '💃', 'People & Body', ['dance', 'party', 'person']],
+  ['man-dancing-tone', 'Man Dancing', '🕺', 'People & Body', ['dance', 'party', 'person']],
+  ['person-feeding-baby-tone', 'Person Feeding Baby', '🧑‍🍼', 'People & Body', ['baby', 'care', 'person']],
+  ['person-with-veil-tone', 'Person with Veil', '👰', 'People & Body', ['wedding', 'veil', 'person']],
+  ['person-in-tuxedo-tone', 'Person in Tuxedo', '🤵', 'People & Body', ['formal', 'wedding', 'person']],
+  ['pregnant-person-tone', 'Pregnant Person', '🫄', 'People & Body', ['pregnant', 'person', 'family']],
+  ['pregnant-man-tone', 'Pregnant Man', '🫃', 'People & Body', ['pregnant', 'man', 'family']],
+  ['pregnant-woman-tone', 'Pregnant Woman', '🤰', 'People & Body', ['pregnant', 'woman', 'family']],
+  ['breast-feeding-tone', 'Breast-Feeding', '🤱', 'People & Body', ['baby', 'family', 'feeding']],
+  ['person-with-crown-tone', 'Person with Crown', '🫅', 'People & Body', ['crown', 'royal', 'person']],
+  ['prince-tone', 'Prince', '🤴', 'People & Body', ['prince', 'royal', 'person']],
+  ['princess-tone', 'Princess', '👸', 'People & Body', ['princess', 'royal', 'person']],
+];
+
+const FANTASY_AND_ROLE_SKIN_TONE_SEEDS: readonly EmojiToneSeed[] = [
+  ['police-officer-tone', 'Police Officer', '👮', 'People & Body', ['police', 'law', 'person']],
+  ['detective-tone', 'Detective', '🕵️', 'People & Body', ['detective', 'investigation', 'person']],
+  ['guard-tone', 'Guard', '💂', 'People & Body', ['guard', 'security', 'person']],
+  ['construction-worker-tone', 'Construction Worker', '👷', 'People & Body', ['construction', 'helmet', 'person']],
+  ['person-wearing-turban-tone', 'Person Wearing Turban', '👳', 'People & Body', ['turban', 'person', 'headwear']],
+  ['person-with-skullcap-tone', 'Person with Skullcap', '👲', 'People & Body', ['skullcap', 'person', 'headwear']],
+  ['woman-with-headscarf-tone', 'Woman with Headscarf', '🧕', 'People & Body', ['headscarf', 'woman', 'person']],
+  ['superhero-tone', 'Superhero', '🦸', 'People & Body', ['hero', 'comic', 'person']],
+  ['supervillain-tone', 'Supervillain', '🦹', 'People & Body', ['villain', 'comic', 'person']],
+  ['mage-tone', 'Mage', '🧙', 'People & Body', ['magic', 'fantasy', 'person']],
+  ['fairy-tone', 'Fairy', '🧚', 'People & Body', ['fantasy', 'magic', 'person']],
+  ['vampire-tone', 'Vampire', '🧛', 'People & Body', ['vampire', 'fantasy', 'person']],
+  ['merperson-tone', 'Merperson', '🧜', 'People & Body', ['mermaid', 'ocean', 'person']],
+  ['elf-tone', 'Elf', '🧝', 'People & Body', ['elf', 'fantasy', 'person']],
+  ['genie-tone', 'Genie', '🧞', 'People & Body', ['genie', 'fantasy', 'person']],
+  ['zombie-tone', 'Zombie', '🧟', 'People & Body', ['zombie', 'fantasy', 'person']],
+  ['ninja-tone', 'Ninja', '🥷', 'People & Body', ['ninja', 'stealth', 'person']],
+];
+
+const ACTIVITY_SKIN_TONE_SEEDS: readonly EmojiToneSeed[] = [
+  ['person-climbing-tone', 'Person Climbing', '🧗', 'People & Body', ['climbing', 'sport', 'person']],
+  ['person-golfing-tone', 'Person Golfing', '🏌️', 'People & Body', ['golf', 'sport', 'person']],
+  ['person-surfing-tone', 'Person Surfing', '🏄', 'People & Body', ['surfing', 'sport', 'person']],
+  ['person-rowing-boat-tone', 'Person Rowing Boat', '🚣', 'People & Body', ['rowing', 'sport', 'person']],
+  ['person-swimming-tone', 'Person Swimming', '🏊', 'People & Body', ['swimming', 'sport', 'person']],
+  ['person-bouncing-ball-tone', 'Person Bouncing Ball', '⛹️', 'People & Body', ['basketball', 'sport', 'person']],
+  ['person-lifting-weights-tone', 'Person Lifting Weights', '🏋️', 'People & Body', ['weights', 'sport', 'person']],
+  ['person-biking-tone', 'Person Biking', '🚴', 'People & Body', ['biking', 'sport', 'person']],
+  ['person-mountain-biking-tone', 'Person Mountain Biking', '🚵', 'People & Body', ['biking', 'mountain', 'person']],
+  ['horse-racing-tone', 'Horse Racing', '🏇', 'People & Body', ['horse', 'racing', 'person']],
+  ['snowboarder-tone', 'Snowboarder', '🏂', 'People & Body', ['snowboard', 'sport', 'person']],
+  ['person-cartwheeling-tone', 'Person Cartwheeling', '🤸', 'People & Body', ['cartwheel', 'sport', 'person']],
+  ['person-wrestling-tone', 'People Wrestling', '🤼', 'People & Body', ['wrestling', 'sport', 'people']],
+  ['person-playing-water-polo-tone', 'Person Playing Water Polo', '🤽', 'People & Body', ['water polo', 'sport', 'person']],
+  ['person-playing-handball-tone', 'Person Playing Handball', '🤾', 'People & Body', ['handball', 'sport', 'person']],
+  ['person-juggling-tone', 'Person Juggling', '🤹', 'People & Body', ['juggling', 'activity', 'person']],
+  ['person-fencing-tone', 'Person Fencing', '🤺', 'People & Body', ['fencing', 'sport', 'person']],
+  ['person-playing-tennis-tone', 'Person Playing Tennis', '🎾', 'People & Body', ['tennis', 'sport', 'person']],
+  ['person-skiing-tone', 'Skier', '⛷️', 'People & Body', ['ski', 'sport', 'person']],
+  ['person-parachuting-tone', 'Person Parachuting', '🪂', 'People & Body', ['parachute', 'sport', 'person']],
+  ['person-in-steamy-room-tone', 'Person in Steamy Room', '🧖', 'People & Body', ['spa', 'steam', 'person']],
+  ['person-playing-trombone-tone', 'Person Playing Trombone', '🎺', 'People & Body', ['music', 'instrument', 'person']],
+  ['person-drumming-tone', 'Person Drumming', '🥁', 'People & Body', ['music', 'drums', 'person']],
+  ['person-playing-guitar-tone', 'Person Playing Guitar', '🎸', 'People & Body', ['music', 'guitar', 'person']],
+];
+
+const PROFESSION_ROLE_VARIANTS: readonly EmojiRoleSeed[] = [
+  ['health-worker', 'Health Worker', '⚕️', ['doctor', 'medical', 'health']],
+  ['student', 'Student', '🎓', ['education', 'school', 'student']],
+  ['teacher', 'Teacher', '🏫', ['education', 'teacher', 'school']],
+  ['judge', 'Judge', '⚖️', ['law', 'judge', 'justice']],
+  ['farmer', 'Farmer', '🌾', ['farm', 'farmer', 'nature']],
+  ['cook', 'Cook', '🍳', ['cook', 'chef', 'food']],
+  ['mechanic', 'Mechanic', '🔧', ['tools', 'mechanic', 'repair']],
+  ['factory-worker', 'Factory Worker', '🏭', ['factory', 'worker', 'industry']],
+  ['office-worker', 'Office Worker', '💼', ['office', 'business', 'work']],
+  ['scientist', 'Scientist', '🔬', ['science', 'lab', 'research']],
+  ['technologist', 'Technologist', '💻', ['technology', 'computer', 'code']],
+  ['singer', 'Singer', '🎤', ['music', 'singer', 'microphone']],
+  ['artist', 'Artist', '🎨', ['art', 'creative', 'paint']],
+  ['pilot', 'Pilot', '✈️', ['pilot', 'flight', 'travel']],
+  ['astronaut', 'Astronaut', '🚀', ['space', 'astronaut', 'rocket']],
+  ['firefighter', 'Firefighter', '🚒', ['firefighter', 'fire', 'safety']],
+  ['police-officer-role', 'Police Officer', '🚓', ['police', 'law', 'safety']],
+  ['detective-role', 'Detective', '🔎', ['detective', 'investigation', 'search']],
+  ['guard-role', 'Guard', '🛡️', ['guard', 'security', 'shield']],
+  ['mx-claus', 'Mx Claus', '🎄', ['holiday', 'claus', 'winter']],
+  ['superhero-role', 'Superhero', '🦸', ['hero', 'comic', 'superhero']],
+  ['supervillain-role', 'Supervillain', '🦹', ['villain', 'comic', 'supervillain']],
+];
+
+const EXTRA_SYMBOL_ITEMS = createEmojiPickerItems('Symbols', [
+  ['keycap-hash', 'Keycap: #', '#️⃣', ['hash', 'keycap', 'symbol']],
+  ['keycap-asterisk', 'Keycap: *', '*️⃣', ['asterisk', 'keycap', 'symbol']],
+  ['keycap-0', 'Keycap: 0', '0️⃣', ['number', 'keycap', 'symbol']],
+  ['keycap-1', 'Keycap: 1', '1️⃣', ['number', 'keycap', 'symbol']],
+  ['keycap-2', 'Keycap: 2', '2️⃣', ['number', 'keycap', 'symbol']],
+  ['keycap-3', 'Keycap: 3', '3️⃣', ['number', 'keycap', 'symbol']],
+  ['keycap-4', 'Keycap: 4', '4️⃣', ['number', 'keycap', 'symbol']],
+  ['keycap-5', 'Keycap: 5', '5️⃣', ['number', 'keycap', 'symbol']],
+  ['keycap-6', 'Keycap: 6', '6️⃣', ['number', 'keycap', 'symbol']],
+  ['keycap-7', 'Keycap: 7', '7️⃣', ['number', 'keycap', 'symbol']],
+  ['keycap-8', 'Keycap: 8', '8️⃣', ['number', 'keycap', 'symbol']],
+  ['keycap-9', 'Keycap: 9', '9️⃣', ['number', 'keycap', 'symbol']],
+  ['ten-oclock', 'Ten O’Clock', '🕙', ['clock', 'time', 'symbol']],
+  ['eleven-oclock', 'Eleven O’Clock', '🕚', ['clock', 'time', 'symbol']],
+  ['twelve-oclock', 'Twelve O’Clock', '🕛', ['clock', 'time', 'symbol']],
+  ['one-thirty', 'One-Thirty', '🕜', ['clock', 'time', 'symbol']],
+  ['two-thirty', 'Two-Thirty', '🕝', ['clock', 'time', 'symbol']],
+  ['three-thirty', 'Three-Thirty', '🕞', ['clock', 'time', 'symbol']],
+  ['four-thirty', 'Four-Thirty', '🕟', ['clock', 'time', 'symbol']],
+  ['five-thirty', 'Five-Thirty', '🕠', ['clock', 'time', 'symbol']],
+  ['six-thirty', 'Six-Thirty', '🕡', ['clock', 'time', 'symbol']],
+  ['seven-thirty', 'Seven-Thirty', '🕢', ['clock', 'time', 'symbol']],
+  ['eight-thirty', 'Eight-Thirty', '🕣', ['clock', 'time', 'symbol']],
+  ['nine-thirty', 'Nine-Thirty', '🕤', ['clock', 'time', 'symbol']],
+  ['ten-thirty', 'Ten-Thirty', '🕥', ['clock', 'time', 'symbol']],
+  ['eleven-thirty', 'Eleven-Thirty', '🕦', ['clock', 'time', 'symbol']],
+  ['twelve-thirty', 'Twelve-Thirty', '🕧', ['clock', 'time', 'symbol']],
+]);
+
+const EXTRA_FLAG_SEEDS: readonly EmojiFlagSeed[] = [
+  ['afghanistan', 'Afghanistan', 'AF', ['afghanistan', 'country', 'flag']],
+  ['albania', 'Albania', 'AL', ['albania', 'country', 'flag']],
+  ['andorra', 'Andorra', 'AD', ['andorra', 'country', 'flag']],
+  ['angola', 'Angola', 'AO', ['angola', 'country', 'flag']],
+  ['antigua-and-barbuda', 'Antigua and Barbuda', 'AG', ['antigua', 'country', 'flag']],
+  ['armenia', 'Armenia', 'AM', ['armenia', 'country', 'flag']],
+  ['azerbaijan', 'Azerbaijan', 'AZ', ['azerbaijan', 'country', 'flag']],
+  ['bahamas', 'Bahamas', 'BS', ['bahamas', 'country', 'flag']],
+  ['bahrain', 'Bahrain', 'BH', ['bahrain', 'country', 'flag']],
+  ['barbados', 'Barbados', 'BB', ['barbados', 'country', 'flag']],
+  ['belarus', 'Belarus', 'BY', ['belarus', 'country', 'flag']],
+  ['belize', 'Belize', 'BZ', ['belize', 'country', 'flag']],
+  ['benin', 'Benin', 'BJ', ['benin', 'country', 'flag']],
+  ['bhutan', 'Bhutan', 'BT', ['bhutan', 'country', 'flag']],
+  ['bolivia', 'Bolivia', 'BO', ['bolivia', 'country', 'flag']],
+  ['bosnia-and-herzegovina', 'Bosnia and Herzegovina', 'BA', ['bosnia', 'country', 'flag']],
+  ['botswana', 'Botswana', 'BW', ['botswana', 'country', 'flag']],
+  ['brunei', 'Brunei', 'BN', ['brunei', 'country', 'flag']],
+  ['bulgaria', 'Bulgaria', 'BG', ['bulgaria', 'country', 'flag']],
+  ['burkina-faso', 'Burkina Faso', 'BF', ['burkina faso', 'country', 'flag']],
+  ['burundi', 'Burundi', 'BI', ['burundi', 'country', 'flag']],
+  ['cambodia', 'Cambodia', 'KH', ['cambodia', 'country', 'flag']],
+  ['cameroon', 'Cameroon', 'CM', ['cameroon', 'country', 'flag']],
+  ['cape-verde', 'Cape Verde', 'CV', ['cape verde', 'country', 'flag']],
+  ['central-african-republic', 'Central African Republic', 'CF', ['central african republic', 'country', 'flag']],
+  ['chad', 'Chad', 'TD', ['chad', 'country', 'flag']],
+  ['comoros', 'Comoros', 'KM', ['comoros', 'country', 'flag']],
+  ['congo-brazzaville', 'Congo - Brazzaville', 'CG', ['congo', 'country', 'flag']],
+  ['congo-kinshasa', 'Congo - Kinshasa', 'CD', ['congo', 'country', 'flag']],
+  ['croatia', 'Croatia', 'HR', ['croatia', 'country', 'flag']],
+  ['cyprus', 'Cyprus', 'CY', ['cyprus', 'country', 'flag']],
+  ['djibouti', 'Djibouti', 'DJ', ['djibouti', 'country', 'flag']],
+  ['dominica', 'Dominica', 'DM', ['dominica', 'country', 'flag']],
+  ['ecuador', 'Ecuador', 'EC', ['ecuador', 'country', 'flag']],
+  ['el-salvador', 'El Salvador', 'SV', ['el salvador', 'country', 'flag']],
+  ['eritrea', 'Eritrea', 'ER', ['eritrea', 'country', 'flag']],
+  ['estonia', 'Estonia', 'EE', ['estonia', 'country', 'flag']],
+  ['eswatini', 'Eswatini', 'SZ', ['eswatini', 'country', 'flag']],
+  ['ethiopia', 'Ethiopia', 'ET', ['ethiopia', 'country', 'flag']],
+  ['fiji', 'Fiji', 'FJ', ['fiji', 'country', 'flag']],
+  ['gabon', 'Gabon', 'GA', ['gabon', 'country', 'flag']],
+  ['gambia', 'Gambia', 'GM', ['gambia', 'country', 'flag']],
+  ['georgia', 'Georgia', 'GE', ['georgia', 'country', 'flag']],
+  ['ghana', 'Ghana', 'GH', ['ghana', 'country', 'flag']],
+  ['guatemala', 'Guatemala', 'GT', ['guatemala', 'country', 'flag']],
+  ['guinea', 'Guinea', 'GN', ['guinea', 'country', 'flag']],
+  ['guinea-bissau', 'Guinea-Bissau', 'GW', ['guinea-bissau', 'country', 'flag']],
+  ['guyana', 'Guyana', 'GY', ['guyana', 'country', 'flag']],
+  ['haiti', 'Haiti', 'HT', ['haiti', 'country', 'flag']],
+  ['honduras', 'Honduras', 'HN', ['honduras', 'country', 'flag']],
+  ['iraq', 'Iraq', 'IQ', ['iraq', 'country', 'flag']],
+  ['jordan', 'Jordan', 'JO', ['jordan', 'country', 'flag']],
+  ['kazakhstan', 'Kazakhstan', 'KZ', ['kazakhstan', 'country', 'flag']],
+  ['kiribati', 'Kiribati', 'KI', ['kiribati', 'country', 'flag']],
+  ['kuwait', 'Kuwait', 'KW', ['kuwait', 'country', 'flag']],
+  ['kyrgyzstan', 'Kyrgyzstan', 'KG', ['kyrgyzstan', 'country', 'flag']],
+  ['laos', 'Laos', 'LA', ['laos', 'country', 'flag']],
+  ['latvia', 'Latvia', 'LV', ['latvia', 'country', 'flag']],
+  ['lebanon', 'Lebanon', 'LB', ['lebanon', 'country', 'flag']],
+  ['lesotho', 'Lesotho', 'LS', ['lesotho', 'country', 'flag']],
+  ['liberia', 'Liberia', 'LR', ['liberia', 'country', 'flag']],
+  ['libya', 'Libya', 'LY', ['libya', 'country', 'flag']],
+  ['liechtenstein', 'Liechtenstein', 'LI', ['liechtenstein', 'country', 'flag']],
+  ['lithuania', 'Lithuania', 'LT', ['lithuania', 'country', 'flag']],
+  ['luxembourg', 'Luxembourg', 'LU', ['luxembourg', 'country', 'flag']],
+  ['madagascar', 'Madagascar', 'MG', ['madagascar', 'country', 'flag']],
+  ['malawi', 'Malawi', 'MW', ['malawi', 'country', 'flag']],
+  ['maldives', 'Maldives', 'MV', ['maldives', 'country', 'flag']],
+  ['mali', 'Mali', 'ML', ['mali', 'country', 'flag']],
+  ['malta', 'Malta', 'MT', ['malta', 'country', 'flag']],
+  ['marshall-islands', 'Marshall Islands', 'MH', ['marshall islands', 'country', 'flag']],
+  ['mauritania', 'Mauritania', 'MR', ['mauritania', 'country', 'flag']],
+  ['mauritius', 'Mauritius', 'MU', ['mauritius', 'country', 'flag']],
+  ['micronesia', 'Micronesia', 'FM', ['micronesia', 'country', 'flag']],
+  ['moldova', 'Moldova', 'MD', ['moldova', 'country', 'flag']],
+  ['monaco', 'Monaco', 'MC', ['monaco', 'country', 'flag']],
+  ['mongolia', 'Mongolia', 'MN', ['mongolia', 'country', 'flag']],
+  ['montenegro', 'Montenegro', 'ME', ['montenegro', 'country', 'flag']],
+  ['mozambique', 'Mozambique', 'MZ', ['mozambique', 'country', 'flag']],
+  ['myanmar', 'Myanmar', 'MM', ['myanmar', 'country', 'flag']],
+  ['namibia', 'Namibia', 'NA', ['namibia', 'country', 'flag']],
+  ['nauru', 'Nauru', 'NR', ['nauru', 'country', 'flag']],
+  ['nicaragua', 'Nicaragua', 'NI', ['nicaragua', 'country', 'flag']],
+  ['north-macedonia', 'North Macedonia', 'MK', ['north macedonia', 'country', 'flag']],
+  ['oman', 'Oman', 'OM', ['oman', 'country', 'flag']],
+  ['palau', 'Palau', 'PW', ['palau', 'country', 'flag']],
+  ['panama', 'Panama', 'PA', ['panama', 'country', 'flag']],
+  ['papua-new-guinea', 'Papua New Guinea', 'PG', ['papua new guinea', 'country', 'flag']],
+  ['paraguay', 'Paraguay', 'PY', ['paraguay', 'country', 'flag']],
+  ['qatar', 'Qatar', 'QA', ['qatar', 'country', 'flag']],
+  ['rwanda', 'Rwanda', 'RW', ['rwanda', 'country', 'flag']],
+  ['saint-kitts-and-nevis', 'Saint Kitts and Nevis', 'KN', ['saint kitts', 'country', 'flag']],
+  ['saint-lucia', 'Saint Lucia', 'LC', ['saint lucia', 'country', 'flag']],
+  ['saint-vincent-and-the-grenadines', 'Saint Vincent and the Grenadines', 'VC', ['saint vincent', 'country', 'flag']],
+  ['samoa', 'Samoa', 'WS', ['samoa', 'country', 'flag']],
+  ['san-marino', 'San Marino', 'SM', ['san marino', 'country', 'flag']],
+  ['sao-tome-and-principe', 'Sao Tome and Principe', 'ST', ['sao tome', 'country', 'flag']],
+  ['senegal', 'Senegal', 'SN', ['senegal', 'country', 'flag']],
+  ['serbia', 'Serbia', 'RS', ['serbia', 'country', 'flag']],
+  ['seychelles', 'Seychelles', 'SC', ['seychelles', 'country', 'flag']],
+  ['sierra-leone', 'Sierra Leone', 'SL', ['sierra leone', 'country', 'flag']],
+  ['slovakia', 'Slovakia', 'SK', ['slovakia', 'country', 'flag']],
+  ['slovenia', 'Slovenia', 'SI', ['slovenia', 'country', 'flag']],
+  ['solomon-islands', 'Solomon Islands', 'SB', ['solomon islands', 'country', 'flag']],
+  ['somalia', 'Somalia', 'SO', ['somalia', 'country', 'flag']],
+  ['south-sudan', 'South Sudan', 'SS', ['south sudan', 'country', 'flag']],
+  ['sri-lanka', 'Sri Lanka', 'LK', ['sri lanka', 'country', 'flag']],
+  ['sudan', 'Sudan', 'SD', ['sudan', 'country', 'flag']],
+  ['suriname', 'Suriname', 'SR', ['suriname', 'country', 'flag']],
+  ['syria', 'Syria', 'SY', ['syria', 'country', 'flag']],
+  ['tajikistan', 'Tajikistan', 'TJ', ['tajikistan', 'country', 'flag']],
+  ['tanzania', 'Tanzania', 'TZ', ['tanzania', 'country', 'flag']],
+  ['timor-leste', 'Timor-Leste', 'TL', ['timor-leste', 'country', 'flag']],
+  ['togo', 'Togo', 'TG', ['togo', 'country', 'flag']],
+  ['tonga', 'Tonga', 'TO', ['tonga', 'country', 'flag']],
+  ['trinidad-and-tobago', 'Trinidad and Tobago', 'TT', ['trinidad and tobago', 'country', 'flag']],
+  ['turkmenistan', 'Turkmenistan', 'TM', ['turkmenistan', 'country', 'flag']],
+  ['tuvalu', 'Tuvalu', 'TV', ['tuvalu', 'country', 'flag']],
+  ['uganda', 'Uganda', 'UG', ['uganda', 'country', 'flag']],
+  ['uruguay', 'Uruguay', 'UY', ['uruguay', 'country', 'flag']],
+  ['uzbekistan', 'Uzbekistan', 'UZ', ['uzbekistan', 'country', 'flag']],
+  ['vanuatu', 'Vanuatu', 'VU', ['vanuatu', 'country', 'flag']],
+  ['yemen', 'Yemen', 'YE', ['yemen', 'country', 'flag']],
+  ['zambia', 'Zambia', 'ZM', ['zambia', 'country', 'flag']],
+  ['zimbabwe', 'Zimbabwe', 'ZW', ['zimbabwe', 'country', 'flag']],
+];
+
+const EMOJI_SKIN_TONE_VARIANTS = createEmojiSkinToneVariants([
+  ...GESTURE_SKIN_TONE_SEEDS,
+  ...PERSON_ACTION_SKIN_TONE_SEEDS,
+  ...FANTASY_AND_ROLE_SKIN_TONE_SEEDS,
+  ...ACTIVITY_SKIN_TONE_SEEDS,
+  ...createPersonRoleToneSeeds(PROFESSION_ROLE_VARIANTS),
+]);
+
+const EXTRA_FLAG_ITEMS = createFlagItems(EXTRA_FLAG_SEEDS);
+
 export const DEFAULT_EMOJI_PICKER_ITEMS: EmojiPickerItem[] = [
   ...SMILEYS_AND_EMOTION_ITEMS,
   ...PEOPLE_AND_BODY_ITEMS,
@@ -1051,4 +1474,7 @@ export const DEFAULT_EMOJI_PICKER_ITEMS: EmojiPickerItem[] = [
   ...OBJECTS_ITEMS,
   ...SYMBOLS_ITEMS,
   ...FLAGS_ITEMS,
+  ...EMOJI_SKIN_TONE_VARIANTS,
+  ...EXTRA_SYMBOL_ITEMS,
+  ...EXTRA_FLAG_ITEMS,
 ];

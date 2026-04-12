@@ -2,7 +2,37 @@
 
 Curated public sources used to expand the media library.
 
-Verified during generation on `2026-04-09`.
+Verified during generation on `2026-04-12`.
+
+## Unsplash
+
+- Source: https://unsplash.com
+- Entries:
+  - `photo-homepage-banner`
+  - `photo-portrait-creative-founder`
+  - `photo-portrait-studio-light`
+  - `photo-portrait-lifestyle-street`
+  - `photo-workspace-laptop-desk`
+  - `photo-workspace-team-meeting`
+  - `photo-workspace-minimal-desk`
+  - `photo-city-skyline-night`
+  - `photo-city-street-neon`
+  - `photo-architecture-modern-facade`
+  - `photo-architecture-staircase`
+  - `photo-nature-forest-path`
+  - `photo-nature-mountain-lake`
+  - `photo-nature-desert-road`
+  - `photo-ocean-coastline`
+  - `photo-food-brunch-table`
+  - `photo-food-coffee-pastry`
+  - `photo-product-headphones`
+  - `photo-product-camera`
+  - `photo-abstract-color-smoke`
+  - `photo-abstract-shadow-composition`
+  - `photo-lifestyle-fashion-walk`
+  - `photo-lifestyle-wellness-yoga`
+  - `photo-pets-dog-portrait`
+  - `photo-pets-cat-window`
 
 ## Heroicons
 
@@ -85,7 +115,33 @@ Verified during generation on `2026-04-09`.
 - Source: https://developer.mozilla.org/en-US/docs/Web/URI/Reference/Fragment/Media_fragments
 - Entries:
   - `video-mdn-flower`
+  - `video-mdn-flower-webm`
   - `audio-mdn-trex-roar`
+
+## Google Sample Videos
+
+- Source: https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/
+- Entries:
+  - `video-big-buck-bunny`
+  - `video-elephants-dream`
+  - `video-for-bigger-blazes`
+  - `video-for-bigger-escapes`
+  - `video-for-bigger-fun`
+  - `video-for-bigger-joyrides`
+  - `video-for-bigger-meltdowns`
+  - `video-sintel`
+  - `video-subaru-outback`
+  - `video-tears-of-steel`
+  - `video-bullrun`
+
+## Samplelib
+
+- Source: https://samplelib.com
+- Entries:
+  - `video-samplelib-forest`
+  - `video-samplelib-travel`
+  - `video-samplelib-product`
+  - `video-samplelib-city`
 
 ## Twemoji
 
@@ -96,12 +152,34 @@ Verified during generation on `2026-04-09`.
 
 ## W3C
 
-- Source: https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf
+- Source: https://www.w3.org
 - Entries:
   - `document-w3c-dummy-pdf`
+  - `document-plain-text-specimen`
+
+## SoundHelix
+
+- Source: https://www.soundhelix.com
+- Entries:
+  - `audio-soundhelix-ambient`
+  - `audio-soundhelix-cinematic`
+  - `audio-soundhelix-upbeat`
+  - `audio-soundhelix-focus`
+
+## GitHub Raw Content
+
+- Source: https://raw.githubusercontent.com
+- Entries:
+  - `document-json-schema-sample`
+  - `document-markdown-guide`
 
 ## Khronos glTF Sample Assets
 
 - Source: https://github.com/KhronosGroup/glTF-Sample-Assets
 - Entries:
   - `model-khronos-duck`
+  - `model-khronos-avocado`
+  - `model-khronos-boombox`
+  - `model-khronos-damaged-helmet`
+  - `model-khronos-lantern`
+  - `model-khronos-water-bottle`

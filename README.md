@@ -279,9 +279,9 @@ Default datasets available from the root:
 
 - `DEFAULT_ASSET_PICKER_TABS`: default tabs for emojis, SVGs, and icons
 - `DEFAULT_COLOR_PRESETS`: 8 presets
-- `DEFAULT_ICON_PICKER_ITEMS`: 46 icons
+- `DEFAULT_ICON_PICKER_ITEMS`: 96 icons
 - `EMOJI_PICKER_GROUPS`: 9 standard-style emoji categories
-- `DEFAULT_EMOJI_PICKER_ITEMS`: 950+ emojis across smileys, people, animals, food, travel, activities, objects, symbols, and flags
+- `DEFAULT_EMOJI_PICKER_ITEMS`: 1,981 emojis across smileys, people, animals, food, travel, activities, objects, symbols, and flags
 
 #### Unified Asset Picker
 
@@ -699,20 +699,25 @@ const registry = extendMediaLibrary([stickers]);
 
 Current curated asset inventory:
 
-- `svg`: 69 items
+- `svg`: 154 items
 - `emojis`: 4 items
-- `photos`: 2 items
-- `videos`: 3 items
-- `other-media`: 6 items
+- `photos`: 80 items
+- `videos`: 59 items
+- `other-media`: 69 items
 
 Curated external asset sources are documented in [library/media/SOURCES.md](/home/settes/cursus/trascendence/UI-Collection/library/media/SOURCES.md).
 
 Current sources:
 
 - Heroicons
+- Unsplash
+- Google Sample Videos
+- Samplelib
+- SoundHelix
 - MDN Shared Assets
 - Twemoji
 - W3C
+- GitHub Raw Content
 - Khronos glTF Sample Assets
 
 ## Root Export Summary
