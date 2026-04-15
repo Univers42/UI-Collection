@@ -1,12 +1,12 @@
 const DEFAULT_COLOR = '#4F46E5';
 
-interface HsvaColor {
+export interface HsvaColor {
   h: number;
   s: number;
   v: number;
 }
 
-interface ColorWheelCell {
+export interface ColorWheelCell {
   id: string;
   label: string;
   hex: string;
@@ -300,5 +300,4 @@ export function getClosestColorWheelCellFromPoint(
   return closest;
 }
 
-export type { ColorWheelCell, HsvaColor };
 export { DEFAULT_COLOR };

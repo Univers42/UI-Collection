@@ -11,3 +11,4 @@
 /* ************************************************************************** */
 
 export * from './ColorPickerBoard.js';
+export * from './ChromaticWheel.js';

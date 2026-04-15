@@ -1,6 +1,5 @@
 import {
   useEffect,
-  useMemo,
   useRef,
   useState,
   type ChangeEvent,
@@ -11,17 +10,13 @@ import {
 import {
   DEFAULT_COLOR,
   clamp,
-  createColorWheelCells,
-  getClosestColorWheelCell,
-  getClosestColorWheelCellFromPoint,
   getReadableTextColor,
   hexToHsva,
   hsvaToHex,
   normalizeHexColor,
   type HsvaColor,
 } from './colorMath.js';
-
-const OCTAGON_CLIP_PATH = 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)';
+import { ChromaticWheel } from './ChromaticWheel.js';
 
 export interface ColorPickerPreset {
   label: string;
@@ -114,18 +109,11 @@ export function ColorPickerBoard({
   const [inputValue, setInputValue] = useState(initialHex);
   const [isBoardDragging, setIsBoardDragging] = useState(false);
   const [isHueDragging, setIsHueDragging] = useState(false);
-  const [isPaletteDragging, setIsPaletteDragging] = useState(false);
   const boardRef = useRef<HTMLDivElement>(null);
   const hueRef = useRef<HTMLDivElement>(null);
-  const paletteRef = useRef<HTMLDivElement>(null);
 
   const resolvedHex = normalizeHexColor(value) ?? internalHex;
   const activeHex = normalizeHexColor(resolvedHex) ?? DEFAULT_COLOR;
-  const wheelCells = useMemo(() => createColorWheelCells(size), [size]);
-  const activeWheelCell = useMemo(
-    () => getClosestColorWheelCell(currentColor, wheelCells),
-    [currentColor, wheelCells],
-  );
 
   useEffect(() => {
     const normalized = normalizeHexColor(value) ?? normalizeHexColor(defaultValue) ?? DEFAULT_COLOR;
@@ -158,6 +146,16 @@ export function ColorPickerBoard({
     if (notifyComplete) {
       onChangeComplete?.(nextHex);
     }
+  }
+
+  function commitHex(nextHex: string, notifyComplete = false): void {
+    const normalized = normalizeHexColor(nextHex);
+
+    if (!normalized) {
+      return;
+    }
+
+    commitColor(hexToHsva(normalized), notifyComplete);
   }
 
   function updateBoardFromPointer(clientX: number, clientY: number, notifyComplete = false): void {
@@ -198,22 +196,6 @@ export function ColorPickerBoard({
       },
       notifyComplete,
     );
-  }
-
-  function updateWheelFromPointer(clientX: number, clientY: number, notifyComplete = false): void {
-    const palette = paletteRef.current;
-
-    if (!palette) {
-      return;
-    }
-
-    const nextCell = getClosestColorWheelCellFromPoint(clientX, clientY, palette, wheelCells);
-
-    if (!nextCell) {
-      return;
-    }
-
-    commitColor(nextCell.color, notifyComplete);
   }
 
   function handleBoardPointerDown(event: PointerEvent<HTMLDivElement>): void {
@@ -264,31 +246,6 @@ export function ColorPickerBoard({
     event.currentTarget.releasePointerCapture(event.pointerId);
     setIsHueDragging(false);
     updateHueFromPointer(event.clientX, true);
-  }
-
-  function handleWheelPointerDown(event: PointerEvent<HTMLDivElement>): void {
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    setIsPaletteDragging(true);
-    updateWheelFromPointer(event.clientX, event.clientY);
-  }
-
-  function handleWheelPointerMove(event: PointerEvent<HTMLDivElement>): void {
-    if (!isPaletteDragging) {
-      return;
-    }
-
-    updateWheelFromPointer(event.clientX, event.clientY);
-  }
-
-  function handleWheelPointerUp(event: PointerEvent<HTMLDivElement>): void {
-    if (!isPaletteDragging) {
-      return;
-    }
-
-    event.currentTarget.releasePointerCapture(event.pointerId);
-    setIsPaletteDragging(false);
-    updateWheelFromPointer(event.clientX, event.clientY, true);
   }
 
   function handleInputChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -452,78 +409,45 @@ export function ColorPickerBoard({
       </div>
 
       {variant === 'wheel' ? (
-        <div
-          ref={paletteRef}
-          role="presentation"
-          className={classNames?.wheel}
-          style={getSlotStyle(
-            'wheel',
-            wheelStyle,
-            {
-              position: 'relative',
-              width: size,
-              height: size,
-              borderRadius: '50%',
-              overflow: 'hidden',
-              cursor: 'crosshair',
-              touchAction: 'none',
-            },
-          )}
-          onPointerDown={handleWheelPointerDown}
-          onPointerMove={handleWheelPointerMove}
-          onPointerUp={handleWheelPointerUp}
-          onPointerCancel={handleWheelPointerUp}
-        >
-          {wheelCells.map((cell) => {
-            const isActive = activeWheelCell?.id === cell.id;
-
-            return (
-              <button
-                key={cell.id}
-                type="button"
-                onClick={() => {
-                  commitColor(cell.color, true);
-                }}
-                title={`${cell.label}: ${cell.hex}`}
-                aria-label={`${cell.label}: ${cell.hex}`}
-                className={classNames?.wheelCell}
-                style={getSlotStyle(
-                  'wheelCell',
-                  {
-                    position: 'absolute',
-                    left: cell.x,
-                    top: cell.y,
-                    width: cell.size,
-                    height: cell.size,
-                    clipPath: OCTAGON_CLIP_PATH,
-                    border: 'none',
-                    padding: 0,
-                    background: cell.hex,
-                    boxShadow: isActive
-                      ? '0 0 0 2px rgba(248, 250, 252, 0.95), 0 0 0 6px rgba(15, 23, 42, 0.55), 0 10px 22px rgba(15, 23, 42, 0.32)'
-                      : '0 0 0 1px rgba(15, 23, 42, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.16)',
-                    transform: isActive ? 'scale(1.08)' : 'scale(1)',
-                    transition: 'transform 120ms ease, box-shadow 120ms ease',
-                    cursor: 'pointer',
-                  },
-                  {
-                    position: 'absolute',
-                    left: cell.x,
-                    top: cell.y,
-                    width: cell.size,
-                    height: cell.size,
-                    clipPath: OCTAGON_CLIP_PATH,
-                    border: 'none',
-                    padding: 0,
-                    background: cell.hex,
-                    transform: isActive ? 'scale(1.08)' : 'scale(1)',
-                    cursor: 'pointer',
-                  },
-                )}
-              />
-            );
-          })}
-        </div>
+        <ChromaticWheel
+          value={activeHex}
+          onChange={commitHex}
+          onChangeComplete={(nextHex) => {
+            commitHex(nextHex, true);
+          }}
+          size={size}
+          ariaLabel={label}
+          classNames={{
+            root: classNames?.wheel,
+            cell: classNames?.wheelCell,
+          }}
+          styles={{
+            root: getSlotStyle(
+              'wheel',
+              wheelStyle,
+              {
+                position: 'relative',
+                width: size,
+                height: size,
+                borderRadius: '50%',
+                overflow: 'hidden',
+                cursor: 'crosshair',
+                touchAction: 'none',
+              },
+            ),
+            cell: styles?.wheelCell,
+          }}
+          getCellStyle={({ isActive }) =>
+            appearance === 'default'
+              ? {
+                  boxShadow: isActive
+                    ? '0 0 0 2px rgba(248, 250, 252, 0.95), 0 0 0 6px rgba(15, 23, 42, 0.55), 0 10px 22px rgba(15, 23, 42, 0.32)'
+                    : '0 0 0 1px rgba(15, 23, 42, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.16)',
+                  transition: 'transform 120ms ease, box-shadow 120ms ease',
+                }
+              : undefined
+          }
+        />
       ) : (
         <>
           <div

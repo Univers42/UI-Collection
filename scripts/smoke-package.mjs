@@ -38,6 +38,7 @@ try {
 import {
   AssetPickerBoard,
   AssetRenderer,
+  ChromaticWheel,
   assetValueToBoardValue,
   createPackageMediaRef,
   createDefaultAssetPickerTabs,
@@ -65,6 +66,10 @@ if (typeof AssetPickerBoard !== 'function') {
 
 if (typeof AssetRenderer !== 'function') {
   throw new Error('Root export AssetRenderer is missing.');
+}
+
+if (typeof ChromaticWheel !== 'function') {
+  throw new Error('Root export ChromaticWheel is missing.');
 }
 
 if (parsed.kind !== 'icon' || parsed.iconId !== 'text') {

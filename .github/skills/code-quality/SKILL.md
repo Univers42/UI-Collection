@@ -5,7 +5,7 @@ description: Improve the CI workflow for better code quality and faster feedback
 
 ### 1. Code Quality and Best Practices
 - **Current Issue:** The existing codebase should adhere to TypeScript best practices, including strict typing and proper module resolution.
-- **Objective:** Getting zero errors or warning from SonarQube and when executing typecheck and linting processes (`make typecheck` and `make lint`).
+- **Objective:** Getting zero errors or warning from SonarQube and when executing typecheck and linting processes (typecheck and lint).
 - **Action:** Fix the type errors and linting warnings.
 
 ### 2. Modularization

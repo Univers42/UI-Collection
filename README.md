@@ -418,6 +418,22 @@ export function Demo() {
 />
 ```
 
+If the host application does not want any board chrome from this package, import `ChromaticWheel` directly. It only ships the wheel geometry and color swatches, so the surrounding layout and active-state styling can come entirely from the consumer theme.
+
+```tsx
+import { ChromaticWheel } from '@univers42/ui-collection';
+
+export function Demo() {
+  return (
+    <ChromaticWheel
+      value="#2563EB"
+      onChange={(hex) => console.log(hex)}
+      className="brand-wheel"
+    />
+  );
+}
+```
+
 `IconPickerBoard` emits canonical icon values by default, for example `icon:text`. `EmojiPickerBoard` emits the raw emoji glyph, and supports grouped sections plus persistent recents through `recentStorageKey`.
 
 #### Host-Themed Asset Picker
