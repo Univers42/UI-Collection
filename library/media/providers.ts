@@ -3,6 +3,7 @@ import {
   type MediaProvider,
   type MediaRef,
 } from './types.js';
+import { PACKAGED_MEDIA_FALLBACK_URLS } from './generated/packagedMediaFallbackUrls.js';
 import { PACKAGED_MEDIA_URLS } from './generated/packagedMediaUrls.js';
 
 export type MediaUrlResolver = (value: string, provider: MediaProvider) => string;
@@ -75,7 +76,14 @@ export function resolvePackagedMediaUrl(
 ): string {
   const normalizedBaseUrl = typeof baseUrl === 'string' ? baseUrl : baseUrl.toString();
   const normalizedValue = normalizePackagedMediaPath(value);
+  const fallbackUrl = PACKAGED_MEDIA_FALLBACK_URLS[normalizedValue];
   const packagedUrl = PACKAGED_MEDIA_URLS[normalizedValue];
+
+  // Prefer stable browser-served fallbacks for packaged photo assets until
+  // bundler handling of node_modules asset URLs is guaranteed for every host.
+  if (fallbackUrl) {
+    return fallbackUrl;
+  }
 
   if (packagedUrl) {
     return packagedUrl;

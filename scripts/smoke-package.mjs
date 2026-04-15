@@ -96,8 +96,14 @@ if (!packagedReadmeUrl.includes('/media/README.md')) {
   throw new Error('Package media resolver did not resolve packaged asset URLs.');
 }
 
-if (!packagedPhotoUrl.includes('photo-homepage-banner')) {
+if (!packagedPhotoUrl.includes('images.unsplash.com')) {
   throw new Error('Package media resolver did not resolve packaged photo asset URLs.');
+}
+
+const packagedPhotoProtocol = new URL(packagedPhotoUrl).protocol;
+
+if (packagedPhotoProtocol !== 'http:' && packagedPhotoProtocol !== 'https:') {
+  throw new Error('Packaged photo assets must resolve to browser-served URLs.');
 }
 
 const emojiTab = createEmojiPickerTab();

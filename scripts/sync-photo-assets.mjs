@@ -10,6 +10,10 @@ const packagedMediaUrlsPath = resolve(
   rootDir,
   'library/media/generated/packagedMediaUrls.ts',
 );
+const packagedMediaFallbackUrlsPath = resolve(
+  rootDir,
+  'library/media/generated/packagedMediaFallbackUrls.ts',
+);
 const WIKIMEDIA_DELAY_MS = 1500;
 
 const MIME_TYPE_EXTENSIONS = {
@@ -69,6 +73,19 @@ function serializePackagedMediaUrls(entries) {
   return lines.join('\n');
 }
 
+function serializePackagedMediaFallbackUrls(entries) {
+  const lines = [
+    'export const PACKAGED_MEDIA_FALLBACK_URLS: Record<string, string> = {',
+    ...Object.entries(entries)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([path, url]) => `  ${JSON.stringify(path)}: ${JSON.stringify(url)},`),
+    '};',
+    '',
+  ];
+
+  return lines.join('\n');
+}
+
 function wait(ms) {
   return new Promise((resolvePromise) => {
     setTimeout(resolvePromise, ms);
@@ -95,11 +112,20 @@ async function main() {
 
   const photos = getMediaCollection('photos');
   const manifest = createManifestFromExistingFiles(outputDir);
+  const fallbackEntries = {};
   const failures = [];
   let downloaded = 0;
 
   for (const item of photos) {
-    if (manifest[item.id]) {
+    const currentFileName = manifest[item.id];
+
+    if (currentFileName && item.thumbnailRef) {
+      fallbackEntries[`media/photos/optimized/${currentFileName}`] = resolveMediaUrl(
+        item.thumbnailRef,
+      );
+    }
+
+    if (currentFileName) {
       continue;
     }
 
@@ -134,6 +160,11 @@ async function main() {
 
       writeFileSync(filePath, bytes);
       manifest[item.id] = fileName;
+      if (item.thumbnailRef) {
+        fallbackEntries[`media/photos/optimized/${fileName}`] = resolveMediaUrl(
+          item.thumbnailRef,
+        );
+      }
       downloaded += 1;
     } catch (error) {
       failures.push({
@@ -146,6 +177,11 @@ async function main() {
 
   writeFileSync(manifestPath, serializeManifest(manifest), 'utf8');
   writeFileSync(packagedMediaUrlsPath, serializePackagedMediaUrls(manifest), 'utf8');
+  writeFileSync(
+    packagedMediaFallbackUrlsPath,
+    serializePackagedMediaFallbackUrls(fallbackEntries),
+    'utf8',
+  );
 
   console.log(
     JSON.stringify(
