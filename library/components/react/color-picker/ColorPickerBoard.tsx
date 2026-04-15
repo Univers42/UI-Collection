@@ -99,7 +99,7 @@ export function ColorPickerBoard({
   size = 280,
   className,
   variant = 'wheel',
-  appearance = 'default',
+  appearance = 'unstyled',
   classNames,
   styles,
 }: ColorPickerBoardProps) {

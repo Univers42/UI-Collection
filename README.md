@@ -404,12 +404,11 @@ export function Demo() {
 }
 ```
 
-`ColorPickerBoard` now defaults to a circular chromatic wheel built from octagonal swatches. Use `variant="classic"` if you want the legacy square HSV board. If the host app owns the visual system, use `appearance="unstyled"` and provide `classNames` or `styles` from the consumer.
+`ColorPickerBoard` now defaults to a visually agnostic circular chromatic wheel built from octagonal swatches. Use `variant="classic"` if you want the legacy square HSV board. If you want the packaged dark skin from this library, opt in with `appearance="default"`. Otherwise, leave the default behavior and provide `classNames` or `styles` from the consumer.
 
 ```tsx
 <ColorPickerBoard
   label="Brand palette"
-  appearance="unstyled"
   styles={{
     root: { width: 320 },
     input: { border: '1px solid var(--border)' },
