@@ -404,7 +404,19 @@ export function Demo() {
 }
 ```
 
-`ColorPickerBoard` now defaults to a circular chromatic wheel built from octagonal swatches. Use `variant="classic"` if you want the legacy square HSV board.
+`ColorPickerBoard` now defaults to a circular chromatic wheel built from octagonal swatches. Use `variant="classic"` if you want the legacy square HSV board. If the host app owns the visual system, use `appearance="unstyled"` and provide `classNames` or `styles` from the consumer.
+
+```tsx
+<ColorPickerBoard
+  label="Brand palette"
+  appearance="unstyled"
+  styles={{
+    root: { width: 320 },
+    input: { border: '1px solid var(--border)' },
+    inputButton: { padding: '0.5rem 0.75rem' },
+  }}
+/>
+```
 
 `IconPickerBoard` emits canonical icon values by default, for example `icon:text`. `EmojiPickerBoard` emits the raw emoji glyph, and supports grouped sections plus persistent recents through `recentStorageKey`.
 

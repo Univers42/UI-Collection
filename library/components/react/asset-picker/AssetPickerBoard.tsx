@@ -22,7 +22,6 @@ import type {
   AssetPickerBoardTab,
   AssetPickerBoardValue,
   AssetPickerItemLabelVisibility,
-  AssetPickerLayoutOptions,
   AssetPickerLayoutPreset,
   AssetPickerTabLayout,
 } from './types.js';

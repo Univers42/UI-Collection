@@ -8,8 +8,19 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from 'react';
+import {
+  DEFAULT_COLOR,
+  clamp,
+  createColorWheelCells,
+  getClosestColorWheelCell,
+  getClosestColorWheelCellFromPoint,
+  getReadableTextColor,
+  hexToHsva,
+  hsvaToHex,
+  normalizeHexColor,
+  type HsvaColor,
+} from './colorMath.js';
 
-const DEFAULT_COLOR = '#4F46E5';
 const OCTAGON_CLIP_PATH = 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)';
 
 export interface ColorPickerPreset {
@@ -17,7 +28,37 @@ export interface ColorPickerPreset {
   value: string;
 }
 
+export type ColorPickerBoardAppearance = 'default' | 'unstyled';
 export type ColorPickerBoardVariant = 'wheel' | 'classic';
+export type ColorPickerBoardSlot =
+  | 'root'
+  | 'header'
+  | 'eyebrow'
+  | 'title'
+  | 'selectedValue'
+  | 'wheel'
+  | 'wheelCell'
+  | 'board'
+  | 'boardSaturationOverlay'
+  | 'boardValueOverlay'
+  | 'boardHandle'
+  | 'hue'
+  | 'hueHandle'
+  | 'inputRow'
+  | 'inputLabel'
+  | 'inputLabelText'
+  | 'input'
+  | 'inputButton'
+  | 'presets'
+  | 'presetButton'
+  | 'presetSwatch'
+  | 'presetLabel';
+export type ColorPickerBoardSlotClassNames = Partial<
+  Record<ColorPickerBoardSlot, string>
+>;
+export type ColorPickerBoardSlotStyles = Partial<
+  Record<ColorPickerBoardSlot, CSSProperties>
+>;
 
 export interface ColorPickerBoardProps {
   value?: string;
@@ -30,51 +71,10 @@ export interface ColorPickerBoardProps {
   size?: number;
   className?: string;
   variant?: ColorPickerBoardVariant;
+  appearance?: ColorPickerBoardAppearance;
+  classNames?: ColorPickerBoardSlotClassNames;
+  styles?: ColorPickerBoardSlotStyles;
 }
-
-interface HsvaColor {
-  h: number;
-  s: number;
-  v: number;
-}
-
-interface ColorWheelCell {
-  id: string;
-  label: string;
-  hex: string;
-  color: HsvaColor;
-  x: number;
-  y: number;
-  size: number;
-}
-
-interface ColorWheelRingDefinition {
-  count: number;
-  saturation: number;
-  value: number;
-  rotationOffset: number;
-}
-
-const COLOR_WHEEL_RINGS: readonly ColorWheelRingDefinition[] = [
-  { count: 8, saturation: 18, value: 100, rotationOffset: -90 },
-  { count: 12, saturation: 34, value: 100, rotationOffset: -75 },
-  { count: 16, saturation: 48, value: 100, rotationOffset: -79 },
-  { count: 20, saturation: 62, value: 97, rotationOffset: -81 },
-  { count: 24, saturation: 76, value: 94, rotationOffset: -83 },
-  { count: 28, saturation: 92, value: 90, rotationOffset: -85 },
-  { count: 32, saturation: 94, value: 74, rotationOffset: -86 },
-  { count: 36, saturation: 92, value: 56, rotationOffset: -87 },
-] as const;
-
-const COLOR_WHEEL_NEUTRALS = [
-  { id: 'neutral-white', label: 'White', value: '#FFFFFF' },
-  { id: 'neutral-cloud', label: 'Cloud', value: '#F8FAFC' },
-  { id: 'neutral-slate-100', label: 'Slate 100', value: '#E2E8F0' },
-  { id: 'neutral-slate-300', label: 'Slate 300', value: '#CBD5E1' },
-  { id: 'neutral-slate-500', label: 'Slate 500', value: '#94A3B8' },
-  { id: 'neutral-slate-700', label: 'Slate 700', value: '#475569' },
-  { id: 'neutral-slate-900', label: 'Slate 900', value: '#0F172A' },
-] as const;
 
 export const DEFAULT_COLOR_PRESETS: ColorPickerPreset[] = [
   { label: 'Indigo', value: '#4F46E5' },
@@ -87,255 +87,10 @@ export const DEFAULT_COLOR_PRESETS: ColorPickerPreset[] = [
   { label: 'Black', value: '#0F172A' },
 ];
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
+function joinClassNames(...values: Array<string | undefined>): string | undefined {
+  const className = values.filter(Boolean).join(' ').trim();
 
-function normalizeHexColor(value: string | undefined): string | null {
-  if (!value) {
-    return null;
-  }
-
-  const normalized = value.trim().toUpperCase();
-
-  if (/^#[0-9A-F]{6}$/.test(normalized)) {
-    return normalized;
-  }
-
-  const shortMatch = normalized.match(/^#([0-9A-F]{3})$/);
-
-  if (!shortMatch) {
-    return null;
-  }
-
-  const [r, g, b] = shortMatch[1].split('');
-
-  return `#${r}${r}${g}${g}${b}${b}`;
-}
-
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  const normalized = normalizeHexColor(hex) ?? DEFAULT_COLOR;
-
-  return {
-    r: Number.parseInt(normalized.slice(1, 3), 16),
-    g: Number.parseInt(normalized.slice(3, 5), 16),
-    b: Number.parseInt(normalized.slice(5, 7), 16),
-  };
-}
-
-function rgbToHex(r: number, g: number, b: number): string {
-  return `#${[r, g, b]
-    .map((value) => clamp(Math.round(value), 0, 255).toString(16).padStart(2, '0'))
-    .join('')
-    .toUpperCase()}`;
-}
-
-function rgbToHsva(r: number, g: number, b: number): HsvaColor {
-  const r1 = r / 255;
-  const g1 = g / 255;
-  const b1 = b / 255;
-  const max = Math.max(r1, g1, b1);
-  const min = Math.min(r1, g1, b1);
-  const delta = max - min;
-
-  let h = 0;
-
-  if (delta !== 0) {
-    if (max === r1) {
-      h = 60 * (((g1 - b1) / delta) % 6);
-    } else if (max === g1) {
-      h = 60 * ((b1 - r1) / delta + 2);
-    } else {
-      h = 60 * ((r1 - g1) / delta + 4);
-    }
-  }
-
-  if (h < 0) {
-    h += 360;
-  }
-
-  const s = max === 0 ? 0 : (delta / max) * 100;
-  const v = max * 100;
-
-  return { h, s, v };
-}
-
-function hsvaToRgb(color: HsvaColor): { r: number; g: number; b: number } {
-  const h = color.h;
-  const s = clamp(color.s, 0, 100) / 100;
-  const v = clamp(color.v, 0, 100) / 100;
-
-  const c = v * s;
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-  const m = v - c;
-
-  let r1 = 0;
-  let g1 = 0;
-  let b1 = 0;
-
-  if (h >= 0 && h < 60) {
-    r1 = c;
-    g1 = x;
-  } else if (h >= 60 && h < 120) {
-    r1 = x;
-    g1 = c;
-  } else if (h >= 120 && h < 180) {
-    g1 = c;
-    b1 = x;
-  } else if (h >= 180 && h < 240) {
-    g1 = x;
-    b1 = c;
-  } else if (h >= 240 && h < 300) {
-    r1 = x;
-    b1 = c;
-  } else {
-    r1 = c;
-    b1 = x;
-  }
-
-  return {
-    r: (r1 + m) * 255,
-    g: (g1 + m) * 255,
-    b: (b1 + m) * 255,
-  };
-}
-
-function hexToHsva(hex: string): HsvaColor {
-  const { r, g, b } = hexToRgb(hex);
-  return rgbToHsva(r, g, b);
-}
-
-function hsvaToHex(color: HsvaColor): string {
-  const { r, g, b } = hsvaToRgb(color);
-  return rgbToHex(r, g, b);
-}
-
-function getReadableTextColor(hex: string): string {
-  const { r, g, b } = hexToRgb(hex);
-  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-
-  return luminance > 0.62 ? '#0F172A' : '#FFFFFF';
-}
-
-function getCircularHueDistance(a: number, b: number): number {
-  const delta = Math.abs(a - b) % 360;
-  return Math.min(delta, 360 - delta);
-}
-
-function createColorWheelCells(size: number): ColorWheelCell[] {
-  const cells: ColorWheelCell[] = [];
-  const center = size / 2;
-  const maxRadius = size / 2 - 18;
-  const ringSpacing = maxRadius / (COLOR_WHEEL_RINGS.length + 1.3);
-  const neutralRadius = ringSpacing * 0.78;
-  const neutralCellSize = clamp(ringSpacing * 0.92, 16, 24);
-
-  COLOR_WHEEL_NEUTRALS.forEach((neutral, index) => {
-    if (index === 0) {
-      cells.push({
-        id: neutral.id,
-        label: neutral.label,
-        hex: neutral.value,
-        color: hexToHsva(neutral.value),
-        x: center - neutralCellSize / 2,
-        y: center - neutralCellSize / 2,
-        size: neutralCellSize,
-      });
-      return;
-    }
-
-    const angle = ((index - 1) / (COLOR_WHEEL_NEUTRALS.length - 1)) * Math.PI * 2 - Math.PI / 2;
-
-    cells.push({
-      id: neutral.id,
-      label: neutral.label,
-      hex: neutral.value,
-      color: hexToHsva(neutral.value),
-      x: center + Math.cos(angle) * neutralRadius - neutralCellSize / 2,
-      y: center + Math.sin(angle) * neutralRadius - neutralCellSize / 2,
-      size: neutralCellSize,
-    });
-  });
-
-  COLOR_WHEEL_RINGS.forEach((ring, ringIndex) => {
-    const radius = ringSpacing * (ringIndex + 1.45);
-    const baseCellSize = ringSpacing * 0.94;
-    const circumferentialCellSize = (2 * Math.PI * radius) / ring.count * 0.86;
-    const cellSize = clamp(Math.min(baseCellSize, circumferentialCellSize), 16, 28);
-
-    for (let slot = 0; slot < ring.count; slot += 1) {
-      const hue = ((slot / ring.count) * 360 + ring.rotationOffset + 360) % 360;
-      const angle = (hue - 90) * (Math.PI / 180);
-      const color: HsvaColor = {
-        h: hue,
-        s: ring.saturation,
-        v: ring.value,
-      };
-      const hex = hsvaToHex(color);
-
-      cells.push({
-        id: `ring-${ringIndex}-${slot}`,
-        label: `Hue ${Math.round(hue)} / ${ring.saturation}% / ${ring.value}%`,
-        hex,
-        color,
-        x: center + Math.cos(angle) * radius - cellSize / 2,
-        y: center + Math.sin(angle) * radius - cellSize / 2,
-        size: cellSize,
-      });
-    }
-  });
-
-  return cells;
-}
-
-function getClosestColorWheelCell(target: HsvaColor, cells: readonly ColorWheelCell[]): ColorWheelCell | null {
-  if (cells.length === 0) {
-    return null;
-  }
-
-  let closest = cells[0];
-  let smallestDistance = Number.POSITIVE_INFINITY;
-
-  for (const cell of cells) {
-    const hueDistance = getCircularHueDistance(target.h, cell.color.h) / 180;
-    const saturationDistance = Math.abs(target.s - cell.color.s) / 100;
-    const valueDistance = Math.abs(target.v - cell.color.v) / 100;
-    const distance = hueDistance * 0.65 + saturationDistance * 0.2 + valueDistance * 0.25;
-
-    if (distance < smallestDistance) {
-      smallestDistance = distance;
-      closest = cell;
-    }
-  }
-
-  return closest;
-}
-
-function getClosestColorWheelCellFromPoint(
-  clientX: number,
-  clientY: number,
-  container: HTMLDivElement,
-  cells: readonly ColorWheelCell[],
-): ColorWheelCell | null {
-  const rect = container.getBoundingClientRect();
-  const localX = clientX - rect.left;
-  const localY = clientY - rect.top;
-
-  let closest: ColorWheelCell | null = null;
-  let smallestDistance = Number.POSITIVE_INFINITY;
-
-  for (const cell of cells) {
-    const centerX = cell.x + cell.size / 2;
-    const centerY = cell.y + cell.size / 2;
-    const distance = Math.hypot(localX - centerX, localY - centerY);
-
-    if (distance < smallestDistance) {
-      smallestDistance = distance;
-      closest = cell;
-    }
-  }
-
-  return closest;
+  return className.length > 0 ? className : undefined;
 }
 
 export function ColorPickerBoard({
@@ -349,6 +104,9 @@ export function ColorPickerBoard({
   size = 280,
   className,
   variant = 'wheel',
+  appearance = 'default',
+  classNames,
+  styles,
 }: ColorPickerBoardProps) {
   const initialHex = normalizeHexColor(value) ?? normalizeHexColor(defaultValue) ?? DEFAULT_COLOR;
   const [internalHex, setInternalHex] = useState(initialHex);
@@ -562,6 +320,17 @@ export function ColorPickerBoard({
   const boardHue = hsvaToHex({ h: currentColor.h, s: 100, v: 100 });
   const textColor = getReadableTextColor(activeHex);
 
+  function getSlotStyle(
+    slot: ColorPickerBoardSlot,
+    defaultStyle: CSSProperties,
+    unstyledStyle: CSSProperties = {},
+  ): CSSProperties {
+    return {
+      ...(appearance === 'unstyled' ? unstyledStyle : defaultStyle),
+      ...styles?.[slot],
+    };
+  }
+
   const rootStyle: CSSProperties = {
     width: size + 32,
     padding: 16,
@@ -602,35 +371,81 @@ export function ColorPickerBoard({
   };
 
   return (
-    <section className={className} style={rootStyle} aria-label={label}>
+    <section
+      className={joinClassNames(className, classNames?.root)}
+      style={getSlotStyle('root', rootStyle, { width: size + 32 })}
+      aria-label={label}
+    >
       <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 16,
-          marginBottom: 16,
-        }}
+        className={classNames?.header}
+        style={getSlotStyle(
+          'header',
+          {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 16,
+            marginBottom: 16,
+          },
+          {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 16,
+            marginBottom: 16,
+          },
+        )}
       >
         <div>
-          <div style={{ fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.7 }}>
+          <div
+            className={classNames?.eyebrow}
+            style={getSlotStyle(
+              'eyebrow',
+              {
+                fontSize: 12,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                opacity: 0.7,
+              },
+              {},
+            )}
+          >
             {variant === 'wheel' ? 'Chromatic Wheel' : 'Picker Board'}
           </div>
-          <h3 style={{ margin: '6px 0 0', fontSize: 20, lineHeight: 1.1 }}>{label}</h3>
+          <h3
+            className={classNames?.title}
+            style={getSlotStyle(
+              'title',
+              { margin: '6px 0 0', fontSize: 20, lineHeight: 1.1 },
+              { margin: '6px 0 0' },
+            )}
+          >
+            {label}
+          </h3>
         </div>
         <div
+          className={classNames?.selectedValue}
           aria-label={`Selected color ${activeHex}`}
-          style={{
-            minWidth: 88,
-            padding: '10px 12px',
-            borderRadius: 16,
-            background: activeHex,
-            color: textColor,
-            textAlign: 'center',
-            fontSize: 12,
-            fontWeight: 700,
-            boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.16)',
-          }}
+          style={getSlotStyle(
+            'selectedValue',
+            {
+              minWidth: 88,
+              padding: '10px 12px',
+              borderRadius: 16,
+              background: activeHex,
+              color: textColor,
+              textAlign: 'center',
+              fontSize: 12,
+              fontWeight: 700,
+              boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.16)',
+            },
+            {
+              minWidth: 88,
+              background: activeHex,
+              color: textColor,
+              textAlign: 'center',
+            },
+          )}
         >
           {activeHex}
         </div>
@@ -640,7 +455,20 @@ export function ColorPickerBoard({
         <div
           ref={paletteRef}
           role="presentation"
-          style={wheelStyle}
+          className={classNames?.wheel}
+          style={getSlotStyle(
+            'wheel',
+            wheelStyle,
+            {
+              position: 'relative',
+              width: size,
+              height: size,
+              borderRadius: '50%',
+              overflow: 'hidden',
+              cursor: 'crosshair',
+              touchAction: 'none',
+            },
+          )}
           onPointerDown={handleWheelPointerDown}
           onPointerMove={handleWheelPointerMove}
           onPointerUp={handleWheelPointerUp}
@@ -658,23 +486,40 @@ export function ColorPickerBoard({
                 }}
                 title={`${cell.label}: ${cell.hex}`}
                 aria-label={`${cell.label}: ${cell.hex}`}
-                style={{
-                  position: 'absolute',
-                  left: cell.x,
-                  top: cell.y,
-                  width: cell.size,
-                  height: cell.size,
-                  clipPath: OCTAGON_CLIP_PATH,
-                  border: 'none',
-                  padding: 0,
-                  background: cell.hex,
-                  boxShadow: isActive
-                    ? '0 0 0 2px rgba(248, 250, 252, 0.95), 0 0 0 6px rgba(15, 23, 42, 0.55), 0 10px 22px rgba(15, 23, 42, 0.32)'
-                    : '0 0 0 1px rgba(15, 23, 42, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.16)',
-                  transform: isActive ? 'scale(1.08)' : 'scale(1)',
-                  transition: 'transform 120ms ease, box-shadow 120ms ease',
-                  cursor: 'pointer',
-                }}
+                className={classNames?.wheelCell}
+                style={getSlotStyle(
+                  'wheelCell',
+                  {
+                    position: 'absolute',
+                    left: cell.x,
+                    top: cell.y,
+                    width: cell.size,
+                    height: cell.size,
+                    clipPath: OCTAGON_CLIP_PATH,
+                    border: 'none',
+                    padding: 0,
+                    background: cell.hex,
+                    boxShadow: isActive
+                      ? '0 0 0 2px rgba(248, 250, 252, 0.95), 0 0 0 6px rgba(15, 23, 42, 0.55), 0 10px 22px rgba(15, 23, 42, 0.32)'
+                      : '0 0 0 1px rgba(15, 23, 42, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.16)',
+                    transform: isActive ? 'scale(1.08)' : 'scale(1)',
+                    transition: 'transform 120ms ease, box-shadow 120ms ease',
+                    cursor: 'pointer',
+                  },
+                  {
+                    position: 'absolute',
+                    left: cell.x,
+                    top: cell.y,
+                    width: cell.size,
+                    height: cell.size,
+                    clipPath: OCTAGON_CLIP_PATH,
+                    border: 'none',
+                    padding: 0,
+                    background: cell.hex,
+                    transform: isActive ? 'scale(1.08)' : 'scale(1)',
+                    cursor: 'pointer',
+                  },
+                )}
               />
             );
           })}
@@ -684,123 +529,250 @@ export function ColorPickerBoard({
           <div
             ref={boardRef}
             role="presentation"
-            style={boardStyle}
+            className={classNames?.board}
+            style={getSlotStyle(
+              'board',
+              boardStyle,
+              {
+                position: 'relative',
+                width: size,
+                height: size,
+                borderRadius: 20,
+                overflow: 'hidden',
+                cursor: 'crosshair',
+                backgroundColor: boardHue,
+                touchAction: 'none',
+              },
+            )}
             onPointerDown={handleBoardPointerDown}
             onPointerMove={handleBoardPointerMove}
             onPointerUp={handleBoardPointerUp}
             onPointerCancel={handleBoardPointerUp}
           >
             <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(90deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%)',
-              }}
+              className={classNames?.boardSaturationOverlay}
+              style={getSlotStyle(
+                'boardSaturationOverlay',
+                {
+                  position: 'absolute',
+                  inset: 0,
+                  background:
+                    'linear-gradient(90deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%)',
+                },
+                {
+                  position: 'absolute',
+                  inset: 0,
+                  background:
+                    'linear-gradient(90deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%)',
+                },
+              )}
             />
             <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%)',
-              }}
+              className={classNames?.boardValueOverlay}
+              style={getSlotStyle(
+                'boardValueOverlay',
+                {
+                  position: 'absolute',
+                  inset: 0,
+                  background:
+                    'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%)',
+                },
+                {
+                  position: 'absolute',
+                  inset: 0,
+                  background:
+                    'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%)',
+                },
+              )}
             />
             <div
-              style={{
-                position: 'absolute',
-                left: boardHandleLeft,
-                top: boardHandleTop,
-                width: 18,
-                height: 18,
-                borderRadius: '50%',
-                border: '2px solid #FFFFFF',
-                boxShadow: '0 0 0 1px rgba(15, 23, 42, 0.35), 0 4px 14px rgba(15, 23, 42, 0.35)',
-                transform: 'translate(-50%, -50%)',
-              }}
+              className={classNames?.boardHandle}
+              style={getSlotStyle(
+                'boardHandle',
+                {
+                  position: 'absolute',
+                  left: boardHandleLeft,
+                  top: boardHandleTop,
+                  width: 18,
+                  height: 18,
+                  borderRadius: '50%',
+                  border: '2px solid #FFFFFF',
+                  boxShadow:
+                    '0 0 0 1px rgba(15, 23, 42, 0.35), 0 4px 14px rgba(15, 23, 42, 0.35)',
+                  transform: 'translate(-50%, -50%)',
+                },
+                {
+                  position: 'absolute',
+                  left: boardHandleLeft,
+                  top: boardHandleTop,
+                  width: 18,
+                  height: 18,
+                  borderRadius: '50%',
+                  border: '2px solid #FFFFFF',
+                  transform: 'translate(-50%, -50%)',
+                },
+              )}
             />
           </div>
 
           <div
             ref={hueRef}
             role="presentation"
-            style={{
-              position: 'relative',
-              width: size,
-              height: 18,
-              marginTop: 14,
-              borderRadius: 999,
-              background:
-                'linear-gradient(90deg, #FF0000 0%, #FFFF00 16.66%, #00FF00 33.33%, #00FFFF 50%, #0000FF 66.66%, #FF00FF 83.33%, #FF0000 100%)',
-              boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.1)',
-              cursor: 'ew-resize',
-              touchAction: 'none',
-            }}
+            className={classNames?.hue}
+            style={getSlotStyle(
+              'hue',
+              {
+                position: 'relative',
+                width: size,
+                height: 18,
+                marginTop: 14,
+                borderRadius: 999,
+                background:
+                  'linear-gradient(90deg, #FF0000 0%, #FFFF00 16.66%, #00FF00 33.33%, #00FFFF 50%, #0000FF 66.66%, #FF00FF 83.33%, #FF0000 100%)',
+                boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.1)',
+                cursor: 'ew-resize',
+                touchAction: 'none',
+              },
+              {
+                position: 'relative',
+                width: size,
+                height: 18,
+                marginTop: 14,
+                borderRadius: 999,
+                background:
+                  'linear-gradient(90deg, #FF0000 0%, #FFFF00 16.66%, #00FF00 33.33%, #00FFFF 50%, #0000FF 66.66%, #FF00FF 83.33%, #FF0000 100%)',
+                cursor: 'ew-resize',
+                touchAction: 'none',
+              },
+            )}
             onPointerDown={handleHuePointerDown}
             onPointerMove={handleHuePointerMove}
             onPointerUp={handleHuePointerUp}
             onPointerCancel={handleHuePointerUp}
           >
             <div
-              style={{
-                position: 'absolute',
-                left: hueHandleLeft,
-                top: '50%',
-                width: 14,
-                height: 26,
-                borderRadius: 999,
-                background: '#FFFFFF',
-                border: '1px solid rgba(15, 23, 42, 0.18)',
-                boxShadow: '0 6px 18px rgba(15, 23, 42, 0.28)',
-                transform: 'translate(-50%, -50%)',
-              }}
+              className={classNames?.hueHandle}
+              style={getSlotStyle(
+                'hueHandle',
+                {
+                  position: 'absolute',
+                  left: hueHandleLeft,
+                  top: '50%',
+                  width: 14,
+                  height: 26,
+                  borderRadius: 999,
+                  background: '#FFFFFF',
+                  border: '1px solid rgba(15, 23, 42, 0.18)',
+                  boxShadow: '0 6px 18px rgba(15, 23, 42, 0.28)',
+                  transform: 'translate(-50%, -50%)',
+                },
+                {
+                  position: 'absolute',
+                  left: hueHandleLeft,
+                  top: '50%',
+                  width: 14,
+                  height: 26,
+                  borderRadius: 999,
+                  background: '#FFFFFF',
+                  border: '1px solid currentColor',
+                  transform: 'translate(-50%, -50%)',
+                },
+              )}
             />
           </div>
         </>
       )}
 
       {showInput ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, marginTop: 16 }}>
-          <label style={{ display: 'grid', gap: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.78 }}>HEX</span>
+        <div
+          className={classNames?.inputRow}
+          style={getSlotStyle(
+            'inputRow',
+            { display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, marginTop: 16 },
+            { display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, marginTop: 16 },
+          )}
+        >
+          <label
+            className={classNames?.inputLabel}
+            style={getSlotStyle('inputLabel', { display: 'grid', gap: 8 }, { display: 'grid', gap: 8 })}
+          >
+            <span
+              className={classNames?.inputLabelText}
+              style={getSlotStyle(
+                'inputLabelText',
+                { fontSize: 12, fontWeight: 600, opacity: 0.78 },
+                {},
+              )}
+            >
+              HEX
+            </span>
             <input
+              className={classNames?.input}
               value={inputValue}
               onChange={handleInputChange}
               onBlur={commitInputValue}
               onKeyDown={handleInputKeyDown}
               spellCheck={false}
-              style={{
-                height: 42,
-                borderRadius: 14,
-                border: '1px solid rgba(148, 163, 184, 0.22)',
-                background: 'rgba(15, 23, 42, 0.45)',
-                color: '#F8FAFC',
-                padding: '0 14px',
-                fontSize: 14,
-                outline: 'none',
-              }}
+              style={getSlotStyle(
+                'input',
+                {
+                  height: 42,
+                  borderRadius: 14,
+                  border: '1px solid rgba(148, 163, 184, 0.22)',
+                  background: 'rgba(15, 23, 42, 0.45)',
+                  color: '#F8FAFC',
+                  padding: '0 14px',
+                  fontSize: 14,
+                  outline: 'none',
+                },
+                {},
+              )}
             />
           </label>
           <button
             type="button"
             onClick={commitInputValue}
-            style={{
-              alignSelf: 'end',
-              height: 42,
-              padding: '0 14px',
-              border: '1px solid rgba(148, 163, 184, 0.22)',
-              borderRadius: 14,
-              background: 'rgba(255, 255, 255, 0.08)',
-              color: '#F8FAFC',
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
+            className={classNames?.inputButton}
+            style={getSlotStyle(
+              'inputButton',
+              {
+                alignSelf: 'end',
+                height: 42,
+                padding: '0 14px',
+                border: '1px solid rgba(148, 163, 184, 0.22)',
+                borderRadius: 14,
+                background: 'rgba(255, 255, 255, 0.08)',
+                color: '#F8FAFC',
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
+              },
+              { alignSelf: 'end' },
+            )}
           >
             Apply
           </button>
         </div>
       ) : null}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10, marginTop: 18 }}>
+      <div
+        className={classNames?.presets}
+        style={getSlotStyle(
+          'presets',
+          {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+            gap: 10,
+            marginTop: 18,
+          },
+          {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+            gap: 10,
+            marginTop: 18,
+          },
+        )}
+      >
         {presets.map((preset) => {
           const presetValue = normalizeHexColor(preset.value) ?? DEFAULT_COLOR;
           const isActive = presetValue === activeHex;
@@ -813,30 +785,55 @@ export function ColorPickerBoard({
                 commitColor(hexToHsva(presetValue), true);
               }}
               title={`${preset.label}: ${presetValue}`}
-              style={{
-                display: 'grid',
-                gap: 6,
-                justifyItems: 'center',
-                padding: '10px 8px',
-                borderRadius: 16,
-                border: isActive
-                  ? '1px solid rgba(255, 255, 255, 0.5)'
-                  : '1px solid rgba(148, 163, 184, 0.18)',
-                background: 'rgba(255, 255, 255, 0.04)',
-                color: '#CBD5E1',
-                cursor: 'pointer',
-              }}
+              className={classNames?.presetButton}
+              style={getSlotStyle(
+                'presetButton',
+                {
+                  display: 'grid',
+                  gap: 6,
+                  justifyItems: 'center',
+                  padding: '10px 8px',
+                  borderRadius: 16,
+                  border: isActive
+                    ? '1px solid rgba(255, 255, 255, 0.5)'
+                    : '1px solid rgba(148, 163, 184, 0.18)',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  color: '#CBD5E1',
+                  cursor: 'pointer',
+                },
+                {
+                  display: 'grid',
+                  gap: 6,
+                  justifyItems: 'center',
+                  cursor: 'pointer',
+                },
+              )}
             >
               <span
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 10,
-                  background: presetValue,
-                  boxShadow: 'inset 0 0 0 1px rgba(15, 23, 42, 0.12)',
-                }}
+                className={classNames?.presetSwatch}
+                style={getSlotStyle(
+                  'presetSwatch',
+                  {
+                    width: 28,
+                    height: 28,
+                    borderRadius: 10,
+                    background: presetValue,
+                    boxShadow: 'inset 0 0 0 1px rgba(15, 23, 42, 0.12)',
+                  },
+                  {
+                    width: 28,
+                    height: 28,
+                    borderRadius: 10,
+                    background: presetValue,
+                  },
+                )}
               />
-              <span style={{ fontSize: 11, lineHeight: 1.2 }}>{preset.label}</span>
+              <span
+                className={classNames?.presetLabel}
+                style={getSlotStyle('presetLabel', { fontSize: 11, lineHeight: 1.2 }, {})}
+              >
+                {preset.label}
+              </span>
             </button>
           );
         })}
