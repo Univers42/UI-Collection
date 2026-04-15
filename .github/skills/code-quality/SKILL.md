@@ -25,7 +25,15 @@ description: Improve the CI workflow for better code quality and faster feedback
 
 ### 5. No style
 - **Current Issue:** ui-collection incorporates styles or themes that should be defined outside the library.
-
 - **Objective:** To make the library visually agnostic and reusable in different contexts.
-
 - **Action:** Avoid embedding styles in ui-collection and leave the theming and final appearance to the consumer project.
+
+### 6. Testing
+- **Current Problem:** The codebase may lack sufficient test coverage, which can lead to undetected bugs and regressions, making it harder to maintain and evolve the code with confidence.
+- **Objective:** Increase test coverage to ensure that critical paths and edge cases are well-tested, improving the reliability and maintainability of the codebase.
+- **Action:** Write unit tests for individual functions and components, integration tests for interactions between modules, and end-to-end tests for user flows. Use testing frameworks like Jest and React Testing Library to ensure comprehensive coverage and maintainable test suites. Focus on testing critical paths, edge cases, and potential failure points to catch bugs early and ensure the robustness of the application.
+
+### 7. Documentation
+- **Current Issue:** The codebase may lack sufficient documentation, making it difficult for developers to understand the purpose and usage of different modules, functions, and components, which can hinder collaboration and onboarding.
+- **Objective:** Provide clear and comprehensive documentation to facilitate understanding, collaboration, and onboarding for current and future developers.
+- **Action:** Document the purpose, inputs, outputs, and usage of functions, components, and modules using JSDoc comments or similar conventions. Create README files for modules or components that explain their functionality, usage examples, and any relevant details. Ensure that documentation is kept up-to-date with code changes to maintain its accuracy and usefulness for developers.

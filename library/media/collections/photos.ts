@@ -31,8 +31,25 @@ function getPackagedPhotoRef(id: string): MediaRef | undefined {
   return createPackageMediaRef(`media/photos/optimized/${fileName}`);
 }
 
-function getPhotoRef(id: string, fallback: MediaRef): MediaRef {
-  return getPackagedPhotoRef(id) ?? fallback;
+function getPhotoSources(
+  id: string,
+  fallback: MediaRef,
+): {
+  ref: MediaRef;
+  thumbnailRef?: MediaRef;
+} {
+  const packagedRef = getPackagedPhotoRef(id);
+
+  if (!packagedRef) {
+    return { ref: fallback };
+  }
+
+  return {
+    ref: packagedRef,
+    // Consumers render previews through thumbnailRef first. Keep a stable remote
+    // fallback until every bundler can resolve packaged assets consistently.
+    thumbnailRef: fallback,
+  };
 }
 
 type WikimediaPhotoSeed = readonly [
@@ -50,7 +67,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     label: 'James Webb Front View',
     category: 'james-webb',
     kind: 'photo' as const,
-    ref: getPhotoRef(
+    ...getPhotoSources(
       'photo-james-webb-front-view',
       remotePhotoRef(
         'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MP9X8G2ERPRXXK5325JSSZ.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880',
@@ -64,7 +81,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     label: 'James Webb Side View',
     category: 'james-webb',
     kind: 'photo' as const,
-    ref: getPhotoRef(
+    ...getPhotoSources(
       'photo-james-webb-side-view',
       remotePhotoRef(
         'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MN15AJW44J0SVJTBNAXBBR.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880',
@@ -78,7 +95,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     label: 'James Webb Concept Art',
     category: 'james-webb',
     kind: 'photo' as const,
-    ref: getPhotoRef(
+    ...getPhotoSources(
       'photo-james-webb-concept-art',
       remotePhotoRef(
         'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2017/06/STScI-01EVVB9GCHKXGV2QJQZNKN10TP.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880',
@@ -92,7 +109,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     label: 'James Webb Blueprint',
     category: 'james-webb',
     kind: 'photo' as const,
-    ref: getPhotoRef(
+    ...getPhotoSources(
       'photo-james-webb-blueprint',
       remotePhotoRef('https://www.nasa.gov/wp-content/uploads/2023/03/47690335362_a9b23dc6c8_o.jpeg?w=1041'),
     ),
@@ -104,7 +121,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     label: 'James Webb Identifier',
     category: 'james-webb',
     kind: 'photo' as const,
-    ref: getPhotoRef(
+    ...getPhotoSources(
       'photo-james-webb-identifier',
       remotePhotoRef(
         'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2021/STScI-01FDW8B9DQCV7G9AHFFB5Q5PEW.png?crop=faces%2Cfocalpoint&fit=clip&h=677&w=677',
@@ -118,7 +135,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     label: 'James Webb Blue Illustration',
     category: 'james-webb',
     kind: 'photo' as const,
-    ref: getPhotoRef(
+    ...getPhotoSources(
       'photo-james-webb-blue-illustration',
       remotePhotoRef(
         'https://assets.science.nasa.gov/dynamicimage/assets/science/astro/universe/2023/09/Webb-1.png?crop=faces%2Cfocalpoint&fit=clip&h=2858&w=3763',
@@ -232,7 +249,7 @@ const JAPANESE_PRINT_PHOTO_ITEMS = ([
     label,
     category,
     kind: 'photo' as const,
-    ref: getPhotoRef(id, wikimediaPhotoRef(filename)),
+    ...getPhotoSources(id, wikimediaPhotoRef(filename)),
     alt,
     tags: [...tags],
   }),
@@ -341,7 +358,7 @@ const ART_DECO_PHOTO_ITEMS = ([
     label,
     category,
     kind: 'photo' as const,
-    ref: getPhotoRef(id, wikimediaPhotoRef(filename)),
+    ...getPhotoSources(id, wikimediaPhotoRef(filename)),
     alt,
     tags: [...tags],
   }),
@@ -356,7 +373,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Homepage Banner',
       category: 'banners',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-homepage-banner',
         unsplashPhotoRef('photo-1518770660439-4636190af475'),
       ),
@@ -370,7 +387,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Creative Founder Portrait',
       category: 'portraits',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-portrait-creative-founder',
         unsplashPhotoRef('photo-1494790108377-be9c29b29330'),
       ),
@@ -384,7 +401,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Studio Portrait',
       category: 'portraits',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-portrait-studio-light',
         unsplashPhotoRef('photo-1500648767791-00dcc994a43e'),
       ),
@@ -398,7 +415,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Street Lifestyle Portrait',
       category: 'portraits',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-portrait-lifestyle-street',
         unsplashPhotoRef('photo-1517841905240-472988babdf9'),
       ),
@@ -412,7 +429,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Laptop Workspace',
       category: 'workspace',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-workspace-laptop-desk',
         unsplashPhotoRef('photo-1498050108023-c5249f4df085'),
       ),
@@ -426,7 +443,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Team Meeting Table',
       category: 'workspace',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-workspace-team-meeting',
         unsplashPhotoRef('photo-1522202176988-66273c2fd55f'),
       ),
@@ -440,7 +457,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Minimal Desk Setup',
       category: 'workspace',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-workspace-minimal-desk',
         unsplashPhotoRef('photo-1516321318423-f06f85e504b3'),
       ),
@@ -454,7 +471,7 @@ export const photosCollection = defineMediaCollection({
       label: 'City Skyline at Night',
       category: 'travel',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-city-skyline-night',
         unsplashPhotoRef('photo-1477959858617-67f85cf4f1df'),
       ),
@@ -468,7 +485,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Neon Street',
       category: 'travel',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-city-street-neon',
         unsplashPhotoRef('photo-1520034475321-cbe63696469a'),
       ),
@@ -482,7 +499,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Modern Facade',
       category: 'architecture',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-architecture-modern-facade',
         unsplashPhotoRef('photo-1511818966892-d7d671e672a2'),
       ),
@@ -496,7 +513,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Sculptural Staircase',
       category: 'architecture',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-architecture-staircase',
         unsplashPhotoRef('photo-1518005020951-eccb494ad742'),
       ),
@@ -510,7 +527,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Forest Path',
       category: 'nature',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-nature-forest-path',
         unsplashPhotoRef('photo-1441974231531-c6227db76b6e'),
       ),
@@ -524,7 +541,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Mountain Lake',
       category: 'nature',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-nature-mountain-lake',
         unsplashPhotoRef('photo-1500530855697-b586d89ba3ee'),
       ),
@@ -538,7 +555,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Desert Road',
       category: 'nature',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-nature-desert-road',
         unsplashPhotoRef('photo-1500534314209-a25ddb2bd429'),
       ),
@@ -552,7 +569,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Ocean Coastline',
       category: 'nature',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-ocean-coastline',
         unsplashPhotoRef('photo-1507525428034-b723cf961d3e'),
       ),
@@ -566,7 +583,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Brunch Table',
       category: 'food',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-food-brunch-table',
         unsplashPhotoRef('photo-1504674900247-0877df9cc836'),
       ),
@@ -580,7 +597,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Coffee and Pastry',
       category: 'food',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-food-coffee-pastry',
         unsplashPhotoRef('photo-1495474472287-4d71bcdd2085'),
       ),
@@ -594,7 +611,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Headphones Product Shot',
       category: 'products',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-product-headphones',
         unsplashPhotoRef('photo-1505740420928-5e560c06d30e'),
       ),
@@ -608,7 +625,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Camera Product Shot',
       category: 'products',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-product-camera',
         unsplashPhotoRef('photo-1516035069371-29a1b244cc32'),
       ),
@@ -622,7 +639,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Color Smoke',
       category: 'abstract',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-abstract-color-smoke',
         unsplashPhotoRef('photo-1470071459604-3b5ec3a7fe05'),
       ),
@@ -636,7 +653,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Shadow Composition',
       category: 'abstract',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-abstract-shadow-composition',
         unsplashPhotoRef('photo-1493246507139-91e8fad9978e'),
       ),
@@ -650,7 +667,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Fashion Walk',
       category: 'lifestyle',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-lifestyle-fashion-walk',
         unsplashPhotoRef('photo-1483985988355-763728e1935b'),
       ),
@@ -664,7 +681,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Wellness Yoga',
       category: 'lifestyle',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-lifestyle-wellness-yoga',
         unsplashPhotoRef('photo-1506126613408-eca07ce68773'),
       ),
@@ -678,7 +695,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Dog Portrait',
       category: 'pets',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-pets-dog-portrait',
         unsplashPhotoRef('photo-1517849845537-4d257902454a'),
       ),
@@ -692,7 +709,7 @@ export const photosCollection = defineMediaCollection({
       label: 'Cat by Window',
       category: 'pets',
       kind: 'photo',
-      ref: getPhotoRef(
+      ...getPhotoSources(
         'photo-pets-cat-window',
         unsplashPhotoRef('photo-1511044568932-338cba0ad803'),
       ),
