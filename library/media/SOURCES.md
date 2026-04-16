@@ -2,61 +2,33 @@
 
 Curated public sources used to expand the media library.
 
-Verified during generation on `2026-04-12`.
-
-## Unsplash
-
-- Source: https://unsplash.com
-- Entries:
-  - `photo-homepage-banner`
-  - `photo-portrait-creative-founder`
-  - `photo-portrait-studio-light`
-  - `photo-portrait-lifestyle-street`
-  - `photo-workspace-laptop-desk`
-  - `photo-workspace-team-meeting`
-  - `photo-workspace-minimal-desk`
-  - `photo-city-skyline-night`
-  - `photo-city-street-neon`
-  - `photo-architecture-modern-facade`
-  - `photo-architecture-staircase`
-  - `photo-nature-forest-path`
-  - `photo-nature-mountain-lake`
-  - `photo-nature-desert-road`
-  - `photo-ocean-coastline`
-  - `photo-food-brunch-table`
-  - `photo-food-coffee-pastry`
-  - `photo-product-headphones`
-  - `photo-product-camera`
-  - `photo-abstract-color-smoke`
-  - `photo-abstract-shadow-composition`
-  - `photo-lifestyle-fashion-walk`
-  - `photo-lifestyle-wellness-yoga`
-  - `photo-pets-dog-portrait`
-  - `photo-pets-cat-window`
+Verified during generation on `2026-04-16`.
 
 ## Wikimedia Commons
 
 - Source: https://commons.wikimedia.org
 - Entries:
-  - `photo-japanese-print-*`
-  - `photo-art-deco-*`
-  - Japanese poster and ukiyo-e themed entries backed by `Special:FilePath` URLs
+  - `photo-nature-yosemite-valley`
+  - `photo-nature-grand-canyon`
+  - `photo-nature-bryce-canyon`
+  - `photo-nature-yellowstone-falls`
+  - `photo-art-deco-tokyo-subway-poster`
+  - `photo-art-deco-isetan-opening`
+  - `photo-art-deco-takashimaya-osaka`
+  - `photo-art-deco-mitsukoshi-ginza`
+  - `photo-japanese-print-kanagawa-wave`
+  - `photo-japanese-print-red-fuji`
+  - `photo-japanese-print-sudden-shower`
+  - `photo-japanese-print-plum-garden`
 
 ## NASA Science
 
 - Source: https://science.nasa.gov
 - Entries:
-  - `photo-james-webb-front-view`
-  - `photo-james-webb-side-view`
-  - `photo-james-webb-concept-art`
-  - `photo-james-webb-identifier`
-  - `photo-james-webb-blue-illustration`
-
-## NASA
-
-- Source: https://www.nasa.gov
-- Entries:
-  - `photo-james-webb-blueprint`
+  - `photo-nasa-space-webb-front`
+  - `photo-nasa-space-webb-side`
+  - `photo-nasa-space-webb-concept`
+  - `photo-nasa-space-webb-blue`
 
 ## Heroicons
 

@@ -31,7 +31,7 @@ React SVG icon components belong in `/library/icons/react`.
 - `package:media/svg/icons/arrow-left.svg`
 - `url:https://cdn.example.com/docs/api-spec.pdf`
 - `api:https://api.example.com/v1/media/demo-video`
-- `unsplash:https://images.unsplash.com/photo-1518770660439-4636190af475`
+- `url:https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wave_off_Kanagawa.jpg?width=4096`
 - `picker:asset://emojis/custom/party-parrot`
 
 ## Structure
