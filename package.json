@@ -110,7 +110,8 @@
   },
   "files": [
     "dist",
-    "media",
+    "media/README.md",
+    "media/media-urls.example.json",
     "README.md"
   ],
   "sideEffects": false,
