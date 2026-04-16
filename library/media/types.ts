@@ -47,6 +47,7 @@ export interface MediaItem {
   ref: MediaRef;
   alt?: string;
   mimeType?: string;
+  sourceRef?: MediaRef;
   thumbnailRef?: MediaRef;
   tags?: string[];
   width?: number;

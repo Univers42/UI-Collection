@@ -10,16 +10,18 @@ function unsplashPhotoRef(photoId: string): MediaRef {
   );
 }
 
-function wikimediaPhotoRef(filename: string): MediaRef {
-  return createMediaRef(
-    'url',
-    `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(filename)}?width=4096`,
-  );
-}
-
 function remotePhotoRef(url: string): MediaRef {
   return createMediaRef('url', url);
 }
+
+const NASA_WALLPAPER_SOURCE_URLS = [
+  'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MP9X8G2ERPRXXK5325JSSZ.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096',
+  'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MN15AJW44J0SVJTBNAXBBR.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096',
+  'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2017/06/STScI-01EVVB9GCHKXGV2QJQZNKN10TP.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096',
+  'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MP9X8G2ERPRXXK5325JSSZ.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096',
+  'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2021/STScI-01FDW8B9DQCV7G9AHFFB5Q5PEW.png?crop=faces%2Cfocalpoint&fit=clip&h=2048&w=2048',
+  'https://assets.science.nasa.gov/dynamicimage/assets/science/astro/universe/2023/09/Webb-1.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096',
+] as const;
 
 function thumbnailFromPhotoRef(ref: MediaRef): MediaRef {
   const { provider, value } = parseMediaRef(ref);
@@ -69,22 +71,27 @@ function getPackagedPhotoRef(id: string): MediaRef | undefined {
 function getPhotoSources(
   id: string,
   fallback: MediaRef,
+  sourceRef: MediaRef = fallback,
 ): {
   ref: MediaRef;
+  sourceRef: MediaRef;
   thumbnailRef?: MediaRef;
 } {
   const packagedRef = getPackagedPhotoRef(id);
+  const previewRef = thumbnailFromPhotoRef(sourceRef);
 
   if (!packagedRef) {
     return {
       ref: fallback,
-      thumbnailRef: thumbnailFromPhotoRef(fallback),
+      sourceRef,
+      thumbnailRef: previewRef,
     };
   }
 
   return {
     ref: packagedRef,
-    thumbnailRef: thumbnailFromPhotoRef(fallback),
+    sourceRef,
+    thumbnailRef: previewRef,
   };
 }
 
@@ -141,7 +148,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     kind: 'photo' as const,
     ...getPhotoSources(
       'photo-james-webb-blueprint',
-      remotePhotoRef('https://www.nasa.gov/wp-content/uploads/2023/03/47690335362_a9b23dc6c8_o.jpeg?w=3840'),
+      remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MN15AJW44J0SVJTBNAXBBR.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096'),
     ),
     alt: 'Blueprint-style technical poster of the James Webb Space Telescope.',
     tags: ['photo', 'james webb', 'jwst', 'blueprint', 'engineering', 'nasa'],
@@ -270,12 +277,15 @@ const JAPANESE_PRINT_PHOTO_ITEMS = ([
     ['photo', 'japanese print', 'poster', 'railway', 'tokyo'],
   ],
 ] as const satisfies readonly WikimediaPhotoSeed[]).map(
-  ([id, label, category, filename, alt, tags]) => ({
+  ([id, label, category, _filename, alt, tags], index) => ({
     id,
     label,
     category,
     kind: 'photo' as const,
-    ...getPhotoSources(id, wikimediaPhotoRef(filename)),
+    ...getPhotoSources(
+      id,
+      remotePhotoRef(NASA_WALLPAPER_SOURCE_URLS[index % NASA_WALLPAPER_SOURCE_URLS.length]),
+    ),
     alt,
     tags: [...tags],
   }),
@@ -379,12 +389,17 @@ const ART_DECO_PHOTO_ITEMS = ([
     ['photo', 'art deco', 'poster', 'railway', 'graphic design'],
   ],
 ] as const satisfies readonly WikimediaPhotoSeed[]).map(
-  ([id, label, category, filename, alt, tags]) => ({
+  ([id, label, category, _filename, alt, tags], index) => ({
     id,
     label,
     category,
     kind: 'photo' as const,
-    ...getPhotoSources(id, wikimediaPhotoRef(filename)),
+    ...getPhotoSources(
+      id,
+      remotePhotoRef(
+        NASA_WALLPAPER_SOURCE_URLS[(index + 3) % NASA_WALLPAPER_SOURCE_URLS.length],
+      ),
+    ),
     alt,
     tags: [...tags],
   }),

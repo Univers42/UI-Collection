@@ -127,17 +127,17 @@ async function main() {
   for (const item of photos) {
     const currentFileName = manifest[item.id];
 
-    if (currentFileName && item.thumbnailRef) {
-      fallbackEntries[`media/photos/optimized/${currentFileName}`] = resolveMediaUrl(
-        item.thumbnailRef,
-      );
+    const sourceRef = item.sourceRef ?? item.ref;
+
+    if (currentFileName && sourceRef) {
+      fallbackEntries[`media/photos/optimized/${currentFileName}`] = resolveMediaUrl(sourceRef);
     }
 
     if (currentFileName) {
       continue;
     }
 
-    const sourceUrl = resolveMediaUrl(item.ref);
+    const sourceUrl = resolveMediaUrl(sourceRef);
     const isWikimedia = sourceUrl.includes('commons.wikimedia.org');
 
     if (sourceUrl.startsWith('file:')) {
@@ -168,11 +168,7 @@ async function main() {
 
       writeFileSync(filePath, bytes);
       manifest[item.id] = fileName;
-      if (item.thumbnailRef) {
-        fallbackEntries[`media/photos/optimized/${fileName}`] = resolveMediaUrl(
-          item.thumbnailRef,
-        );
-      }
+      fallbackEntries[`media/photos/optimized/${fileName}`] = resolveMediaUrl(sourceRef);
       downloaded += 1;
     } catch (error) {
       failures.push({
