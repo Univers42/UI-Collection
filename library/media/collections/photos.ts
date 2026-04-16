@@ -6,14 +6,14 @@ import { defineMediaCollection } from '../utils.js';
 function unsplashPhotoRef(photoId: string): MediaRef {
   return createMediaRef(
     'unsplash',
-    `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=2400&q=85`,
+    `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=3840&q=92`,
   );
 }
 
 function wikimediaPhotoRef(filename: string): MediaRef {
   return createMediaRef(
     'url',
-    `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(filename)}?width=1800`,
+    `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(filename)}?width=4096`,
   );
 }
 
@@ -28,23 +28,23 @@ function thumbnailFromPhotoRef(ref: MediaRef): MediaRef {
     const url = new URL(value);
 
     if (provider === 'unsplash' || url.hostname === 'images.unsplash.com') {
-      url.searchParams.set('w', '480');
+      url.searchParams.set('w', '720');
       url.searchParams.set('q', '70');
       return createMediaRef(provider, url.toString());
     }
 
     if (url.hostname === 'commons.wikimedia.org') {
-      url.searchParams.set('width', '420');
+      url.searchParams.set('width', '720');
       return createMediaRef(provider, url.toString());
     }
 
     if (url.hostname === 'assets.science.nasa.gov' || url.hostname === 'www.nasa.gov') {
       if (url.searchParams.has('w')) {
-        url.searchParams.set('w', '720');
+        url.searchParams.set('w', '960');
       }
 
       if (url.searchParams.has('h')) {
-        url.searchParams.set('h', '720');
+        url.searchParams.set('h', '960');
       }
 
       return createMediaRef(provider, url.toString());
@@ -105,9 +105,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     kind: 'photo' as const,
     ...getPhotoSources(
       'photo-james-webb-front-view',
-      remotePhotoRef(
-        'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MP9X8G2ERPRXXK5325JSSZ.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880',
-      ),
+      remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MP9X8G2ERPRXXK5325JSSZ.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096'),
     ),
     alt: 'Front-facing illustration of the James Webb Space Telescope.',
     tags: ['photo', 'james webb', 'jwst', 'telescope', 'space', 'nasa'],
@@ -119,9 +117,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     kind: 'photo' as const,
     ...getPhotoSources(
       'photo-james-webb-side-view',
-      remotePhotoRef(
-        'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MN15AJW44J0SVJTBNAXBBR.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880',
-      ),
+      remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MN15AJW44J0SVJTBNAXBBR.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096'),
     ),
     alt: 'Side view illustration of the James Webb Space Telescope.',
     tags: ['photo', 'james webb', 'jwst', 'telescope', 'side view', 'nasa'],
@@ -133,9 +129,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     kind: 'photo' as const,
     ...getPhotoSources(
       'photo-james-webb-concept-art',
-      remotePhotoRef(
-        'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2017/06/STScI-01EVVB9GCHKXGV2QJQZNKN10TP.png?crop=faces%2Cfocalpoint&fit=clip&h=2880&w=2880',
-      ),
+      remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2017/06/STScI-01EVVB9GCHKXGV2QJQZNKN10TP.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096'),
     ),
     alt: 'Concept illustration of the James Webb Space Telescope in space.',
     tags: ['photo', 'james webb', 'jwst', 'concept', 'space', 'nasa'],
@@ -147,7 +141,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     kind: 'photo' as const,
     ...getPhotoSources(
       'photo-james-webb-blueprint',
-      remotePhotoRef('https://www.nasa.gov/wp-content/uploads/2023/03/47690335362_a9b23dc6c8_o.jpeg?w=1041'),
+      remotePhotoRef('https://www.nasa.gov/wp-content/uploads/2023/03/47690335362_a9b23dc6c8_o.jpeg?w=3840'),
     ),
     alt: 'Blueprint-style technical poster of the James Webb Space Telescope.',
     tags: ['photo', 'james webb', 'jwst', 'blueprint', 'engineering', 'nasa'],
@@ -159,9 +153,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     kind: 'photo' as const,
     ...getPhotoSources(
       'photo-james-webb-identifier',
-      remotePhotoRef(
-        'https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2021/STScI-01FDW8B9DQCV7G9AHFFB5Q5PEW.png?crop=faces%2Cfocalpoint&fit=clip&h=677&w=677',
-      ),
+      remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2021/STScI-01FDW8B9DQCV7G9AHFFB5Q5PEW.png?crop=faces%2Cfocalpoint&fit=clip&h=2048&w=2048'),
     ),
     alt: 'Official Webb identifier graphic with telescope mirror and sunshield.',
     tags: ['photo', 'james webb', 'jwst', 'identifier', 'branding', 'nasa'],
@@ -173,9 +165,7 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     kind: 'photo' as const,
     ...getPhotoSources(
       'photo-james-webb-blue-illustration',
-      remotePhotoRef(
-        'https://assets.science.nasa.gov/dynamicimage/assets/science/astro/universe/2023/09/Webb-1.png?crop=faces%2Cfocalpoint&fit=clip&h=2858&w=3763',
-      ),
+      remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/astro/universe/2023/09/Webb-1.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096'),
     ),
     alt: 'Blue illustration of the James Webb Space Telescope.',
     tags: ['photo', 'james webb', 'jwst', 'illustration', 'blue', 'nasa'],

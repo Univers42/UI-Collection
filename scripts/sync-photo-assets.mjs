@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { getMediaCollection, resolveMediaUrl } from '../dist/library/media/index.js';
@@ -14,7 +14,7 @@ const packagedMediaFallbackUrlsPath = resolve(
   rootDir,
   'library/media/generated/packagedMediaFallbackUrls.ts',
 );
-const WIKIMEDIA_DELAY_MS = 1500;
+const WIKIMEDIA_DELAY_MS = 2500;
 
 const MIME_TYPE_EXTENSIONS = {
   'image/jpeg': 'jpg',
@@ -109,6 +109,14 @@ function createManifestFromExistingFiles(directory) {
 
 async function main() {
   mkdirSync(outputDir, { recursive: true });
+
+  for (const entry of readdirSync(outputDir, { withFileTypes: true })) {
+    if (entry.name === '.gitkeep') {
+      continue;
+    }
+
+    rmSync(resolve(outputDir, entry.name), { force: true, recursive: true });
+  }
 
   const photos = getMediaCollection('photos');
   const manifest = createManifestFromExistingFiles(outputDir);
