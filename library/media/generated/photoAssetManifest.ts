@@ -21,7 +21,6 @@ export const PHOTO_ASSET_FILE_NAMES: Record<string, string> = {
   "photo-food-coffee-pastry": "photo-food-coffee-pastry.jpg",
   "photo-homepage-banner": "photo-homepage-banner.jpg",
   "photo-james-webb-blue-illustration": "photo-james-webb-blue-illustration.png",
-  "photo-james-webb-blueprint": "photo-james-webb-blueprint.png",
   "photo-james-webb-concept-art": "photo-james-webb-concept-art.png",
   "photo-james-webb-front-view": "photo-james-webb-front-view.png",
   "photo-james-webb-identifier": "photo-james-webb-identifier.png",

@@ -21,7 +21,6 @@ export const PACKAGED_MEDIA_FALLBACK_URLS: Record<string, string> = {
   "media/photos/optimized/photo-food-coffee-pastry.jpg": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=3840&q=92",
   "media/photos/optimized/photo-homepage-banner.jpg": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=3840&q=92",
   "media/photos/optimized/photo-james-webb-blue-illustration.png": "https://assets.science.nasa.gov/dynamicimage/assets/science/astro/universe/2023/09/Webb-1.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096",
-  "media/photos/optimized/photo-james-webb-blueprint.png": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MN15AJW44J0SVJTBNAXBBR.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096",
   "media/photos/optimized/photo-james-webb-concept-art.png": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2017/06/STScI-01EVVB9GCHKXGV2QJQZNKN10TP.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096",
   "media/photos/optimized/photo-james-webb-front-view.png": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MP9X8G2ERPRXXK5325JSSZ.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096",
   "media/photos/optimized/photo-james-webb-identifier.png": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2021/STScI-01FDW8B9DQCV7G9AHFFB5Q5PEW.png?crop=faces%2Cfocalpoint&fit=clip&h=2048&w=2048",

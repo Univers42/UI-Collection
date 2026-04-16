@@ -142,18 +142,6 @@ const JAMES_WEBB_PHOTO_ITEMS = [
     tags: ['photo', 'james webb', 'jwst', 'concept', 'space', 'nasa'],
   },
   {
-    id: 'photo-james-webb-blueprint',
-    label: 'James Webb Blueprint',
-    category: 'james-webb',
-    kind: 'photo' as const,
-    ...getPhotoSources(
-      'photo-james-webb-blueprint',
-      remotePhotoRef('https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/outreach/migrated/2015/STScI-01H8MN15AJW44J0SVJTBNAXBBR.png?crop=faces%2Cfocalpoint&fit=clip&h=4096&w=4096'),
-    ),
-    alt: 'Blueprint-style technical poster of the James Webb Space Telescope.',
-    tags: ['photo', 'james webb', 'jwst', 'blueprint', 'engineering', 'nasa'],
-  },
-  {
     id: 'photo-james-webb-identifier',
     label: 'James Webb Identifier',
     category: 'james-webb',

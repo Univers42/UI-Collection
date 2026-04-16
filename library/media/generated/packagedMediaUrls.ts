@@ -21,7 +21,6 @@ export const PACKAGED_MEDIA_URLS: Record<string, string> = {
   "media/photos/optimized/photo-food-coffee-pastry.jpg": new URL("../../../../media/photos/optimized/photo-food-coffee-pastry.jpg", import.meta.url).toString(),
   "media/photos/optimized/photo-homepage-banner.jpg": new URL("../../../../media/photos/optimized/photo-homepage-banner.jpg", import.meta.url).toString(),
   "media/photos/optimized/photo-james-webb-blue-illustration.png": new URL("../../../../media/photos/optimized/photo-james-webb-blue-illustration.png", import.meta.url).toString(),
-  "media/photos/optimized/photo-james-webb-blueprint.png": new URL("../../../../media/photos/optimized/photo-james-webb-blueprint.png", import.meta.url).toString(),
   "media/photos/optimized/photo-james-webb-concept-art.png": new URL("../../../../media/photos/optimized/photo-james-webb-concept-art.png", import.meta.url).toString(),
   "media/photos/optimized/photo-james-webb-front-view.png": new URL("../../../../media/photos/optimized/photo-james-webb-front-view.png", import.meta.url).toString(),
   "media/photos/optimized/photo-james-webb-identifier.png": new URL("../../../../media/photos/optimized/photo-james-webb-identifier.png", import.meta.url).toString(),
