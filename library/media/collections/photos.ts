@@ -1,4 +1,4 @@
-import { createMediaRef, createPackageMediaRef } from '../providers.js';
+import { createMediaRef, createPackageMediaRef, parseMediaRef } from '../providers.js';
 import { PHOTO_ASSET_FILE_NAMES } from '../generated/photoAssetManifest.js';
 import type { MediaRef } from '../types.js';
 import { defineMediaCollection } from '../utils.js';
@@ -6,19 +6,54 @@ import { defineMediaCollection } from '../utils.js';
 function unsplashPhotoRef(photoId: string): MediaRef {
   return createMediaRef(
     'unsplash',
-    `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=1600&q=80`,
+    `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=2400&q=85`,
   );
 }
 
 function wikimediaPhotoRef(filename: string): MediaRef {
   return createMediaRef(
     'url',
-    `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(filename)}?width=1400`,
+    `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(filename)}?width=1800`,
   );
 }
 
 function remotePhotoRef(url: string): MediaRef {
   return createMediaRef('url', url);
+}
+
+function thumbnailFromPhotoRef(ref: MediaRef): MediaRef {
+  const { provider, value } = parseMediaRef(ref);
+
+  try {
+    const url = new URL(value);
+
+    if (provider === 'unsplash' || url.hostname === 'images.unsplash.com') {
+      url.searchParams.set('w', '480');
+      url.searchParams.set('q', '70');
+      return createMediaRef(provider, url.toString());
+    }
+
+    if (url.hostname === 'commons.wikimedia.org') {
+      url.searchParams.set('width', '420');
+      return createMediaRef(provider, url.toString());
+    }
+
+    if (url.hostname === 'assets.science.nasa.gov' || url.hostname === 'www.nasa.gov') {
+      if (url.searchParams.has('w')) {
+        url.searchParams.set('w', '720');
+      }
+
+      if (url.searchParams.has('h')) {
+        url.searchParams.set('h', '720');
+      }
+
+      return createMediaRef(provider, url.toString());
+    }
+
+    return createMediaRef(provider, url.toString());
+  } catch {
+    return ref;
+  }
 }
 
 function getPackagedPhotoRef(id: string): MediaRef | undefined {
@@ -41,14 +76,15 @@ function getPhotoSources(
   const packagedRef = getPackagedPhotoRef(id);
 
   if (!packagedRef) {
-    return { ref: fallback };
+    return {
+      ref: fallback,
+      thumbnailRef: thumbnailFromPhotoRef(fallback),
+    };
   }
 
   return {
     ref: packagedRef,
-    // Consumers render previews through thumbnailRef first. Keep a stable remote
-    // fallback until every bundler can resolve packaged assets consistently.
-    thumbnailRef: fallback,
+    thumbnailRef: thumbnailFromPhotoRef(fallback),
   };
 }
 
