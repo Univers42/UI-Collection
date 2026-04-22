@@ -6,7 +6,7 @@
 /*   By: rstancu <rstancu@student.42madrid.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:58:52 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/22 10:06:01 by rstancu          ###   ########.fr       */
+/*   Updated: 2026/04/22 10:11:54 by rstancu          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,24 @@ export function IconList() {
   return (
     <svg viewBox="0 0 20 20" className={cn("w-5 h-5")} fill="currentColor">
       <path d="M7 4.375a.625.625 0 1 0 0 1.25h10.1a.625.625 0 1 0 0-1.25zm0 5a.625.625 0 1 0 0 1.25h10.1a.625.625 0 1 0 0-1.25zM6.375 15c0-.345.28-.625.625-.625h10.1a.625.625 0 1 1 0 1.25H7A.625.625 0 0 1 6.375 15M2.9 9.375a.625.625 0 1 0 0 1.25h1.5a.625.625 0 1 0 0-1.25zM2.275 5c0-.345.28-.625.625-.625h1.5a.625.625 0 1 1 0 1.25H2.9A.625.625 0 0 1 2.275 5m.625 9.375a.625.625 0 1 0 0 1.25h1.5a.625.625 0 1 0 0-1.25z" />
+    </svg>
+  );
+}
+
+export function IconH5() {
+  return (
+    <svg viewBox="0 0 20 20" className={cn("w-5 h-5")} fill="currentColor">
+      <text x="16" y="15" fontSize="10" fontWeight="bold" textAnchor="middle">H5</text>
+      <path d="M2.877 4.2c.346 0 .625.28.625.625V9.15h5.4V4.825a.625.625 0 0 1 1.25 0v10.35a.625.625 0 0 1-1.25 0V10.4h-5.4v4.775a.625.625 0 0 1-1.25 0V4.825c0-.345.28-.625.625-.625" />
+    </svg>
+  );
+}
+
+export function IconH6() {
+  return (
+    <svg viewBox="0 0 20 20" className={cn("w-5 h-5")} fill="currentColor">
+      <text x="16" y="15" fontSize="10" fontWeight="bold" textAnchor="middle">H6</text>
+      <path d="M2.877 4.2c.346 0 .625.28.625.625V9.15h5.4V4.825a.625.625 0 0 1 1.25 0v10.35a.625.625 0 0 1-1.25 0V10.4h-5.4v4.775a.625.625 0 0 1-1.25 0V4.825c0-.345.28-.625.625-.625" />
     </svg>
   );
 }
