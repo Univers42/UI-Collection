@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SlashMenuIconsExtended.tsx                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rstancu <rstancu@student.42madrid.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:58:52 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/22 10:01:05 by rstancu          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,6 @@ export function IconList() {
 export function IconH5() {
   return (
     <svg viewBox="0 0 20 20" className={cn("w-5 h-5")} fill="currentColor">
-      <text x="13" y="15" fontSize="10" fontWeight="bold" textAnchor="middle">H5</text>
       <path d="M2.877 4.2c.346 0 .625.28.625.625V9.15h5.4V4.825a.625.625 0 0 1 1.25 0v10.35a.625.625 0 0 1-1.25 0V10.4h-5.4v4.775a.625.625 0 0 1-1.25 0V4.825c0-.345.28-.625.625-.625" />
     </svg>
   );
@@ -66,7 +65,6 @@ export function IconH5() {
 export function IconH6() {
   return (
     <svg viewBox="0 0 20 20" className={cn("w-5 h-5")} fill="currentColor">
-      <text x="13" y="15" fontSize="10" fontWeight="bold" textAnchor="middle">H6</text>
       <path d="M2.877 4.2c.346 0 .625.28.625.625V9.15h5.4V4.825a.625.625 0 0 1 1.25 0v10.35a.625.625 0 0 1-1.25 0V10.4h-5.4v4.775a.625.625 0 0 1-1.25 0V4.825c0-.345.28-.625.625-.625" />
     </svg>
   );
