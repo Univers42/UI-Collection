@@ -10,5 +10,27 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-export * from './SlashMenuIconsBasic.js';
 export * from './SlashMenuIconsExtended.js';
+export {
+  IconAudio,
+  IconBullet,
+  IconCallout,
+  IconCode,
+  IconDivider,
+  IconH1,
+  IconH2,
+  IconH3,
+  IconH4,
+  IconH5,
+  IconH6,
+  IconImage,
+  IconLinkToPage,
+  IconNumbered,
+  IconPage,
+  IconQuote,
+  IconTable,
+  IconText,
+  IconTodo,
+  IconToggle,
+  IconVideo,
+} from './SlashMenuIconsBasic.js';
