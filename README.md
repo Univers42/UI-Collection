@@ -26,8 +26,9 @@ Images
 
 Use the helpers and providers under `images` to normalize and consume remote images. The library provides:
 
-- `images.normalizeUrlImage(source)` — normalize a direct image URL to a common `NormalizedImage` model.
+- `images.normalizeUrlImage(source)` — normalize a direct image URL to a pickable `NormalizedImage` model with `thumbnailUrl`, `previewUrl`, and `fullUrl`.
 - `images.UnsplashImageProvider` — a minimal client that requires an `accessKey` passed by the consumer and returns normalized images from Unsplash.
+- `images.imageCollectionPresets` — curated query presets for Japanese prints, NASA/space, art deco, nature, and animals.
 
 Example — normalize a URL image:
 
@@ -35,7 +36,7 @@ Example — normalize a URL image:
 import { images } from '@univers42/ui-collection/library/media';
 
 const normalized = images.normalizeUrlImage({ kind: 'url', url: 'https://example.com/photo.jpg', alt: 'Example' });
-console.log(normalized.urls.original);
+console.log(normalized.thumbnailUrl, normalized.previewUrl, normalized.fullUrl);
 ```
 
 Example — search Unsplash (consumer must supply access key):
@@ -45,20 +46,25 @@ import { images } from '@univers42/ui-collection/library/media';
 
 const provider = new images.UnsplashImageProvider({ accessKey: process.env.UNSPLASH_ACCESS_KEY });
 const results = await provider.search('mountains', 1, 10);
-console.log(results[0]?.urls?.regular);
+console.log(results[0]?.thumbnailUrl, results[0]?.previewUrl, results[0]?.fullUrl);
 ```
 
 Videos
 
-Videos are separate and currently support direct remote URLs via `videos.normalizeUrlVideo(source)`.
+Videos are separate and support direct remote URLs plus future-ready external provider entries.
 
 Example — normalize a URL video:
 
 ```ts
 import { videos } from '@univers42/ui-collection/library/media';
 
-const normalized = videos.normalizeUrlVideo({ kind: 'url', src: 'https://cdn.example.com/video.mp4', poster: 'https://cdn.example.com/poster.jpg' });
-console.log(normalized.src, normalized.poster);
+const normalized = videos.normalizeUrlVideo({
+  kind: 'url',
+  src: 'https://cdn.example.com/video.mp4',
+  thumbnailUrl: 'https://cdn.example.com/video-thumb.jpg',
+  posterUrl: 'https://cdn.example.com/poster.jpg',
+});
+console.log(normalized.videoUrl, normalized.thumbnailUrl, normalized.posterUrl);
 ```
 
 Notes

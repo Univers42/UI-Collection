@@ -178,21 +178,43 @@ export function createMediaCollectionPickerTab(
     groupLabels: options.groupLabels,
     items: items.map((item: unknown) => {
       const record = item as Record<string, unknown>;
-      const src = resolvePossibleUrl((record.thumbnailRef ?? record.ref ?? record.src) as string | null | undefined);
+      const src = resolvePossibleUrl((
+        record.thumbnailUrl
+        ?? record.thumbnailRef
+        ?? record.posterUrl
+        ?? record.previewUrl
+        ?? record.fullUrl
+        ?? record.videoUrl
+        ?? record.ref
+        ?? record.src
+      ) as string | null | undefined);
       const group = typeof record.category === 'string' ? record.category : undefined;
       const keywords = Array.isArray(record.tags) ? (record.tags as string[]) : undefined;
+      const value = String(
+        record.ref
+        ?? record.fullUrl
+        ?? record.videoUrl
+        ?? record.src
+        ?? '',
+      );
+      const label = String(record.label ?? record.title ?? value);
+      const aspectRatio = typeof record.aspectRatio === 'number'
+        ? record.aspectRatio
+        : (record.width as number) && (record.height as number)
+          ? (record.width as number) / (record.height as number)
+          : undefined;
 
       return {
-        id: String(record.id ?? record.ref ?? record.src),
-        value: String(record.ref ?? record.src ?? ''),
-        label: String(record.label ?? String(record.ref ?? record.src ?? '')),
+        id: String(record.id ?? value),
+        value,
+        label,
         aliases: [String(record.id ?? '')],
         group,
         keywords,
         preview: src
-          ? { kind: 'image', src, alt: String(record.alt ?? record.label) }
-          : { kind: 'text', value: String(record.label ?? String(record.ref ?? record.src ?? '')) },
-        previewAspectRatio: (record.width as number) && (record.height as number) ? (record.width as number) / (record.height as number) : undefined,
+          ? { kind: 'image', src, alt: String(record.alt ?? record.title ?? record.label ?? '') }
+          : { kind: 'text', value: label },
+        previewAspectRatio: aspectRatio,
         data: item,
       };
     }),

@@ -1,74 +1,143 @@
-// Public types for images and videos (strict, explicit)
-
 export type MediaKind = 'image' | 'video';
 
-// Image source variants
+export type ImageSourceKind = 'url' | 'unsplash';
+export type VideoSourceKind = 'url' | 'external';
+
+export interface MediaCollectionBase<TKind extends MediaKind, TSource extends string, TItem> {
+  id: string;
+  kind: TKind;
+  label: string;
+  description?: string;
+  source: TSource;
+  tags?: string[];
+  queries?: string[];
+  items?: TItem[];
+}
+
 export type UrlImageSource = {
   kind: 'url';
+  id?: string;
   url: string;
+  title?: string;
+  description?: string;
   alt?: string;
+  thumbnailUrl?: string;
+  previewUrl?: string;
+  fullUrl?: string;
   width?: number;
   height?: number;
+  aspectRatio?: number;
+  dominantColor?: string;
+  blurHash?: string;
+  author?: string;
+  authorUrl?: string;
+  providerName?: string;
+  providerImageUrl?: string;
   metadata?: Record<string, unknown>;
 };
 
 export type UnsplashImageSource = {
   kind: 'unsplash';
-  // raw provider data returned from Unsplash API (kept optional)
   raw: Record<string, unknown>;
 };
 
 export type ImageSource = UrlImageSource | UnsplashImageSource;
 
 export interface NormalizedImage {
+  id: string;
   kind: 'image';
-  id?: string;
-  description?: string | null;
-  alt?: string | null;
-  width?: number | null;
-  height?: number | null;
-  color?: string | null;
-  blurHash?: string | null;
-  urls: Record<string, string>;
-  author?: string | null;
-  authorUrl?: string | null;
-  downloadUrl?: string | null;
-  source: ImageSource['kind'];
-  rawProviderData?: unknown;
-}
-
-// Video source variants
-export type UrlVideoSource = {
-  kind: 'url';
-  src: string;
-  poster?: string;
+  source: ImageSourceKind;
   title?: string;
   description?: string;
+  alt: string;
+  thumbnailUrl: string;
+  previewUrl: string;
+  fullUrl: string;
+  width?: number;
+  height?: number;
+  aspectRatio?: number;
+  dominantColor?: string;
+  blurHash?: string;
+  author?: string;
+  authorUrl?: string;
+  providerName: string;
+  providerImageUrl?: string;
+  downloadLocation?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export type UrlVideoSource = {
+  kind: 'url';
+  id?: string;
+  src?: string;
+  videoUrl?: string;
+  title?: string;
+  description?: string;
+  thumbnailUrl?: string;
+  poster?: string;
+  posterUrl?: string;
+  previewUrl?: string;
   width?: number;
   height?: number;
   duration?: number;
   mimeType?: string;
+  author?: string;
+  authorUrl?: string;
+  providerName?: string;
+  providerImageUrl?: string;
   metadata?: Record<string, unknown>;
 };
 
-export type VideoSource = UrlVideoSource; // future: extensible provider sources
+export type ExternalVideoSource = {
+  kind: 'external';
+  id?: string;
+  providerId: string;
+  providerName?: string;
+  providerImageUrl?: string;
+  videoUrl: string;
+  embedUrl?: string;
+  title: string;
+  description?: string;
+  thumbnailUrl?: string;
+  posterUrl?: string;
+  previewUrl?: string;
+  width?: number;
+  height?: number;
+  duration?: number;
+  mimeType?: string;
+  author?: string;
+  authorUrl?: string;
+  metadata?: Record<string, unknown>;
+};
+
+export type VideoSource = UrlVideoSource | ExternalVideoSource;
 
 export interface NormalizedVideo {
+  id: string;
   kind: 'video';
-  id?: string;
-  title?: string | null;
-  description?: string | null;
-  src: string;
-  poster?: string | null;
-  mimeType?: string | null;
-  duration?: number | null;
-  width?: number | null;
-  height?: number | null;
-  credits?: { author?: string; authorUrl?: string } | null;
-  metadata?: Record<string, unknown> | null;
-  source: VideoSource['kind'];
-  rawProviderData?: unknown;
+  source: VideoSourceKind;
+  title: string;
+  description?: string;
+  videoUrl: string;
+  thumbnailUrl?: string;
+  posterUrl?: string;
+  previewUrl?: string;
+  width?: number;
+  height?: number;
+  aspectRatio?: number;
+  duration?: number;
+  mimeType?: string;
+  author?: string;
+  authorUrl?: string;
+  providerName: string;
+  providerImageUrl?: string;
+  metadata?: Record<string, unknown>;
 }
+
+export type ImageCollectionPreset = MediaCollectionBase<'image', ImageSourceKind, NormalizedImage>;
+export type VideoCollectionPreset = MediaCollectionBase<'video', VideoSourceKind, NormalizedVideo> & {
+  items: NormalizedVideo[];
+};
 
 export type RemoteImage = NormalizedImage;
 export type RemoteVideo = NormalizedVideo;

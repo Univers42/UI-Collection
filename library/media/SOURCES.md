@@ -30,6 +30,18 @@ Verified during generation on `2026-04-16`.
   - `photo-nasa-space-webb-concept`
   - `photo-nasa-space-webb-blue`
 
+## Unsplash Queries
+
+- Source: https://unsplash.com/developers
+- Entries:
+  - `japanese-prints`
+  - `japanese-classical-art`
+  - `nasa-space`
+  - `astronomy-deep-space`
+  - `art-deco`
+  - `nature-landscapes`
+  - `animals-organic`
+
 ## Heroicons
 
 - Source: https://github.com/tailwindlabs/heroicons
@@ -138,6 +150,12 @@ Verified during generation on `2026-04-16`.
   - `video-samplelib-travel`
   - `video-samplelib-product`
   - `video-samplelib-city`
+
+## DummyImage
+
+- Source: https://dummyimage.com
+- Usage:
+  - Lightweight remote poster and thumbnail placeholders for curated direct-video examples.
 
 ## Twemoji
 
