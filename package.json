@@ -122,7 +122,6 @@
     "lint": "eslint --max-warnings 0 \"library/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"scripts/**/*.{js,mjs}\"",
     "prepack": "npm run clean && npm run build",
     "pack:check": "npm pack --dry-run",
-    "sync:photo-assets": "node ./scripts/sync-photo-assets.mjs",
     "smoke:package": "node ./scripts/smoke-package.mjs",
     "release:check": "npm run build && npm run pack:check && npm run smoke:package"
   },

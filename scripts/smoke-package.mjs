@@ -48,17 +48,13 @@ import {
   serializeAssetSelection,
 } from '@univers42/ui-collection';
 import { createEmojiPickerTab } from '@univers42/ui-collection/library/components/react/asset-picker';
-import { getMediaCollection } from '@univers42/ui-collection/library/media';
+// media module simplified; avoid importing legacy media registry in smoke test
 
 const tabs = createDefaultAssetPickerTabs();
 const parsed = parseAssetValue('icon:text');
 const boardValue = assetValueToBoardValue('icon:text', tabs);
 const resolved = resolveAssetValue('icon:text', tabs);
-const media = getMediaCollection('svg');
-const packagedReadmeUrl = resolveMediaUrl(createPackageMediaRef('media/README.md'));
-const packagedPhotoUrl = resolveMediaUrl(
-  createPackageMediaRef('media/photos/optimized/photo-homepage-banner.jpg'),
-);
+  // Keep smoke tests focused on core library surface.
 
 if (typeof AssetPickerBoard !== 'function') {
   throw new Error('Root export AssetPickerBoard is missing.');
@@ -88,23 +84,7 @@ if (serializeAssetSelection('icon:text') !== 'icon:text') {
   throw new Error('serializeAssetSelection did not preserve canonical values.');
 }
 
-if (!Array.isArray(media) || media.length === 0) {
-  throw new Error('Media subpath import failed.');
-}
-
-if (!packagedReadmeUrl.includes('/media/README.md')) {
-  throw new Error('Package media resolver did not resolve packaged asset URLs.');
-}
-
-if (!packagedPhotoUrl.includes('images.unsplash.com')) {
-  throw new Error('Package media resolver did not resolve packaged photo asset URLs.');
-}
-
-const packagedPhotoProtocol = new URL(packagedPhotoUrl).protocol;
-
-if (packagedPhotoProtocol !== 'http:' && packagedPhotoProtocol !== 'https:') {
-  throw new Error('Packaged photo assets must resolve to browser-served URLs.');
-}
+  // Note: media packaging and photo sync have been removed from the package.
 
 const emojiTab = createEmojiPickerTab();
 

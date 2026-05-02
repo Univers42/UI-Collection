@@ -1,88 +1,74 @@
-export const BUILTIN_MEDIA_PROVIDERS = [
-  'local',
-  'package',
-  'url',
-  'api',
-  'unsplash',
-  'picker',
-] as const;
+// Public types for images and videos (strict, explicit)
 
-export const BUILTIN_MEDIA_COLLECTIONS = [
-  'svg',
-  'emojis',
-  'photos',
-  'videos',
-  'other-media',
-] as const;
+export type MediaKind = 'image' | 'video';
 
-export const BUILTIN_MEDIA_KINDS = [
-  'svg',
-  'emoji',
-  'photo',
-  'video',
-  'audio',
-  'document',
-  'lottie',
-  'model-3d',
-  'other',
-] as const;
-
-export type ExtensibleString<T extends string> = T | (string & {});
-
-export type BuiltinMediaProvider = (typeof BUILTIN_MEDIA_PROVIDERS)[number];
-export type BuiltinMediaCollectionName = (typeof BUILTIN_MEDIA_COLLECTIONS)[number];
-export type BuiltinMediaKind = (typeof BUILTIN_MEDIA_KINDS)[number];
-
-export type MediaProvider = ExtensibleString<BuiltinMediaProvider>;
-export type MediaCollectionName = ExtensibleString<BuiltinMediaCollectionName>;
-export type MediaKind = ExtensibleString<BuiltinMediaKind>;
-export type MediaRef = `${string}:${string}`;
-
-export interface MediaItem {
-  id: string;
-  label: string;
-  collection: MediaCollectionName;
-  category: string;
-  kind: MediaKind;
-  ref: MediaRef;
+// Image source variants
+export type UrlImageSource = {
+  kind: 'url';
+  url: string;
   alt?: string;
-  mimeType?: string;
-  sourceRef?: MediaRef;
-  thumbnailRef?: MediaRef;
-  tags?: string[];
   width?: number;
   height?: number;
+  metadata?: Record<string, unknown>;
+};
+
+export type UnsplashImageSource = {
+  kind: 'unsplash';
+  // raw provider data returned from Unsplash API (kept optional)
+  raw: Record<string, unknown>;
+};
+
+export type ImageSource = UrlImageSource | UnsplashImageSource;
+
+export interface NormalizedImage {
+  kind: 'image';
+  id?: string;
+  description?: string | null;
+  alt?: string | null;
+  width?: number | null;
+  height?: number | null;
+  color?: string | null;
+  blurHash?: string | null;
+  urls: Record<string, string>;
+  author?: string | null;
+  authorUrl?: string | null;
+  downloadUrl?: string | null;
+  source: ImageSource['kind'];
+  rawProviderData?: unknown;
 }
 
-export interface MediaCollection {
-  name: MediaCollectionName;
-  label: string;
-  items: MediaItem[];
+// Video source variants
+export type UrlVideoSource = {
+  kind: 'url';
+  src: string;
+  poster?: string;
+  title?: string;
+  description?: string;
+  width?: number;
+  height?: number;
+  duration?: number;
+  mimeType?: string;
+  metadata?: Record<string, unknown>;
+};
+
+export type VideoSource = UrlVideoSource; // future: extensible provider sources
+
+export interface NormalizedVideo {
+  kind: 'video';
+  id?: string;
+  title?: string | null;
+  description?: string | null;
+  src: string;
+  poster?: string | null;
+  mimeType?: string | null;
+  duration?: number | null;
+  width?: number | null;
+  height?: number | null;
+  credits?: { author?: string; authorUrl?: string } | null;
+  metadata?: Record<string, unknown> | null;
+  source: VideoSource['kind'];
+  rawProviderData?: unknown;
 }
 
-export interface MediaCollectionInputItem
-  extends Omit<MediaItem, 'collection'> {
-  collection?: MediaCollectionName;
-}
-
-export interface MediaCollectionInput {
-  name: MediaCollectionName;
-  label: string;
-  items: MediaCollectionInputItem[];
-}
-
-export interface MediaLibraryIndex {
-  all: MediaItem[];
-  byId: Record<string, MediaItem>;
-  byCollection: Record<string, MediaItem[]>;
-  byKind: Record<string, MediaItem[]>;
-  byProvider: Record<string, MediaItem[]>;
-}
-
-export interface MediaSearchFilters {
-  collection?: MediaCollectionName;
-  category?: string;
-  kind?: MediaKind;
-  provider?: MediaProvider;
-  tags?: string[];
-}
+export type RemoteImage = NormalizedImage;
+export type RemoteVideo = NormalizedVideo;

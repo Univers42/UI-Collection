@@ -10,71 +10,20 @@ Reusable asset library for static media and React-based SVG icons.
 - Fast to consume with prebuilt indexes by id and collection.
 - Easy to use with one reference format: `provider:value`.
 
-## Media Reference Format
+## Media (images & videos)
 
-Every asset uses a provider prefix followed by its value:
+This folder provides a minimal, provider-driven media API focused on remote images and videos.
 
-- `local:/media/svg/icons/arrow-left.svg`
-- `package:media/svg/icons/arrow-left.svg`
-- `url:https://cdn.example.com/docs/api-spec.pdf`
-- `api:https://api.example.com/v1/media/demo-video`
-- `url:https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wave_off_Kanagawa.jpg?width=4096`
-- `picker:asset://emojis/custom/party-parrot`
+- `library/media/index.ts` now exports `images` and `videos` namespaces.
+- The code intentionally does not bundle heavy binary assets or apply styling.
 
-## Structure
+Images
 
-```text
-library/
-  media/
-    collections/
-    index.ts
-    providers.ts
-    types.ts
-    utils.ts
-  catalogs/
-  icons/
-    react/
-      slash-menu/
-```
+- `images.normalizeUrlImage(...)` — normalize a direct image URL into the `NormalizedImage` shape.
+- `images.UnsplashImageProvider` — client that requires an `accessKey` and returns normalized images from Unsplash.
 
-Legacy imports remain available through `/components/blocks`, but the source of truth now lives in `/library`.
+Videos
 
-## Usage
+- `videos.normalizeUrlVideo(...)` — normalize a direct video URL into the `NormalizedVideo` shape.
 
-```ts
-import { getMediaItem, resolveMediaUrl } from './media';
-
-const item = getMediaItem('video-intro-loop');
-const src = item ? resolveMediaUrl(item.ref) : '';
-```
-
-## Scaling the Library
-
-```ts
-import {
-  createMediaRef,
-  createMediaRegistry,
-  defineMediaCollection,
-} from './media';
-
-const stickersCollection = defineMediaCollection({
-  name: 'stickers',
-  label: 'Stickers',
-  items: [
-    {
-      id: 'sticker-thumbs-up',
-      label: 'Thumbs Up',
-      category: 'reactions',
-      kind: 'emoji',
-      ref: createMediaRef('cdn', 'https://cdn.example.com/stickers/thumbs-up.webp'),
-      tags: ['reaction', 'sticker'],
-    },
-  ],
-});
-
-const registry = createMediaRegistry([stickersCollection], {
-  resolvers: {
-    cdn: (value) => value,
-  },
-});
-```
+Consumers are responsible for rendering and styling; this module only provides types, normalizers and lightweight providers.

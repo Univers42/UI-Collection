@@ -16,120 +16,56 @@ npm install @univers42/ui-collection react
 
 ## Local Build
 
-```bash
-npm install
-npm run build
-npm run release:check
+Media: images and videos
+
+This package now exposes a focused, provider-driven media API under:
+
+- `@univers42/ui-collection/library/media` — exports `images` and `videos` namespaces.
+
+Images
+
+Use the helpers and providers under `images` to normalize and consume remote images. The library provides:
+
+- `images.normalizeUrlImage(source)` — normalize a direct image URL to a common `NormalizedImage` model.
+- `images.UnsplashImageProvider` — a minimal client that requires an `accessKey` passed by the consumer and returns normalized images from Unsplash.
+
+Example — normalize a URL image:
+
+```ts
+import { images } from '@univers42/ui-collection/library/media';
+
+const normalized = images.normalizeUrlImage({ kind: 'url', url: 'https://example.com/photo.jpg', alt: 'Example' });
+console.log(normalized.urls.original);
 ```
 
-## Releases and Upgrades
+Example — search Unsplash (consumer must supply access key):
 
-This package is set up to be consumed as a normal npm package, so downstream repositories can upgrade with:
+```ts
+import { images } from '@univers42/ui-collection/library/media';
 
-```bash
-npm update @univers42/ui-collection
+const provider = new images.UnsplashImageProvider({ accessKey: process.env.UNSPLASH_ACCESS_KEY });
+const results = await provider.search('mountains', 1, 10);
+console.log(results[0]?.urls?.regular);
 ```
 
-For that to work:
+Videos
 
-- this repository must publish new semver versions to an npm-compatible registry
-- downstream repositories must depend on a semver range such as `^0.1.0`, not an exact pinned version
+Videos are separate and currently support direct remote URLs via `videos.normalizeUrlVideo(source)`.
 
-The repository now includes:
+Example — normalize a URL video:
 
-- `prepack` packaging hooks in [package.json](/home/settes/cursus/trascendence/UI-Collection/package.json)
-- a publish workflow in [.github/workflows/publish-package.yml](/home/settes/cursus/trascendence/UI-Collection/.github/workflows/publish-package.yml)
-- a tarball smoke test in [scripts/smoke-package.mjs](/home/settes/cursus/trascendence/UI-Collection/scripts/smoke-package.mjs)
-- a release guide in [RELEASING.md](/home/settes/cursus/trascendence/UI-Collection/RELEASING.md)
+```ts
+import { videos } from '@univers42/ui-collection/library/media';
 
-### Using This Package in Another Repository
-
-#### 1. Install it
-
-Use a semver range so the dependency can receive future compatible updates:
-
-```bash
-npm install @univers42/ui-collection@^1.0.0 react
+const normalized = videos.normalizeUrlVideo({ kind: 'url', src: 'https://cdn.example.com/video.mp4', poster: 'https://cdn.example.com/poster.jpg' });
+console.log(normalized.src, normalized.poster);
 ```
 
-If the current published series is still `0.x`, install the matching range instead:
+Notes
 
-```bash
-npm install @univers42/ui-collection@^0.1.0 react
-```
-
-#### 2. Check how it is saved in `package.json`
-
-Recommended:
-
-```json
-{
-  "dependencies": {
-    "@univers42/ui-collection": "^1.0.0"
-  }
-}
-```
-
-Avoid exact pinned versions such as `"1.0.0"` if you want `npm update` to move forward automatically within the allowed semver range.
-
-#### 3. Update it later
-
-When a newer compatible version is published, update it with:
-
-```bash
-npm update @univers42/ui-collection
-```
-
-Then review the lockfile diff and run the consumer repository checks as usual.
-
-#### 4. If `npm update` does not upgrade anything
-
-Check these points:
-
-- the new version has actually been published to the registry
-- the consumer repository depends on a range such as `^1.0.0`
-- the new version is still compatible with that range
-- the consumer project is using the same registry where this package is published
-
-Example:
-
-- if the consumer has `^1.0.0`, `npm update` can move to `1.1.0` or `1.2.3`
-- it will not move to `2.0.0`
-- if the consumer has `1.0.0` exactly, it will stay pinned
-
-## Entry Points
-
-The library exposes these entry points:
-
-- `@univers42/ui-collection`
-- `@univers42/ui-collection/library`
-- `@univers42/ui-collection/library/media`
-- `@univers42/ui-collection/library/catalogs`
-- `@univers42/ui-collection/library/icons/react`
-- `@univers42/ui-collection/library/icons/react/slash-menu`
-- `@univers42/ui-collection/library/components/react`
-- `@univers42/ui-collection/library/components/react/asset-picker`
-- `@univers42/ui-collection/library/components/react/color-picker`
-- `@univers42/ui-collection/library/components/react/icon-picker`
-- `@univers42/ui-collection/library/components/react/emoji-picker`
-- `@univers42/ui-collection/library/components/react/charts`
-- `@univers42/ui-collection/library/components/react/analytics`
-- `@univers42/ui-collection/library/components/react/analytics/formula`
-- `@univers42/ui-collection/library/components/react/analytics/relation-rollup`
-- `@univers42/ui-collection/library/components/react/formula`
-- `@univers42/ui-collection/library/components/react/primitives`
-- `@univers42/ui-collection/library/components/react/theme`
-
-Legacy re-exports are still available:
-
-- `@univers42/ui-collection/components/blocks/ColorPickerBoard`
-- `@univers42/ui-collection/components/blocks/IconPickerBoard`
-- `@univers42/ui-collection/components/blocks/EmojiPickerBoard`
-- `@univers42/ui-collection/components/blocks/SlashMenuIcons`
-- `@univers42/ui-collection/components/blocks/SlashMenuIconsBasic`
-- `@univers42/ui-collection/components/blocks/SlashMenuIconsExtended`
-- `@univers42/ui-collection/components/blocks/slashMenuCatalog`
-
+- Unsplash is only used for images — there is no Unsplash video integration.
+- The library does not bundle binary media files. Prefer remote URLs.
+- The library does not apply styles or render UI; it only provides types, normalizers, and providers. Consumers decide rendering and styling.
 ## Import Patterns
 
 ### Import from the root
@@ -145,18 +81,14 @@ import {
   createDefaultAssetPickerTabs,
   createEmojiPickerTab,
   createIconPickerTab,
-  createMediaCollectionPickerTab,
   parseAssetValue,
   resolveAssetValue,
   serializeAssetSelection,
   SLASH_ITEMS,
   SECTION_LABELS,
-  getMediaItem,
-  getMediaCollection,
-  getMediaByKind,
-  getMediaByProvider,
-  searchMedia,
-  resolveMediaUrl,
+  // media APIs changed: use images and videos providers
+  images,
+  videos,
   DEFAULT_ASSET_PICKER_TABS,
   DEFAULT_COLOR_PRESETS,
   DEFAULT_ICON_PICKER_ITEMS,
@@ -168,7 +100,8 @@ import {
 ### Import a specific module
 
 ```tsx
-import { getMediaItem, searchMedia } from '@univers42/ui-collection/library/media';
+import * as media from '@univers42/ui-collection/library/media';
+// Use `media.images` and `media.videos` providers and normalizers.
 import { SLASH_ITEMS } from '@univers42/ui-collection/library/catalogs';
 import { IconText, IconBoard } from '@univers42/ui-collection/library/icons/react/slash-menu';
 import {
@@ -319,8 +252,8 @@ The package now emits stable values directly from the library so the consumer do
 
 - icons serialize as `icon:<id>`, for example `icon:text`
 - emojis serialize as the raw glyph, for example `😀`
-- media keeps the existing media ref contract, for example `package:media/svg/icons/arrow-left.svg`
-  Resolve media refs with `resolveMediaUrl()` or `AssetRenderer`; `package:` refs are intentionally opaque identifiers, not direct browser URLs.
+ - media values should be treated as opaque provider refs or direct `url:`/absolute URLs. For direct images/videos use the
+   new `library/media` helpers (`images` / `videos`) to normalize remote assets; rendering and styling remain the consumer's responsibility.
 
 ```tsx
 import {
@@ -608,123 +541,9 @@ Built-in kinds:
 - `lottie`
 - `model-3d`
 
-Exported types and utilities:
-
-- `BUILTIN_MEDIA_PROVIDERS`
-- `BUILTIN_MEDIA_COLLECTIONS`
-- `BUILTIN_MEDIA_KINDS`
-- `MediaProvider`
-- `MediaCollectionName`
-- `MediaKind`
-- `MediaRef`
-- `MediaItem`
-- `MediaCollection`
-- `MediaCollectionInput`
-- `MediaLibraryIndex`
-- `MediaSearchFilters`
-- `MediaUrlResolver`
-- `MediaResolverMap`
-- `MediaRegistryOptions`
-- `MediaRegistry`
-- `DEFAULT_MEDIA_RESOLVERS`
-- `createMediaRef`
-- `parseMediaRef`
-- `createMediaResolver`
-- `resolveMediaUrl`
-- `defineMediaCollection`
-- `createMediaLibraryIndex`
-- `filterMediaItems`
-- `searchMediaItems`
-- `createMediaRegistry`
-- `mediaCollections`
-- `mediaRegistry`
-- `mediaLibrary`
-- `getMediaItem`
-- `getMediaCollection`
-- `getMediaByKind`
-- `getMediaByProvider`
-- `searchMedia`
-- `extendMediaLibrary`
-
-Fetch an asset by id:
-
-```ts
-import { getMediaItem, resolveMediaUrl } from '@univers42/ui-collection/library/media';
-
-const item = getMediaItem('video-intro-loop');
-const src = item ? resolveMediaUrl(item.ref) : '';
-```
-
-Fetch a full collection:
-
-```ts
-import { getMediaCollection } from '@univers42/ui-collection/library/media';
-
-const videos = getMediaCollection('videos');
-```
-
-Filter by kind:
-
-```ts
-import { getMediaByKind } from '@univers42/ui-collection/library/media';
-
-const emojis = getMediaByKind('emoji');
-```
-
-Filter by provider:
-
-```ts
-import { getMediaByProvider } from '@univers42/ui-collection/library/media';
-
-const externalUrls = getMediaByProvider('url');
-```
-
-Search by text or tags:
-
-```ts
-import { searchMedia } from '@univers42/ui-collection/library/media';
-
-const results = searchMedia('rocket');
-const onlySvg = searchMedia('hero', { collection: 'svg' });
-```
-
-Resolve custom references:
-
-```ts
-import { createMediaResolver } from '@univers42/ui-collection/library/media';
-
-const resolve = createMediaResolver({
-  cdn: (value) => `https://cdn.example.com/${value}`,
-});
-
-const src = resolve('cdn:icons/logo.svg');
-```
-
-Extend the library:
-
-```ts
-import {
-  createMediaRef,
-  defineMediaCollection,
-  extendMediaLibrary,
-} from '@univers42/ui-collection/library/media';
-
-const stickers = defineMediaCollection({
-  name: 'stickers',
-  label: 'Stickers',
-  items: [
-    {
-      id: 'sticker-party',
-      label: 'Party sticker',
-      category: 'custom',
-      kind: 'emoji',
-      ref: createMediaRef('url', 'https://cdn.example.com/stickers/party.webp'),
-    },
-  ],
-});
-
-const registry = extendMediaLibrary([stickers]);
-```
+The media registry previously exposed collection and resolver utilities. That implementation was removed
+and replaced by a focused images/videos API. See the "Media: images and videos" section above for
+examples showing how to normalize URL images, use the `UnsplashImageProvider`, and normalize URL videos.
 
 Current curated asset inventory:
 
@@ -781,15 +600,11 @@ import {
   IconPickerBoard,
   SLASH_ITEMS,
   createDefaultAssetPickerTabs,
-  getMediaCollection,
-  getMediaItem,
   parseAssetValue,
-  resolveMediaUrl,
 } from '@univers42/ui-collection';
 
-const heroVideo = getMediaItem('video-mdn-flower');
-const emojiAssets = getMediaCollection('emojis');
-const src = heroVideo ? resolveMediaUrl(heroVideo.ref) : '';
+// The legacy media registry was removed. Use `library/media` (`images` / `videos`) helpers
+// to normalize and consume remote image and video URLs as shown in the "Media: images and videos" section.
 const tabs = createDefaultAssetPickerTabs();
 const parsed = parseAssetValue('icon:text');
 

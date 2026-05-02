@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import { resolveMediaUrl } from '../../../media/index.js';
+// Legacy media resolver removed; previews must provide a usable `src` or fallback.
 import { renderSizedIcon } from '../icon-picker/iconPickerData.js';
 import { resolveAssetValue } from './assetValues.js';
 import type { AssetPickerBoardTab } from './types.js';
@@ -106,9 +106,9 @@ export function AssetRenderer({
   }
 
   if (resolved.preview?.kind === 'image') {
-    const src = resolved.mediaItem
-      ? resolveMediaUrl(resolved.mediaItem.thumbnailRef ?? resolved.mediaItem.ref)
-      : resolved.preview.src;
+    const src = resolved.preview.src;
+
+    if (!src) return <>{fallback}</>;
 
     return (
       <img

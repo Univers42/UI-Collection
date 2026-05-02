@@ -1,5 +1,3 @@
 export * from './types.js';
-export * from './providers.js';
-export * from './registry.js';
-export * from './utils.js';
-export * from './collections/index.js';
+export * as images from './images/index.js';
+export * as videos from './videos/index.js';

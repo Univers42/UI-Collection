@@ -1,8 +1,7 @@
-import {
-  getMediaCollection,
-  mediaLibrary,
-  resolveMediaUrl,
-} from '../../../media/index.js';
+// Legacy media registry removed. Asset values treat remote media refs conservatively:
+// - `url:` prefixed refs are treated as direct URLs
+// - absolute http(s) URLs are used as-is
+// - other provider refs are left opaque and not resolved by this library
 import {
   DEFAULT_EMOJI_PICKER_ITEMS,
   type EmojiPickerItem,
@@ -43,7 +42,7 @@ export interface ResolvedAssetValue {
   tab?: AssetPickerBoardTab;
   iconItem?: IconPickerItem;
   emojiItem?: EmojiPickerItem;
-  mediaItem?: (typeof mediaLibrary.all)[number];
+  mediaItem?: unknown;
   preview?: AssetPickerBoardItem['preview'];
 }
 
@@ -65,13 +64,6 @@ const emojiItemsById = DEFAULT_EMOJI_PICKER_ITEMS.reduce<
   Record<string, EmojiPickerItem>
 >((acc, item) => {
   acc[item.id] = item;
-  return acc;
-}, {});
-
-const mediaItemsByRef = mediaLibrary.all.reduce<
-  Record<string, (typeof mediaLibrary.all)[number]>
->((acc, item) => {
-  acc[item.ref] = item;
   return acc;
 }, {});
 
@@ -264,19 +256,26 @@ export function resolveAssetValue(
   }
 
   if (parsed.kind === 'media' && parsed.mediaRef) {
-    const mediaItem = mediaItemsByRef[parsed.mediaRef];
+    let src: string | undefined;
+
+    if (parsed.mediaRef.startsWith('url:')) {
+      src = parsed.mediaRef.slice('url:'.length);
+    } else if (/^https?:\/\//i.test(parsed.mediaRef)) {
+      src = parsed.mediaRef;
+    }
 
     return {
       kind: 'media',
       serializedValue: parsed.serializedValue,
-      label: mediaItem?.label ?? parsed.mediaRef,
-      mediaItem,
-      preview: {
-        kind: 'image',
-        src: resolveMediaUrl(mediaItem?.thumbnailRef ?? parsed.mediaRef),
-        alt: mediaItem?.alt ?? mediaItem?.label ?? parsed.mediaRef,
-      },
-    };
+      label: parsed.mediaRef,
+      preview: src
+        ? {
+            kind: 'image',
+            src,
+            alt: parsed.mediaRef,
+          }
+        : undefined,
+    } as ResolvedAssetValue;
   }
 
   return undefined;
@@ -296,6 +295,6 @@ export function getEmojiPickerRecentItems(
     .filter((item): item is EmojiPickerItem => Boolean(item));
 }
 
-export function getDefaultMediaItems(collection = 'svg'): ReturnType<typeof getMediaCollection> {
-  return getMediaCollection(collection);
+export function getDefaultMediaItems(_collection = 'svg') {
+  return [] as unknown[];
 }

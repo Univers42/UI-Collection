@@ -1,10 +1,4 @@
-import {
-  getMediaCollection,
-  mediaCollections,
-  resolveMediaUrl,
-  type MediaCollectionName,
-  type MediaItem,
-} from '../../../media/index.js';
+// collection name is treated as a string identifier in the simplified media API
 import {
   DEFAULT_EMOJI_PICKER_ITEMS,
   EMOJI_PICKER_GROUPS,
@@ -48,7 +42,7 @@ export interface AssetPickerTabOptions {
 export interface DefaultAssetPickerTabsOptions {
   iconItems?: IconPickerItem[];
   emojiItems?: EmojiPickerItem[];
-  svgItems?: MediaItem[];
+  svgItems?: Array<unknown>;
   includeIcons?: boolean;
   includeEmojis?: boolean;
   includeSvg?: boolean;
@@ -57,8 +51,8 @@ export interface DefaultAssetPickerTabsOptions {
   svgTabOptions?: AssetPickerTabOptions;
 }
 
-function getCollectionLabel(collectionName: MediaCollectionName): string {
-  return mediaCollections.find((collection) => collection.name === collectionName)?.label ?? collectionName;
+function getCollectionLabel(collectionName: string): string {
+  return String(collectionName);
 }
 
 function getSerializedIconValue(
@@ -154,14 +148,21 @@ export function createEmojiPickerTab(
 }
 
 export function createMediaCollectionPickerTab(
-  collectionName: MediaCollectionName,
-  items: MediaItem[] = getMediaCollection(collectionName),
+  collectionName: string,
+  items: Array<unknown> = [],
   options: AssetPickerTabOptions = {},
-): AssetPickerBoardTab<MediaItem> {
+): AssetPickerBoardTab<unknown> {
   const collectionLabel = getCollectionLabel(collectionName);
 
+  function resolvePossibleUrl(ref?: string | null): string | undefined {
+    if (!ref) return undefined;
+    if (ref.startsWith('url:')) return ref.slice('url:'.length);
+    if (/^https?:\/\//i.test(ref)) return ref;
+    return undefined;
+  }
+
   return {
-    id: options.id ?? collectionName,
+    id: options.id ?? String(collectionName),
     label: options.label ?? collectionLabel,
     columns: options.columns ?? 4,
     countLabel: options.countLabel ?? collectionLabel.toLowerCase(),
@@ -175,21 +176,26 @@ export function createMediaCollectionPickerTab(
     showGroups: options.showGroups ?? false,
     groupOrder: options.groupOrder,
     groupLabels: options.groupLabels,
-    items: items.map((item) => ({
-      id: item.id,
-      value: item.ref,
-      label: item.label,
-      aliases: [item.id],
-      group: item.category,
-      keywords: item.tags,
-      preview: {
-        kind: 'image',
-        src: resolveMediaUrl(item.thumbnailRef ?? item.ref),
-        alt: item.alt ?? item.label,
-      },
-      previewAspectRatio: item.width && item.height ? item.width / item.height : undefined,
-      data: item,
-    })),
+    items: items.map((item: unknown) => {
+      const record = item as Record<string, unknown>;
+      const src = resolvePossibleUrl((record.thumbnailRef ?? record.ref ?? record.src) as string | null | undefined);
+      const group = typeof record.category === 'string' ? record.category : undefined;
+      const keywords = Array.isArray(record.tags) ? (record.tags as string[]) : undefined;
+
+      return {
+        id: String(record.id ?? record.ref ?? record.src),
+        value: String(record.ref ?? record.src ?? ''),
+        label: String(record.label ?? String(record.ref ?? record.src ?? '')),
+        aliases: [String(record.id ?? '')],
+        group,
+        keywords,
+        preview: src
+          ? { kind: 'image', src, alt: String(record.alt ?? record.label) }
+          : { kind: 'text', value: String(record.label ?? String(record.ref ?? record.src ?? '')) },
+        previewAspectRatio: (record.width as number) && (record.height as number) ? (record.width as number) / (record.height as number) : undefined,
+        data: item,
+      };
+    }),
   };
 }
 
