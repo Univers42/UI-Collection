@@ -1,4 +1,5 @@
 import {
+  curatedImageCollections,
   imageCollectionPresets,
   normalizeImageSource,
   normalizeUnsplashImage,
@@ -85,6 +86,18 @@ assert(
     && imageCollectionPresets.some((preset) => preset.id === 'art-deco')
     && imageCollectionPresets.some((preset) => preset.id === 'nature-landscapes'),
   'expected curated image presets should exist',
+);
+assert(
+  imageCollectionPresets.every((preset) => preset.source === 'unsplash' || preset.source === 'url'),
+  'image presets should only use unsplash or direct URL sources',
+);
+const curatedItemCount = curatedImageCollections.reduce((count, preset) => count + (preset.items?.length ?? 0), 0);
+assert(curatedItemCount >= 12, 'curated image collections should expose reusable remote image items');
+const firstCuratedItem = curatedImageCollections.find((preset) => (preset.items?.length ?? 0) > 0)?.items?.[0];
+assert(Boolean(firstCuratedItem), 'expected at least one curated image item');
+assert(
+  Boolean(firstCuratedItem?.thumbnailUrl && firstCuratedItem.previewUrl && firstCuratedItem.fullUrl),
+  'curated image items should expose thumbnail, preview, and full URLs',
 );
 
 // Unsplash provider without key should reject

@@ -1,4 +1,433 @@
-import type { ImageCollectionPreset } from '../types.js';
+import type { ImageCollectionPreset, NormalizedImage, UrlImageSource } from '../types.js';
+import { normalizeUrlImage } from './providers/url.js';
+
+type CommonsImageInput = Omit<UrlImageSource, 'kind' | 'url'> & {
+  fileName: string;
+  category: string;
+  providerPageUrl?: string;
+  license?: string;
+};
+
+type NasaImageInput = Omit<UrlImageSource, 'kind' | 'url'> & {
+  category: string;
+  downloadPageUrl: string;
+  thumbnailUrl?: string;
+  previewUrl: string;
+  fullUrl?: string;
+  license?: string;
+};
+
+const COMMONS_FILE_PATH = 'https://commons.wikimedia.org/wiki/Special:FilePath/';
+
+function createCommonsImage(input: CommonsImageInput): NormalizedImage {
+  const pageUrl = `${COMMONS_FILE_PATH}${encodeURIComponent(input.fileName)}`;
+
+  return normalizeUrlImage({
+    kind: 'url',
+    id: input.id,
+    url: `${pageUrl}?width=1600`,
+    title: input.title,
+    description: input.description,
+    alt: input.alt,
+    thumbnailUrl: `${pageUrl}?width=320`,
+    previewUrl: `${pageUrl}?width=960`,
+    fullUrl: `${pageUrl}?width=1600`,
+    width: input.width,
+    height: input.height,
+    dominantColor: input.dominantColor,
+    blurHash: input.blurHash,
+    author: input.author,
+    authorUrl: input.authorUrl,
+    providerName: input.providerName ?? 'Wikimedia Commons',
+    providerImageUrl: input.providerImageUrl,
+    metadata: {
+      category: input.category,
+      fileName: input.fileName,
+      providerPageUrl: input.providerPageUrl ?? pageUrl,
+      license: input.license,
+      ...input.metadata,
+    },
+  });
+}
+
+function createNasaImage(input: NasaImageInput): NormalizedImage {
+  return normalizeUrlImage({
+    kind: 'url',
+    id: input.id,
+    url: input.fullUrl ?? input.previewUrl,
+    title: input.title,
+    description: input.description,
+    alt: input.alt,
+    thumbnailUrl: input.thumbnailUrl ?? input.previewUrl,
+    previewUrl: input.previewUrl,
+    fullUrl: input.fullUrl ?? input.previewUrl,
+    width: input.width,
+    height: input.height,
+    dominantColor: input.dominantColor,
+    blurHash: input.blurHash,
+    author: input.author,
+    authorUrl: input.authorUrl,
+    providerName: input.providerName ?? 'NASA',
+    providerImageUrl: input.providerImageUrl,
+    metadata: {
+      category: input.category,
+      downloadPageUrl: input.downloadPageUrl,
+      license: input.license,
+      ...input.metadata,
+    },
+  });
+}
+
+const japaneseDirectItems = [
+  createCommonsImage({
+    id: 'japanese-wave-kanagawa',
+    title: 'The Great Wave off Kanagawa',
+    description: 'Katsushika Hokusai woodblock print from Thirty-Six Views of Mount Fuji.',
+    alt: 'The Great Wave off Kanagawa woodblock print by Katsushika Hokusai',
+    fileName: 'The Great Wave off Kanagawa.jpg',
+    width: 4335,
+    height: 2990,
+    author: 'After Katsushika Hokusai',
+    providerName: 'Wikimedia Commons',
+    category: 'japanese-prints',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:The_Great_Wave_off_Kanagawa.jpg',
+    license: 'Public domain',
+    metadata: {
+      style: 'ukiyo-e',
+      theme: 'wave',
+    },
+  }),
+  createCommonsImage({
+    id: 'japanese-red-fuji',
+    title: 'Fine Wind, Clear Morning',
+    description: 'Hokusai print also known as Red Fuji.',
+    alt: 'Fine Wind, Clear Morning woodblock print by Katsushika Hokusai',
+    fileName: 'Fine Wind, Clear Morning by Hokusai (Shimane Art Museum).jpg',
+    width: 3697,
+    height: 2494,
+    author: 'Katsushika Hokusai',
+    providerName: 'Wikimedia Commons',
+    category: 'japanese-prints',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:Fine_Wind,_Clear_Morning_by_Hokusai_(Shimane_Art_Museum).jpg',
+    license: 'Public domain',
+    metadata: {
+      style: 'ukiyo-e',
+      theme: 'mount-fuji',
+    },
+  }),
+  createCommonsImage({
+    id: 'japanese-sudden-shower',
+    title: 'Sudden Shower over Shin-Ōhashi Bridge and Atake',
+    description: 'Utagawa Hiroshige rain scene from One Hundred Famous Views of Edo.',
+    alt: 'Sudden Shower over Shin-Ōhashi Bridge and Atake woodblock print by Hiroshige',
+    fileName: 'Ōhashi Atake no yūdachi-名所江戸百景 大はしあたけの夕立-Sudden Shower over Shin-Ōhashi Bridge and Atake (Ōhashi Atake no yūdachi), from the series One Hundred Famous Views of Edo (Meisho Edo hyakkei) MET DP130156.jpg',
+    width: 2650,
+    height: 3860,
+    author: 'Utagawa Hiroshige',
+    providerName: 'Wikimedia Commons',
+    category: 'japanese-prints',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:%C5%8Chashi_Atake_no_y%C5%ABdachi-%E5%90%8D%E6%89%80%E6%B1%9F%E6%88%B8%E7%99%BE%E6%99%AF_%E5%A4%A7%E3%81%AF%E3%81%97%E3%81%82%E3%81%9F%E3%81%91%E3%81%AE%E5%A4%95%E7%AB%8B-Sudden_Shower_over_Shin-%C5%8Chashi_Bridge_and_Atake_%28%C5%8Chashi_Atake_no_y%C5%ABdachi%29%2C_from_the_series_One_Hundred_Famous_Views_of_Edo_%28Meisho_Edo_hyakkei%29_MET_DP130156.jpg',
+    license: 'Public domain',
+    metadata: {
+      style: 'ukiyo-e',
+      theme: 'rain',
+    },
+  }),
+  createCommonsImage({
+    id: 'japanese-plum-garden',
+    title: 'Plum Garden at Kameido',
+    description: 'Hiroshige view of plum blossoms from One Hundred Famous Views of Edo.',
+    alt: 'Plum Garden at Kameido woodblock print by Hiroshige',
+    fileName: 'Plum garden at Kameido (Kameido umeyashiki) (CBL J 2693).jpg',
+    width: 4565,
+    height: 6638,
+    author: 'Utagawa Hiroshige',
+    providerName: 'Wikimedia Commons',
+    category: 'japanese-prints',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:Plum_garden_at_Kameido_(Kameido_umeyashiki)_(CBL_J_2693).jpg',
+    license: 'Public domain',
+    metadata: {
+      style: 'ukiyo-e',
+      theme: 'flowers',
+    },
+  }),
+];
+
+const nasaDirectItems = [
+  createNasaImage({
+    id: 'nasa-carina-nebula',
+    title: 'Webb Reveals the Carina Nebula',
+    description: 'James Webb Space Telescope infrared view of star-forming regions in the Carina Nebula.',
+    alt: 'Carina Nebula captured by the James Webb Space Telescope',
+    previewUrl: 'https://science.nasa.gov/wp-content/uploads/2023/09/web-first-images-release.png',
+    fullUrl: 'https://science.nasa.gov/wp-content/uploads/2023/09/web-first-images-release.png',
+    width: 1024,
+    height: 593,
+    author: 'NASA, ESA, CSA, and STScI',
+    providerName: 'NASA',
+    category: 'nasa-space',
+    downloadPageUrl: 'https://science.nasa.gov/image-detail/web-first-images-release/',
+    license: 'NASA media usage guidelines',
+    metadata: {
+      theme: 'nebula',
+      mission: 'James Webb Space Telescope',
+    },
+  }),
+  createNasaImage({
+    id: 'nasa-orion-nebula',
+    title: 'Hubble Orion Nebula',
+    description: 'Hubble Space Telescope view of a major nearby star-forming region.',
+    alt: 'Orion Nebula captured by the Hubble Space Telescope',
+    previewUrl: 'https://science.nasa.gov/wp-content/uploads/2023/04/hubble-nebula-orion-nebula-display-jpg.webp',
+    fullUrl: 'https://science.nasa.gov/wp-content/uploads/2023/04/hubble-nebula-orion-nebula-display-jpg.webp',
+    width: 1024,
+    height: 1024,
+    author: 'NASA, ESA, M. Robberto (STScI/ESA) and the Hubble Space Telescope Orion Treasury Project Team',
+    providerName: 'NASA',
+    category: 'nasa-space',
+    downloadPageUrl: 'https://science.nasa.gov/image-detail/hubble-nebula-orion-nebula-display/',
+    license: 'NASA media usage guidelines',
+    metadata: {
+      theme: 'nebula',
+      mission: 'Hubble Space Telescope',
+    },
+  }),
+  createNasaImage({
+    id: 'nasa-saturn-visible-light',
+    title: 'Saturn in Visible Light',
+    description: 'Hubble view of Saturn showing ring detail and atmospheric banding.',
+    alt: 'Saturn and its rings in visible light',
+    previewUrl: 'https://science.nasa.gov/wp-content/uploads/2024/03/hubble-saturn-visible-light.jpg',
+    fullUrl: 'https://science.nasa.gov/wp-content/uploads/2024/03/hubble-saturn-visible-light.jpg',
+    width: 985,
+    height: 550,
+    author: 'NASA, ESA and E. Karkoschka (University of Arizona)',
+    providerName: 'NASA',
+    category: 'nasa-space',
+    downloadPageUrl: 'https://science.nasa.gov/image-detail/hubble-saturn-visible-light/',
+    license: 'NASA media usage guidelines',
+    metadata: {
+      theme: 'planet',
+      mission: 'Hubble Space Telescope',
+    },
+  }),
+  createNasaImage({
+    id: 'nasa-blue-marble',
+    title: 'Blue Marble',
+    description: 'True-color composite of Earth produced from satellite observations.',
+    alt: 'Blue Marble composite image of Earth',
+    thumbnailUrl: 'https://assets.science.nasa.gov/content/dam/science/esd/climate/2023/12/ImageWall6_1600x1200-80.jpg',
+    previewUrl: 'https://assets.science.nasa.gov/content/dam/science/esd/climate/2023/12/ImageWall6_1600x1200-80.jpg',
+    fullUrl: 'https://assets.science.nasa.gov/content/dam/science/esd/climate/2023/12/ImageWall5_1920x1200-80.jpg',
+    width: 1900,
+    height: 1200,
+    author: 'NASA Goddard Space Flight Center / Reto Stöckli / Robert Simmon',
+    providerName: 'NASA',
+    category: 'nasa-space',
+    downloadPageUrl: 'https://science.nasa.gov/resource/blue-marble/',
+    license: 'NASA media usage guidelines',
+    metadata: {
+      theme: 'planet',
+      mission: 'Terra / MODIS',
+    },
+  }),
+];
+
+const artDecoDirectItems = [
+  createCommonsImage({
+    id: 'art-deco-chrysler-building',
+    title: 'Chrysler Building Art Deco',
+    description: 'Iconic Art Deco architecture in New York City.',
+    alt: 'Chrysler Building Art Deco architecture',
+    fileName: 'Chrysler Building Art Deco.jpg',
+    width: 5472,
+    height: 3648,
+    author: 'Stephen Lowe',
+    providerName: 'Wikimedia Commons',
+    category: 'art-deco',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:Chrysler_Building_Art_Deco.jpg',
+    license: 'CC BY-SA 4.0',
+    metadata: {
+      theme: 'architecture',
+    },
+  }),
+  createCommonsImage({
+    id: 'art-deco-chrysler-detail',
+    title: 'Chrysler Building Detail',
+    description: 'Decorative upper-tower ornamentation with geometric Art Deco styling.',
+    alt: 'Ornamental Art Deco detail from the Chrysler Building',
+    fileName: 'Chrysler Building detail.jpg',
+    width: 768,
+    height: 1024,
+    author: 'Postdlf',
+    providerName: 'Wikimedia Commons',
+    category: 'art-deco',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:Chrysler_Building_detail.jpg',
+    license: 'CC BY-SA',
+    metadata: {
+      theme: 'architectural-detail',
+    },
+  }),
+  createCommonsImage({
+    id: 'art-deco-central-market-pattern',
+    title: 'Central Market Art Deco Detail',
+    description: 'Graphic X-pattern motif from an Art Deco facade in Kuala Lumpur.',
+    alt: 'Art Deco geometric pattern detail at Central Market',
+    fileName: 'Central Market Art Deco Detail (2).JPG',
+    width: 3000,
+    height: 4000,
+    author: 'Bearsmalaysia',
+    providerName: 'Wikimedia Commons',
+    category: 'art-deco',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:Central_Market_Art_Deco_Detail_(2).JPG',
+    license: 'CC BY-SA 3.0',
+    metadata: {
+      theme: 'pattern',
+    },
+  }),
+  createCommonsImage({
+    id: 'art-deco-japan-travel-poster',
+    title: '1930s Japan Travel Poster',
+    description: 'Japanese Government Railways poster with clear Art Deco travel-poster styling.',
+    alt: '1930s Japan travel poster with Art Deco design',
+    fileName: '1930s Japan Travel Poster - 01.jpg',
+    width: 2056,
+    height: 3000,
+    author: 'Japanese Government Railways',
+    providerName: 'Wikimedia Commons',
+    category: 'art-deco',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:1930s_Japan_Travel_Poster_-_01.jpg',
+    license: 'Public domain',
+    metadata: {
+      theme: 'poster',
+    },
+  }),
+];
+
+const natureDirectItems = [
+  createCommonsImage({
+    id: 'nature-yosemite-tunnel-view',
+    title: 'Yosemite Valley Tunnel View',
+    description: 'Mountain landscape with El Capitan, Half Dome, and Bridalveil Fall.',
+    alt: 'Yosemite Valley seen from Tunnel View',
+    fileName: 'Yosemite Valley Tunnel View.jpg',
+    width: 4928,
+    height: 3264,
+    author: 'Johan Viirok',
+    providerName: 'Wikimedia Commons',
+    category: 'nature',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:Yosemite_Valley_Tunnel_View.jpg',
+    license: 'CC BY-SA 3.0',
+    metadata: {
+      theme: 'mountains',
+    },
+  }),
+  createCommonsImage({
+    id: 'nature-forest-path',
+    title: 'Forest Path',
+    description: 'Leafy woodland path suitable for natural landscape and texture boards.',
+    alt: 'Forest path through dense trees',
+    fileName: 'Forest Path (3016052091).jpg',
+    width: 2560,
+    height: 1600,
+    author: 'Axel Kristinsson',
+    providerName: 'Wikimedia Commons',
+    category: 'nature',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:Forest_Path_(3016052091).jpg',
+    license: 'CC BY',
+    metadata: {
+      theme: 'forest',
+    },
+  }),
+  createCommonsImage({
+    id: 'nature-ocean-waves',
+    title: 'Ocean Waves',
+    description: 'Rolling ocean waves for sea and texture-driven panels.',
+    alt: 'Ocean waves in open water',
+    fileName: 'Ocean waves.jpg',
+    width: 3072,
+    height: 2048,
+    author: "Sean O'Flaherty",
+    providerName: 'Wikimedia Commons',
+    category: 'nature',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:Ocean_waves.jpg',
+    license: 'CC BY-SA 2.5',
+    metadata: {
+      theme: 'ocean',
+    },
+  }),
+  createCommonsImage({
+    id: 'nature-blue-flower-macro',
+    title: 'Blue Flower Macro',
+    description: 'Close botanical texture with strong petal detail.',
+    alt: 'Blue flower macro photograph',
+    fileName: 'Blue flower macro (8603068762).jpg',
+    width: 2519,
+    height: 2534,
+    author: 'Becks',
+    providerName: 'Wikimedia Commons',
+    category: 'nature',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:Blue_flower_macro_(8603068762).jpg',
+    license: 'CC BY 2.0',
+    metadata: {
+      theme: 'flowers',
+    },
+  }),
+];
+
+const animalsOrganicDirectItems = [
+  createCommonsImage({
+    id: 'animals-portrait',
+    title: 'Animal Portrait',
+    description: 'Close animal portrait for wildlife and fauna pickers.',
+    alt: 'Animal portrait close-up',
+    fileName: 'Animal portrait (47776963671).jpg',
+    width: 2381,
+    height: 1905,
+    author: 'Harry Kramer',
+    providerName: 'Wikimedia Commons',
+    category: 'animals-organic',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:Animal_portrait_(47776963671).jpg',
+    license: 'CC BY',
+    metadata: {
+      theme: 'animals',
+    },
+  }),
+  createCommonsImage({
+    id: 'animals-organic-vase-pattern',
+    title: 'Art Deco Vase by Emile Lenoble',
+    description: 'Geometric decorative object that pairs well with organic texture and vintage pattern boards.',
+    alt: 'Art Deco vase with geometric pattern',
+    fileName: 'Art Deco vase Emile Lenoble.jpg',
+    width: 1548,
+    height: 2064,
+    author: 'SiefkinDR',
+    providerName: 'Wikimedia Commons',
+    category: 'animals-organic',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:Art_Deco_vase_Emile_Lenoble.jpg',
+    license: 'CC BY-SA 4.0',
+    metadata: {
+      theme: 'geometric-texture',
+    },
+  }),
+  createCommonsImage({
+    id: 'animals-organic-flower-bloom',
+    title: 'Full Bloomed Flower Macro',
+    description: 'High-detail flower image for floral and organic texture use.',
+    alt: 'Macro view of a fully bloomed flower',
+    fileName: 'Full bloomed flower macro.jpg',
+    width: 2723,
+    height: 3403,
+    author: 'Wikimedia Commons contributor',
+    providerName: 'Wikimedia Commons',
+    category: 'animals-organic',
+    providerPageUrl: 'https://commons.wikimedia.org/wiki/File:Full_bloomed_flower_macro.jpg',
+    license: 'Wikimedia Commons license',
+    metadata: {
+      theme: 'flora',
+    },
+  }),
+];
 
 export const imageCollectionPresets: ImageCollectionPreset[] = [
   {
@@ -21,8 +450,8 @@ export const imageCollectionPresets: ImageCollectionPreset[] = [
     id: 'japanese-classical-art',
     kind: 'image',
     label: 'Japanese Classical Art',
-    description: 'Preset alternativo para ilustración, grabado y arte japonés tradicional.',
-    source: 'unsplash',
+    description: 'Colección remota por URL directa con obras japonesas clásicas reutilizables en paneles pickable.',
+    source: 'url',
     tags: ['japanese', 'classical-art', 'illustration', 'engraving'],
     queries: [
       'japanese classical art',
@@ -31,13 +460,14 @@ export const imageCollectionPresets: ImageCollectionPreset[] = [
       'japanese ink landscape',
       'japanese vintage poster art',
     ],
+    items: japaneseDirectItems,
   },
   {
     id: 'nasa-space',
     kind: 'image',
     label: 'NASA / Space',
-    description: 'Preset amplio para NASA, espacio, astronomía, planetas, nebulosas, satélites y misiones.',
-    source: 'unsplash',
+    description: 'Colección remota con NASA, espacio, astronomía, planetas, nebulosas y misiones.',
+    source: 'url',
     tags: ['nasa', 'space', 'astronomy', 'planet', 'nebula', 'satellite'],
     queries: [
       'nasa',
@@ -49,6 +479,7 @@ export const imageCollectionPresets: ImageCollectionPreset[] = [
       'space mission',
       'astronaut',
     ],
+    items: nasaDirectItems,
   },
   {
     id: 'astronomy-deep-space',
@@ -70,8 +501,8 @@ export const imageCollectionPresets: ImageCollectionPreset[] = [
     id: 'art-deco',
     kind: 'image',
     label: 'Art Deco',
-    description: 'Preset para arquitectura art déco, patrones geométricos y diseño vintage.',
-    source: 'unsplash',
+    description: 'Colección remota con arquitectura, patrones geométricos y cartelería vintage Art Deco.',
+    source: 'url',
     tags: ['art-deco', 'architecture', 'vintage', 'geometric'],
     queries: [
       'art deco',
@@ -81,13 +512,14 @@ export const imageCollectionPresets: ImageCollectionPreset[] = [
       '1920s poster design',
       'ornamental facade geometry',
     ],
+    items: artDecoDirectItems,
   },
   {
     id: 'nature-landscapes',
     kind: 'image',
     label: 'Nature',
-    description: 'Preset para bosques, montañas, océanos, flores, paisajes naturales y texturas orgánicas.',
-    source: 'unsplash',
+    description: 'Colección remota con bosques, montañas, océanos, flores y paisajes naturales.',
+    source: 'url',
     tags: ['nature', 'forest', 'mountain', 'ocean', 'flora', 'texture'],
     queries: [
       'forest',
@@ -99,13 +531,14 @@ export const imageCollectionPresets: ImageCollectionPreset[] = [
       'natural texture',
       'moss rock texture',
     ],
+    items: natureDirectItems,
   },
   {
     id: 'animals-organic',
     kind: 'image',
     label: 'Animals / Organic Textures',
-    description: 'Preset adicional para animales, plumaje, pelaje, corteza y otros detalles naturales.',
-    source: 'unsplash',
+    description: 'Colección remota con fauna, detalles florales y texturas orgánicas reutilizables.',
+    source: 'url',
     tags: ['animals', 'wildlife', 'organic', 'texture'],
     queries: [
       'wildlife portrait',
@@ -115,6 +548,7 @@ export const imageCollectionPresets: ImageCollectionPreset[] = [
       'ocean foam texture',
       'flower petal macro',
     ],
+    items: animalsOrganicDirectItems,
   },
 ];
 

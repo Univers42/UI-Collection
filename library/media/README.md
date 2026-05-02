@@ -9,7 +9,7 @@ Public API (examples):
 - `import { images, videos } from '@univers42/ui-collection/library/media'`
 - `images.normalizeUrlImage({ kind: 'url', url, thumbnailUrl, previewUrl })` → `NormalizedImage`
 - `new images.UnsplashImageProvider({ accessKey })` → call `.search()` or `.random()`
-- `images.imageCollectionPresets` → curated Unsplash queries for Japanese prints, NASA/space, art deco, nature, animals
+- `images.imageCollectionPresets` → curated presets mixing Unsplash query sets and remote direct-URL collections
 - `videos.normalizeUrlVideo({ kind: 'url', src, posterUrl, thumbnailUrl, mimeType })` → `NormalizedVideo`
 - `videos.curatedVideoCollections` → direct URL sample videos with poster/thumbnail metadata
 - `videos.normalizeExternalVideo({ kind: 'external', providerId, videoUrl, title })` → future-ready external provider model
@@ -19,6 +19,7 @@ Design notes:
 - Unsplash access keys must be supplied by the consumer (no secrets in the package).
 - Unsplash is used for image search only. No fake Unsplash video API is exposed.
 - Images normalize to `thumbnailUrl`, `previewUrl`, and `fullUrl` for gallery/grid pickers.
+- Curated image collections now include remote direct-URL items for Japanese prints, NASA/space, Art Deco, nature, and animals.
 - Videos normalize to `videoUrl` plus `thumbnailUrl` / `posterUrl` / `previewUrl` fallbacks.
 - The library does not include or bundle heavy binary assets.
 - The library avoids closed/styled components; it only exposes types, providers and

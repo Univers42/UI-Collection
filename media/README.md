@@ -21,8 +21,8 @@ React SVG icon components belong in `/library/icons/react`.
 - `/media/svg/icons/arrow-left.svg`
 - `/media/svg/logos/company-mark.svg`
 - `/media/emojis/custom/party-parrot.png`
-- `/media/photos/optimized/team-avatar-01.webp`
-- `/media/videos/posters/hero-cover.webp`
+- `/media/collections/images.remote.json`
+- `/media/collections/videos.remote.json`
 - `/media/other-media/audio/notification-pop.mp3`
 
 ## Provider Reference Examples
@@ -32,6 +32,7 @@ React SVG icon components belong in `/library/icons/react`.
 - `url:https://cdn.example.com/docs/api-spec.pdf`
 - `api:https://api.example.com/v1/media/demo-video`
 - `url:https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wave_off_Kanagawa.jpg?width=4096`
+- `url:https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80`
 - `picker:asset://emojis/custom/party-parrot`
 
 ## Structure
@@ -47,11 +48,9 @@ media/
     unicode/
     custom/
     animated/
-  photos/
-    originals/
-    optimized/
-    thumbnails/
-    banners/
+  collections/
+    images.remote.json
+    videos.remote.json
   videos/
     originals/
     optimized/

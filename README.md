@@ -555,13 +555,12 @@ Current curated asset inventory:
 
 - `svg`: 154 items
 - `emojis`: 4 items
-- `photos`: 55 items
+- `photos`: 0 packaged binaries, remote-only presets/providers
 - `videos`: 59 items
 - `other-media`: 69 items
 
-The `photos` collection is curated around stable, reusable themes such as `portraits`, `workspace`, `travel`, `architecture`, `nature`, `food`, `products`, `abstract`, `lifestyle`, `pets`, `james-webb`, `japanese-print`, and `art-deco`. It supports a hybrid model: downloaded packaged assets resolve through `package:media/photos/optimized/*`, while the remaining entries continue to fall back to stable remote sources from Wikimedia Commons and NASA.
-
-To turn the photo catalog into packaged local assets, run `npm run sync:photo-assets`. The generated manifests let the same collection switch from remote source URLs to packaged `package:media/photos/optimized/*` refs without changing the public API, while still resolving to bundler-safe asset URLs in consumer apps.
+Remote image collections are now provider-driven only: Unsplash API queries and direct remote URLs.
+No photo binaries are shipped in npm package, and `media/photos/optimized` is no longer part of public image surface.
 
 Curated external asset sources are documented in [library/media/SOURCES.md](/home/settes/cursus/trascendence/UI-Collection/library/media/SOURCES.md).
 
