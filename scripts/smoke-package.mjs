@@ -40,21 +40,17 @@ import {
   AssetRenderer,
   ChromaticWheel,
   assetValueToBoardValue,
-  createPackageMediaRef,
   createDefaultAssetPickerTabs,
   parseAssetValue,
-  resolveMediaUrl,
   resolveAssetValue,
   serializeAssetSelection,
 } from '@univers42/ui-collection';
 import { createEmojiPickerTab } from '@univers42/ui-collection/library/components/react/asset-picker';
-// media module simplified; avoid importing legacy media registry in smoke test
 
 const tabs = createDefaultAssetPickerTabs();
 const parsed = parseAssetValue('icon:text');
 const boardValue = assetValueToBoardValue('icon:text', tabs);
 const resolved = resolveAssetValue('icon:text', tabs);
-  // Keep smoke tests focused on core library surface.
 
 if (typeof AssetPickerBoard !== 'function') {
   throw new Error('Root export AssetPickerBoard is missing.');
@@ -84,13 +80,15 @@ if (serializeAssetSelection('icon:text') !== 'icon:text') {
   throw new Error('serializeAssetSelection did not preserve canonical values.');
 }
 
-  // Note: media packaging and photo sync have been removed from the package.
-
 const emojiTab = createEmojiPickerTab();
 
 if (!emojiTab.showGroups || emojiTab.groupOrder?.length === 0) {
   throw new Error('Emoji tab factory did not expose grouped categories.');
 }
+
+// New media API is available but not included in smoke test
+// Tests for images.normalizeUrlImage, images.UnsplashImageProvider, videos.normalizeUrlVideo
+// should be run separately or added to the test suite.
 `,
     'utf8',
   );
